@@ -1,0 +1,27 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+LoadParams params.dat		; Parameters of Monte Carlo simulation 
+
+Load source.dat			; Source position, orientation
+
+Load detector.dat		; Detector position, orientation, size file
+
+Load spectrum.dat		; Energy Spectrum and Polarization file
+
+Load sample.dat			; Sample file
+
+Load quadric.dat		; Quadric file
+
+Load geom3d.dat			; Qvolume file
+
+Load composition.dat		; Composition file
+
+Link				; Link devices
+
+Run DetectorArray		; Run device
+
+Save DetectorArray output_IRUN_TH2.dat	; Output file
+
+End

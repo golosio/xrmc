@@ -1,0 +1,68 @@
+; 3D object geometric description file
+;
+geom3d				; Device type
+Geom3D				; Device name
+QArrName QuadricArray		; Quadric array input device name
+CompName Composition            ; Composition input device name
+
+; lead foil 1
+Object Lead1
+Lead Vacuum
+3
+CLe1 PLe11 PLe12
+
+; pinhole 1 (empty cilinder)
+Object PinHole1
+Vacuum Lead
+3
+CPh1 PPh11 PPh12
+
+; lead foil 2
+Object Lead2
+Lead Vacuum
+3
+CLe2 PLe21 PLe22
+
+; pinhole 2 (empty cilinder)
+Object PinHole2
+Vacuum Lead
+3
+CPh2 PPh21 PPh22
+
+; 1st scatterer
+Object Scatterer1
+Aluminium Vacuum
+3
+CS1 PS11 PS12
+
+; 1st absorber
+Object Absorber1
+PMMA Vacuum
+3
+CA1 PA11 PA12
+
+; 2nd scatterer
+Object Scatterer2
+Aluminium Vacuum
+3
+CS2 PS21 PS22
+
+; 2nd absorber
+Object Absorber2
+PMMA Vacuum
+3
+CA2 PA21 PA22
+
+; cylindrical shell: external surface
+Object ShellExt
+Lead Vacuum
+3
+CShE PShE1 PShE2
+
+; cylindrical shell: internal surface (empty cilinder)
+Object ShellInt
+Vacuum Lead
+3
+CShI PShI1 PShI2
+
+End

@@ -1,0 +1,30 @@
+Example of application of XRMC to fluorescence spectroscopy
+
+The current version of XRMC only simulates ideal detectors. The user must take into account the response of real detector by post processing of XRMC output.
+In this example, we provide a simple program to simulate the response of a Silicon Drift detector. At the moment this program is distributed without documentation and comments, and it is prepared to fit only this specific example.
+
+//////////////////////////////////////////////////////////////////////
+Compiling the program "detector_response"
+//////////////////////////////////////////////////////////////////////
+If you are using a linux/unix platform with the gcc compiler, you can compile the program by typing the command:
+
+./make.sh
+
+If you are working on other platforms and/or you are not using the gcc compiler, refer to the specific instructions of the C language compiler that you are using for the compilation. After the compilation, you should see the executable:
+   detector_response
+
+//////////////////////////////////////////////////////////////////////
+Running the simulation
+//////////////////////////////////////////////////////////////////////
+Run the simulation by typing the command:
+
+    xrmc input.dat
+
+The results are stored in the file "output.dat".
+Run the detector_response program by typing:
+
+    ./detector_response output.dat convolved_spectrum.dat 0 40 1000
+
+The results are stored in the file "convolved_spectrum.dat".
+They are in ascii format, with two columns, representing the energy (in keV) and the intensity, respectively, and 1000 lines.
+You can compare those results with the experimental measurements, which are stored in the file "experimental.dat", using any software able to import and plot ascii files. However, since the two spectra are not normalize, you should scale the experimental spectrum by a factor of about 2*10^-5 .

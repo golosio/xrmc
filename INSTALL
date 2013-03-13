@@ -1,0 +1,242 @@
+XRMC
+=======
+
+---------------------------------------------------
+Installation Instructions
+=========================
+This document covers compilation and installation of XRMC on Linux, Unix and Unix-like systems. XRMC follows the standard GNU installation procedure.
+
+---------------------------------------------------
+Requirements
+============
+The following requirements exist for building  XRMC:
+
+ANSI-C Compiler and Build System
+================================
+Make sure you have an ANSI-C compiler installed. The GNU C compiler (GCC) from the Free Software Foundation (FSF) is recommended. If you don't have GCC then at least make sure your vendor's compiler is ANSI compliant. In addition, your PATH must contain basic build tools such as make.
+
+xraylib (version >= 2.15.0)
+===========================
+To compile XRMC you need the xraylib shared library version >= 2.15.0 .
+xraylib is a library of x-ray interaction parameters, freely available for several platforms at the following URL:
+
+ http://github.com/tschoonj/xraylib
+
+Note that only the xraylib shared library is needed for XRMC installation. The command line tool and the bindings are not necessary, although they can be valuable tools for  researcher working with x-rays.
+This version of XRMC was tested with xraylib v2.16.0
+
+---------------------------------------------------
+Extracting the source
+=====================
+Extract the source using any program able to extract/uncompress tar.gz archives.
+For instance, in Linux, Unix and Unix-like systems you can extract the source using the gzip utility, by typing the command:
+
+$ gunzip -xvzf xrmc-x.x.x.tar.gz
+
+where x.x.x refers to the version of the program that you are installing. This will create a new directory xrmc-x.x.x under the current directory containing the source code for the distribution.
+
+---------------------------------------------------
+Building and installing the program
+===================================
+There are two main methods of installing XRMC from source: system wide installation and personal installation. The former requires root privileges on most systems. Both ways are described below.
+
+System wide installation
+========================
+After unpacking the distribution, go to the directory "xrmc-x.x.x" (where x.x.x refers to the version of the program that you are installing) and type the command:
+
+  ./configure
+
+You can then build the program by typing,
+
+  make
+
+To verify that the build went ok, use,
+
+  make check
+
+The installation can be performed with the command
+
+  make install
+
+The default installation directory prefix is /usr/local.
+The installation directory can be changed with the --prefix option to configure. Consult the "Further information" section below for instructions on installing the library in another location or changing other default compilation options.
+Update the ldconfig cache by doing:
+
+ldconfig
+
+Try running XRMC:
+
+xrmc
+
+Personal installation
+========================
+After unpacking the distribution, go to the directory "xrmc-x.x.x" (where x.x.x refers to the version of the program that you are installing) and type the command:
+
+  ./configure --prefix=DIRNAME
+
+where DIRNAME is the name of the directory where you want to install the binary executable  and the libraries.
+You can then build the program by typing,
+
+  make
+
+To verify that the build went ok, use,
+
+  make check
+
+The installation can be performed with the command
+
+  make install
+
+This command will install the executable in the subdirectory bin/ of the installation directory, and the libraries in the subdirectory lib/
+You should add the subdirectories bin/ and /lib to the PATH and to the LD_LIBRARY_PATH environmental variables, respectively.
+For instance, if you use the bash shell you can add the following lines to the file .bashrc (or bashrc_private if you use it) in your home directory:
+
+   export PATH=${PATH}:DIRNAME/bin:
+   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:DIRNAME/lib:
+
+If you use the tcsh shell you can add the following lines to the file .cshrc
+(or cshrc_private if you use it) in your home directory:
+   setenv PATH ${PATH}:DIRNAME/bin:
+   setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:DIRNAME/lib:
+
+Try running XRMC:
+
+xrmc
+
+---------------------------------------------------
+
+Platforms known to compile and run XRMC
+==========================================
+
+  Linux (32-bit/64-bit)
+  Mac OS X (32-bit/64-bit)
+  Windows (native and Cygwin)
+
+In principle, it should be possible to compile and run XRMC in any platform that supports the xraylib library. See the section "Platforms known to compile and run xraylib" in the INSTALL documentation file of xraylib for further information.
+
+---------------------------------------------------
+
+Further information on the standard GNU installation procedure
+==============================================================
+
+The sections below describe the general features of the standard GNU
+installation procedure.
+
+Basic Installation
+==================
+
+   These are generic installation instructions.
+
+   The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation.  It uses
+those values to create a `Makefile' in each directory of the package.
+It may also create one or more `.h' files containing system-dependent
+definitions.  Finally, it creates a shell script `config.status' that
+you can run in the future to recreate the current configuration, a file
+`config.cache' that saves the results of its tests to speed up
+reconfiguring, and a file `config.log' containing compiler output
+(useful mainly for debugging `configure').
+
+   If you need to do unusual things to compile the package, please try
+to figure out how `configure' could check whether to do them, and mail
+diffs or instructions to the address given in the `README' so they can
+be considered for the next release.  If at some point `config.cache'
+contains results you don't want to keep, you may remove or edit it.
+
+   The file `configure.in' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.in' if you want to change
+it or regenerate `configure' using a newer version of `autoconf'.
+
+The simplest way to compile this package is:
+
+  1. `cd' to the directory containing the package's source code.
+
+  2. If you need to create or remake the `configure' file, use  
+     the `autoreconf -i' command. Note: The git repository does not
+     contain a `configure' file.
+
+  3. Type `./configure' to configure the package for your system.  
+     If you're using `csh' on an old version of System V, you might 
+     need to type `sh ./configure' instead to prevent `csh' from 
+     trying to execute `configure' itself.
+
+     Running `configure' takes a while.  While running, it prints some
+     messages telling which features it is checking for.
+
+  3. Type `make' to compile the package.
+
+  4. Optionally, type `make check' to run any self-tests that come with
+     the package and to compile and link the example programs in the 
+     example directory.
+
+  5. Type `make install' to install the programs and any data files and
+     documentation.
+
+  6. You can remove the program binaries and object files from the
+     source code directory by typing `make clean'.  To also remove the
+     files that `configure' created (so you can compile the package for
+     a different kind of computer), type `make distclean'.  There is
+     also a `make maintainer-clean' target, but that is intended mainly
+     for the package's developers.  If you use it, you may have to get
+     all sorts of other programs in order to regenerate files that came
+     with the distribution.
+
+Compilers and Options
+=====================
+
+   Some systems require unusual options for compilation or linking that
+the `configure' script does not know about.  You can give `configure'
+initial values for variables by setting them in the environment.  Using
+a Bourne-compatible shell, you can do that on the command line like
+this:
+     CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
+
+Or on systems that have the `env' program, you can do it like this:
+     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
+
+Compiling For Multiple Architectures
+====================================
+
+   You can compile the package for more than one kind of computer at the
+same time, by placing the object files for each architecture in their
+own directory.  To do this, you must use a version of `make' that
+supports the `VPATH' variable, such as GNU `make'.  `cd' to the
+directory where you want the object files and executables to go and run
+the `configure' script.  `configure' automatically checks for the
+source code in the directory that `configure' is in and in `..'.
+
+   If you have to use a `make' that does not supports the `VPATH'
+variable, you have to compile the package for one architecture at a time
+in the source code directory.  After you have installed the package for
+one architecture, use `make distclean' before reconfiguring for another
+architecture.
+
+Installation Names
+==================
+
+   By default, `make install' will install the package's files in
+`/usr/local/bin', `/usr/local/man', etc.  You can specify an
+installation prefix other than `/usr/local' by giving `configure' the
+option `--prefix=PATH'.
+
+   You can specify separate installation prefixes for
+architecture-specific files and architecture-independent files.  If you
+give `configure' the option `--exec-prefix=PATH', the package will use
+PATH as the prefix for installing programs and libraries.
+Documentation and other data files will still use the regular prefix.
+
+   If the package supports it, you can cause programs to be installed
+with an extra prefix or suffix on their names by giving `configure' the
+option `--program-prefix=PREFIX' or `--program-suffix=SUFFIX'.
+
+Optional Features
+=================
+
+   Some packages pay attention to `--enable-FEATURE' options to
+`configure', where FEATURE indicates an optional part of the package.
+They may also pay attention to `--with-PACKAGE' options, where PACKAGE
+is something like `gnu-as' or `x' (for the X Window System).  The
+`README' should mention any `--enable-' and `--with-' options that the
+package recognizes.
+
+

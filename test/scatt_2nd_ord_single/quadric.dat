@@ -1,0 +1,106 @@
+; Quadric array file
+;
+quadricarray				; Device type
+QuadricArray				; Device name
+
+; Lead foil 1
+CylinderX CLe1
+0 0 5 5
+Plane PLe11
+-1.000000001 0 0 -1 0 0
+Plane PLe12
+1.000000001 0 0 1 0 0
+
+; Pinhole 1
+CylinderX CPh1 ; pinhole
+0 0 0.2 0.2
+Plane PPh11
+-1 0 0 -1 0 0
+Plane PPh12
+1 0 0 1 0 0
+;RotateAll 0 0 0 0 1 0 90
+
+; 1st scatterer
+CylinderX CS1
+0 0 1 1
+Rotate -10 0 0 0 0 1 45	; rotation around axis x, u, angle theta
+Plane PS11
+-10.005 0 0 -1 0 0
+Rotate -10 0 0 0 0 1 45	; rotation around axis x, u, angle theta
+Plane PS12
+-9.995 0 0 1 0 0
+Rotate -10 0 0 0 0 1 45	; rotation around axis x, u, angle theta
+
+; 1st absorber 
+CylinderX CA1
+0 0 1 1
+Plane PA11
+-6 0 0 -1 0 0
+Plane PA12
+-4 0 0 1 0 0
+
+; 2nd scatterer
+CylinderX CS2
+0 0 0.2 0.2
+Plane PS21
+9.995 0 0 -1 0 0
+Plane PS22
+10.005 0 0 1 0 0
+
+; 2nd absorber
+CylinderX CA2
+0 0 1 1
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+Plane PA21
+17 0 0 -1 0 0
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+Plane PA22
+19 0 0 1 0 0
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+
+; Lead foil 2
+CylinderX CLe2
+0 0 5 5
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+Plane PLe21
+13.999999999 0 0 -1 0 0
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+Plane PLe22
+16.000000001 0 0 1 0 0
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+
+; Pinhole 2
+CylinderX CPh2 ; pinhole
+0 0 0.2 0.2
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+Plane PPh21
+14 0 0 -1 0 0
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+Plane PPh22
+16 0 0 1 0 0
+Rotate 10 0 0 0 0 1 30		; rotation around axis x, u, angle theta
+
+; cylindrical shell: external surface
+CylinderX CShE
+0 0 5 5
+Rotate 10 0 0 0 0 1 30         ; rotation around axis x, u, angle theta
+Plane PShE1
+16.000000002 0 0 -1 0 0
+Rotate 10 0 0 0 0 1 30         ; rotation around axis x, u, angle theta
+Plane PShE2
+21.000000001 0 0 1 0 0
+Rotate 10 0 0 0 0 1 30         ; rotation around axis x, u, angle theta
+
+; cylindrical shell: internal surface
+CylinderX CShI
+0 0 3 3
+Rotate 10 0 0 0 0 1 30         ; rotation around axis x, u, angle theta
+Plane PShI1
+16.000000003 0 0 -1 0 0
+Rotate 10 0 0 0 0 1 30         ; rotation around axis x, u, angle theta
+Plane PShI2
+21 0 0 1 0 0
+Rotate 10 0 0 0 0 1 30         ; rotation around axis x, u, angle theta
+
+End
+

@@ -1,0 +1,29 @@
+XRMC v6.3.3
+	- Improved tutorial. Small changes in input file commands. Improved examples. Included test for second order scattering, directory 'test'. New fluorescence spectroscopy example, directory 'examples/fluor_layers'.
+	
+XRMC v6.3.2
+	- the input file format is changed compared to version 6.2.x . The device parameters are now specified in the device input files by a list of commands or variable names, followed by one or more arguments (real values, integer values or strings, depending on the command). The device files are terminated by an “End” command. The order of commands/variable names is generally not important, unless they are part of the same group (for instance, the atomic number and weight percent of the elements in a material).
+	
+	- The quadrics and the phases are denoted by names in the quadricarray file and in the composition file, respectively. Those names are used to refer them in the geom3d device file.
+	
+	- The source can now have a size. In this case it is modeled through a 3d gaussian distribution
+	
+	- It is now possible to rotate the source and/or the detector by an arbitrary angle around an arbitrary direction (not necessarily one of the main axes)
+
+	- The compilation is now made through the autoconf tool to conform it to the gnu standard way of compiling
+
+XRMC v6.2.8
+	- Pixel x and y sides can now be different;
+
+	- Possibility of elliptical elements; this is important for single element round detectors.
+
+	- Possibility to use a cut in solid angle from interaction point to
+detector. This is in some case useful to avoid spikes in the signal on single pixels of an array detector;
+
+	- Possibility to write a header in the beginning of the output file;
+
+	- Possibility to define a generic quadric using its matrix elements;
+
+	- Possibility to rotate any of the quadrics by an arbitrary angle around an arbitrary direction (not necessarily one of the main axes);
+
+	- Possibility to translate a quadric;

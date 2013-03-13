@@ -1,0 +1,27 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+LoadParams params.dat		; Parameters of Monte Carlo simulation 
+
+Load source_20deg.dat		; Source position, orientation
+
+Load detector_0deg.dat		; Detector position, orientation, size
+
+Load spectrumAg40kV.dat		; Energy Spectrum file
+
+Load sample.dat			; Sample file
+
+Load quadric.dat		; quadric file
+
+Load geom3d.dat			; qvolume file
+
+Load composition.dat		; composition file
+
+Link 				;  Link devices
+
+Run DetectorArray		; Run device
+
+Save DetectorArray output.dat	; Output file : scattering image
+
+End

@@ -1,0 +1,5 @@
+noinst_LTLIBRARIES = libdetector.la
+
+libdetector_la_SOURCES = detector.cpp        loaddetector.cpp    xrmc_detector.h     xrmc_loaddetector.h 
+libdetector_la_CPPFLAGS = -I${srcdir}/../xrmc_math -I${srcdir}/../xrmc_algo -I${srcdir}/../arrayNd -I${srcdir}/../device -I${srcdir}/../source -I${srcdir}/../photon -I${srcdir}/../spectrum -I${srcdir}/../exception -I${srcdir}/../main -I${srcdir}/../gettoken -I${srcdir}/../randmt
+
