@@ -272,8 +272,8 @@ int detectorconvolute::SaveUnconvoluted(string file_name) {
 int detectorconvolute::SetDefault() {
 	detectorarray::SetDefault();
 	CompositionName = "Composition";
-	CrystalPhase = "Crystal";
-	WindowPhase = "Window";
+	CrystalPhaseName = "Crystal";
+	WindowPhaseName = "Window";
 	xd->detector_type = XMI_DETECTOR_SILI;
 	xd->pulse_width = 0.0;
 	xd->fano = 0.12;
