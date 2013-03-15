@@ -28,6 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_exception.h"
 #include "xrmc_device.h"
 #include "xrmc_gettoken.h"
+#ifdef HAVE_XMIMSIM
+#include "xrmc_detectorconvolute.h"
+#endif
 
 using namespace std;
 using namespace gettoken;
@@ -66,6 +69,13 @@ int xrmc::Run(string file_name)
     }
     else if (command=="Save") { // launch the Save method on a device
       SaveDevice(fp);
+    }
+    else if (command=="SaveUnconvoluted") {
+#ifdef HAVE_XMIMSIM
+      SaveUnconvolutedDevice(fp);
+#else
+      throw xrmc_exception("Command SaveUnconvoluted is not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
+#endif
     }
     else if (command!="End")
       throw xrmc_exception(string("Syntax error: ") + command

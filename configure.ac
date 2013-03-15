@@ -49,6 +49,18 @@ PKG_PROG_PKG_CONFIG
 #search for xraylib and other modules
 PKG_CHECK_MODULES([xraylib],libxrl >= 2.15.0)
 
+
+#determine if the xmi-msim should be built
+PKG_CHECK_MODULES(xmi_msim, libxmimsim >= 2.0, [XMIMSIM_FOUND=yes], [XMIMSIM_FOUND=no])
+PKG_CHECK_MODULES(gmodule, gmodule-2.0, [GMODULE_FOUND=yes],[GMODULE_FOUND=no])
+
+if test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes ; then
+	AC_MSG_NOTICE([Building with XMI-MSIM support])
+	AC_DEFINE([HAVE_XMIMSIM], [], [XMI-MSIM support detected])
+fi
+
+AM_CONDITIONAL(ENABLE_XMIMSIM,[test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes])
+
 AC_CONFIG_FILES([	Makefile 
 			src/Makefile
 			src/arrayNd/Makefile
@@ -66,6 +78,7 @@ AC_CONFIG_FILES([	Makefile
 			src/sample/Makefile
 			src/main/Makefile
 			src/randmt/Makefile
+			src/xmi-msim/Makefile
 			doc/Makefile
 			examples/Makefile
 			examples/cylind_shell/Makefile
