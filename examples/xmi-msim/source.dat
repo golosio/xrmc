@@ -3,7 +3,7 @@
 source                          ; Device type
 Source                          ; Device name
 SpectrumName Spectrum                   ; Spectrum input device name
-X 0   -10000   0                        ; source x, y, z
+X 0   -100   0                        ; source x, y, z
 ; Source orientation :
 uk 0 1 0                                ; z direction (main source direction)
 ui -1  0 0                              ; x direction

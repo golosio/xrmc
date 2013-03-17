@@ -87,6 +87,7 @@ AC_CONFIG_FILES([	Makefile
 			examples/star1/Makefile
 			examples/star2/Makefile
 			examples/wheel/Makefile
+			examples/xmi-msim/Makefile
 			])
 AC_CONFIG_HEADERS([config.h])
 

@@ -1,8 +1,8 @@
-noinst_LTLIBRARIES = libxmimsim.la
+noinst_LTLIBRARIES = libxrmc-xmimsim.la
 
 
-libxmimsim_la_SOURCES = xmimsim-detectorconvolute.cpp xrmc_detectorconvolute.h xmimsim-loaddetectorconvolute.cpp 
-libxmimsim_la_CPPFLAGS = -I${srcdir}/../device \
+libxrmc_xmimsim_la_SOURCES = xmimsim-detectorconvolute.cpp xrmc_detectorconvolute.h xmimsim-loaddetectorconvolute.cpp 
+libxrmc_xmimsim_la_CPPFLAGS = -I${srcdir}/../device \
 		@xmi_msim_CFLAGS@ \
 		@gmodule_CFLAGS@ \
 		-I${srcdir}/../xrmc_math \

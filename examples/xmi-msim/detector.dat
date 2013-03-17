@@ -1,8 +1,8 @@
 ; Detector array parameter file
 ;
-detectorconvolute                   ; Device type
+detectorconvolute ; Device type
 Detector                   ; Device name
-SourceName Source               ; Source input device name
+SourceName Sample               ; Source input device name
 NPixels 1 1			; Pixel number (NX x NY)
 PixelSize 0.39894227 0.39894227		; Pixel Size (cm) 0.5 cm2 active detector area
 Shape 1	       			; Pixel shape (0 rectangular, 1 elliptical)
@@ -33,5 +33,6 @@ SaturateEmax 0			; Saturate energies greater than Emax (0/1)
 CompositionName Composition
 CrystalPhase Crystal
 WindowPhase Window
+CrystalThickness 0.0350
 
 End

@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 
 typedef int (*XmiCheckXrmcXmimsimPlugin) (void);
+typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***convolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int N, int NBins);
 
 
 class detectorconvolute : public detectorarray
@@ -33,7 +34,7 @@ class detectorconvolute : public detectorarray
  public:
   struct xmi_detector *xd;
   double ***convolutedImage;
-  struct xmi_layer *exc_absorber;
+  struct xmi_layer *det_absorber;
 
 
   //destructor
@@ -45,10 +46,10 @@ class detectorconvolute : public detectorarray
 		}
 		free(xd->crystal_layers);
 	}
-	if (exc_absorber != NULL) {
-		free(exc_absorber->Z);
-		free(exc_absorber->weight);
-		free(exc_absorber);
+	if (det_absorber != NULL) {
+		free(det_absorber->Z);
+		free(det_absorber->weight);
+		free(det_absorber);
 	}
 
 	if (xd != NULL)
@@ -72,7 +73,7 @@ class detectorconvolute : public detectorarray
 	convolutedImage = NULL;
 	CrystalThickness = 0.0;
 	WindowThickness = 0.0;
-	exc_absorber = NULL;
+	det_absorber = NULL;
   	Composition = NULL; 
   	CrystalPhase = NULL;
   	WindowPhase = NULL;

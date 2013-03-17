@@ -289,14 +289,14 @@ int detectorconvolute::SetDefault() {
 	xd->crystal_layers[0].thickness = 0.5;
 	xd->crystal_layers[0].density = 2.33;
 
-	exc_absorber = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
-	exc_absorber->n_elements = 1;
-	exc_absorber->Z = (int *) malloc(sizeof(int));
-	exc_absorber->weight = (double *) malloc(sizeof(double));
-	*(exc_absorber->Z) = 4;
-	*(exc_absorber->weight) = 1.0;
-	exc_absorber->thickness = 2E-3;
-	exc_absorber->density = 1.85;
+	det_absorber = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
+	det_absorber->n_elements = 1;
+	det_absorber->Z = (int *) malloc(sizeof(int));
+	det_absorber->weight = (double *) malloc(sizeof(double));
+	*(det_absorber->Z) = 4;
+	*(det_absorber->weight) = 1.0;
+	det_absorber->thickness = 2E-3;
+	det_absorber->density = 1.85;
 
 	CrystalThickness = 0.5;
 	WindowThickness = 2E-3;

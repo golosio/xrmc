@@ -36,7 +36,7 @@ libxrmc_la_LDFLAGS = -version-info @LIB_CURRENT@:@LIB_REVISION@:@LIB_AGE@
 
 if ENABLE_XMIMSIM
 SUBDIRS += xmi-msim
-SUBLIBS += xmi-msim/libxmimsim.la
+SUBLIBS += xmi-msim/libxrmc-xmimsim.la
 libxrmc_la_LIBADD += @gmodule_LIBS@
 endif
 
