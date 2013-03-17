@@ -183,10 +183,23 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 	for (i = 0 ; i < NBins ; i++) 
 		blbs[i] = 1.0;
 
+	double sum;
 	if (det_absorber != NULL) {
-		for (i = 0 ; i < NBins ; i++) 
+		for (i = 0 ; i < NBins ; i++) {
+			sum = 0.0;
 			for (j = 0 ; j < det_absorber[0].n_elements ; j++)
-				blbs[i] *= exp(-1.0 * det_absorber[0].density * det_absorber[0].thickness * CS_Total_Kissel(det_absorber[0].Z[j], i*xd->gain)*det_absorber[0].weight[j]);
+				sum += CS_Total_Kissel(det_absorber[0].Z[j], i*xd->gain)*det_absorber[0].weight[j];
+			blbs[i] *= exp(-1.0 * det_absorber[0].density * det_absorber[0].thickness * sum);
+
+		}
+	}
+
+
+	for (i = 0 ; i < NBins ; i++) { 
+		sum = 0.0;
+		for (j = 0 ; j < xd->crystal_layers[0].n_elements ; j++)
+			sum += CS_Total_Kissel(xd->crystal_layers[0].Z[j], i*xd->gain)*xd->crystal_layers[0].weight[j];
+		blbs[i] *= (1.0 - exp(-1.0*xd->crystal_layers[0].thickness*xd->crystal_layers[0].density*sum));
 	}
 
 	double *abscorrImage = (double *) malloc(sizeof(double)*NBins);
