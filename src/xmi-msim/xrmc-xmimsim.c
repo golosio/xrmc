@@ -108,41 +108,13 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 	
 	xmi_print_input(stdout, input);
 
-#ifdef G_OS_WIN32
-	if (xmi_registry_win_query(XMI_REGISTRY_WIN_DATA,&hdf5_file) == 0)
-		return 0;
-
-
-	if (g_access(hdf5_file, F_OK | R_OK) == 0) {
-		//do nothing
-	}
-#elif defined(MAC_INTEGRATION)
-	if (xmi_resources_mac_query(XMI_RESOURCES_MAC_DATA,&hdf5_file) == 0)
-		return 0;
-
-
-	if (g_access(hdf5_file, F_OK | R_OK) == 0) {
-		//do nothing
-	}
-	else if (g_access(hdf5_file, F_OK | R_OK) != 0) {
-		fprintf(stderr,"App bundle does not contain the HDF5 data file\n");
+	//get full path to XMI-MSIM HDF5 data file
+	if (xmi_get_hdf5_data_file(&hdf5_file) == 0) {
 		return 0;
 	}
-#else
-		//UNIX mode...
-	if (g_access(XMIMSIM_HDF5_DEFAULT, F_OK | R_OK) == 0)
-		hdf5_file = strdup(XMIMSIM_HDF5_DEFAULT);
-#endif
-	else if (g_access("xmimsimdata.h5", F_OK | R_OK) == 0) {
-		//look in current folder
-		hdf5_file = strdup("xmimsimdata.h5");
-	}
-	else {
-		//if not found abort...	
-		g_fprintf(stderr,"Could not detect the HDF5 data file\nCheck the xmimsim installation\n");
-		return 0;
-	}
-	
+
+
+
 	//read escape ratios
 	if (xmi_get_escape_ratios_file(&xmimsim_hdf5_escape_ratios, 1) == 0)
 		return 0;

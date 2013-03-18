@@ -99,7 +99,7 @@
  <detector>
   <detector_type>SiLi</detector_type>
   <live_time>1.000000</live_time>
-  <pulse_width>2e-07</pulse_width>
+  <pulse_width>2e-09</pulse_width>
   <gain>0.02</gain>
   <zero>0</zero>
   <fano>0.12</fano>
