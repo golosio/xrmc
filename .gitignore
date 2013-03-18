@@ -29,3 +29,6 @@ configure.doc
 stamp-h1
 libtool
 .deps
+output.dat
+*.xmso
+*.spe

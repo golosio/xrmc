@@ -12,9 +12,7 @@ SUBDIRS = \
 	sample \
 	source \
 	spectrum \
-	xrmc_math \
-	. \
-	main
+	xrmc_math
 
 SUBLIBS = \
 	arrayNd/libarrayNd.la \
@@ -36,3 +34,10 @@ libxrmc_la_SOURCES =
 libxrmc_la_LIBADD = $(SUBLIBS) @xraylib_LIBS@ -lm
 libxrmc_la_LDFLAGS = -version-info @LIB_CURRENT@:@LIB_REVISION@:@LIB_AGE@
 
+if ENABLE_XMIMSIM
+SUBDIRS += xmi-msim
+SUBLIBS += xmi-msim/libxrmc-xmimsim.la
+libxrmc_la_LIBADD += @gmodule_LIBS@
+endif
+
+SUBDIRS += . main

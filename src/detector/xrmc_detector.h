@@ -52,14 +52,14 @@ class detectorarray : public bodydevice
   }
   int ImportDevice(xrmc_device_map *dev_map); // import device method
   int Load(FILE *fp); // load detector parameters, position, orientation
-  int Save(string file_name); // save the acquired image in a file
+  int Save(string file_name); // save the acquired, convoluted image in a file
   int SetDefault(); // set the default values for detector parameters
   int EventMulti(); // event multiplicity
   int Run() {return Acquisition();} // run the acquisition
   int Acquisition(); // run the acquisition
   int Clear(); // clear the detector pixel bin contents
 
- private:
+ protected:
   basesource *Source; // input device (typically the sample device)
   string SourceName; // name of the input device
   double PixelSizeX, PixelSizeY, PixelSurf; // pixel size and surface (cm2) 

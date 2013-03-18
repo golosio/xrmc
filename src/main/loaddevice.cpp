@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // xrmc method for loading device
 //
 
+#include <config.h>
 #include <string>
 #include <iostream>
 #include "xrmc.h"
@@ -34,6 +35,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_geom3d.h"
 #include "xrmc_sample.h"
 #include "xrmc_detector.h"
+#ifdef HAVE_XMIMSIM
+#include "xrmc_detectorconvolute.h"
+#endif
 
 using namespace std;
 using namespace gettoken;
@@ -82,6 +86,13 @@ int xrmc::LoadDevice(FILE *fp)
   }
   else if (type_str=="detectorarray") {
     dev_pt = new detectorarray(dev_name);
+  }
+  else if (type_str=="detectorconvolute") {
+#ifdef HAVE_XMIMSIM
+    dev_pt = new detectorconvolute(dev_name);
+#else
+    throw xrmc_exception(string("Device type ") + type_str + " not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
+#endif
   }
   else // unknown device type
     throw xrmc_exception(string("Device type ") + type_str + " not known.\n");
