@@ -34,5 +34,5 @@ SUBLIBS = \
 lib_LTLIBRARIES = libxrmc.la
 libxrmc_la_SOURCES = 
 libxrmc_la_LIBADD = $(SUBLIBS) @xraylib_LIBS@ -lm
-libxrmc_la_LDFLAGS = -version-info @LIB_CURRENT@:@LIB_REVISION@:@LIB_AGE@
+libxrmc_la_LDFLAGS = -version-info @LIB_CURRENT@:@LIB_REVISION@:@LIB_AGE@ @OPENMP_CXXFLAGS@
 

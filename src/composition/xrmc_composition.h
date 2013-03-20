@@ -59,6 +59,9 @@ class phase
   int Delta(double E); // Evaluates the delta coefficient at energy E
   int AtomType(int *Z, double *mu_atom);// extract the atomic species with
                                         // which the interaction will occur
+
+
+  phase& operator= (const phase &Phase);
 };
 
 typedef map<string, int> phase_map;
@@ -90,6 +93,7 @@ class composition : public xrmc_device
 
   int Mu(double E); // Evaluates the absorption coefficient of each phase
   int Delta(double E); // Evaluates the delta coefficient of each phase
+  composition *Clone(string dev_name);
 };
 
 #endif

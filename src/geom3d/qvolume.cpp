@@ -108,3 +108,19 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
 
   return 0;
 }
+
+
+qvolume& qvolume::operator= (const qvolume &QVolume) {
+	cout << "Entering qvolume assignment operator\n";
+
+	if (this == &QVolume)
+		return *this;
+	NQuadr = QVolume.NQuadr;
+	iPhaseIn = QVolume.iPhaseIn;
+	iPhaseOut = QVolume.iPhaseOut;
+	PhaseInName = QVolume.PhaseInName;
+	PhaseOutName = QVolume.PhaseOutName;
+	Quadr = new quadric*[NQuadr];
+
+
+}

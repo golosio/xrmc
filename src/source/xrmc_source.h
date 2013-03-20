@@ -46,6 +46,7 @@ class basesource : public bodydevice
   // the position x1
   virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx)
     {*ModeIdx=0; return Out_Photon_x1(Photon, x1);}  
+  virtual basesource *Clone(string dev_name) {return NULL;};
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -75,6 +76,7 @@ class source : public basesource
   int Out_Photon_x1(photon *Photon, vect3 x1);
   // maximum value of polar angle theta for a specified value of phi
   double CosThL(double phi);
+  basesource *Clone(string dev_name);
 
  private:
   spectrum *Spectrum; // input spectrum device

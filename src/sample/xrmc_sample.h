@@ -75,6 +75,7 @@ class path
   double StepLength(int *step_idx, double *weight);
   //Extract the next interaction position using the weighted steplength approach
   double WeightedStepLength(int *step_idx, double *weight);
+  path *Clone();
 };
 
 // sample class definition, member variables and functions
@@ -120,6 +121,7 @@ class sample : public basesource
   int Out_Photon_x1(photon *Photon, vect3 x1);
   int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
   int Init(); // sample initialization method
+  basesource *Clone(string dev_name);
  private:
   basesource *Source; // input source device
   string SourceName; // input source name

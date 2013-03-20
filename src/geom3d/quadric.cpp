@@ -322,3 +322,25 @@ int quadric::Intersect(vect3 x0, vect3 u) {
 
   return 0;
 }
+
+quadricarray *quadricarray::Clone(string dev_name) {
+	cout << "Entering quadricarray::Clone\n";
+	quadricarray *clone = new quadricarray(dev_name);
+	clone->NQuadr = NQuadr;
+	clone->MaxNQuadr = MaxNQuadr;
+	clone->Quadr = new quadric[NQuadr];
+	for (int i = 0 ; i < NQuadr ; i++)
+		clone->Quadr[i] = Quadr[i];
+	
+	//typedef map<string, quadric*> quadric_map;
+	//typedef pair<string, quadric*> quadric_map_pair;
+	//typedef pair<quadric_map::iterator, bool> quadric_map_insert_pair;
+	quadric_map::iterator it;
+
+	for (it = QuadricMap.begin() ; it != QuadricMap.end() ; it++)
+		clone->QuadricMap.insert(quadric_map_pair(it->first, it->second));
+
+	return clone;
+}
+
+

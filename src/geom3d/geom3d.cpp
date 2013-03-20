@@ -146,3 +146,30 @@ int geom3d::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
 
   return 0;
 }
+
+geom3d *geom3d::Clone(string dev_name) {
+	cout << "Entering geom3d::Clone\n";
+	geom3d *clone = new geom3d(dev_name);
+	clone->X = X;
+	clone->HW[0] = HW[0];
+	clone->HW[1] = HW[1];
+	clone->HW[2] = HW[2];
+	clone->QArr = QArr->Clone(QArrName);
+	clone->QArrName = QArrName;
+	clone->Comp = Comp->Clone(CompName);
+	clone->CompName = CompName;
+
+	clone->NQVol = NQVol;
+	clone->MaxNQVol = MaxNQVol;
+	clone->QVol = new qvolume[NQVol];
+	clone ->QVolMap = new string*[NQVol];	
+	for (int i = 0 ; i < NQVol ; i++) {
+		clone->QVol[i] = QVol[i];
+		clone->QVolMap[i] = new string[QVol[i].NQuadr];
+		for (int j = 0 ; j < QVol[i].NQuadr ; j++)
+			clone->QVolMap[i][j] = QVolMap[i][j];
+	}
+	clone->Init();
+
+	return clone;
+}

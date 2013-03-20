@@ -122,6 +122,8 @@ class spectrum : public xrmc_device
   // Extract the energy value and polarization type from a specified 
   // interval of the continuous spectrum distribution
   int IntervalRandomEnergy(double *E, int interval_idx, int pol_idx);
+
+  spectrum *Clone(string dev_name);
 }; 
 
 #endif

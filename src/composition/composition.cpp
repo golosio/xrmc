@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_composition.h"
 #include "xraylib.h"
 #include "xrmc_algo.h"
+#include <iostream>
 
 using namespace xrmc_algo;
 
@@ -103,4 +104,48 @@ int phase::AtomType(int *Zelem, double *mu_atom)
   *mu_atom = MuAtom[i]; // total cross section for the element
 
   return 0;
+}
+
+
+composition *composition::Clone(string dev_name) {
+	cout << "Entering composition::Clone\n";
+	composition *clone = new composition(dev_name);
+	clone->NPhases = NPhases;
+	clone->MaxNPhases = MaxNPhases;
+	clone->Ph = new phase[NPhases];
+	for (int i = 0 ; i < NPhases ; i++) {
+		clone->Ph[i] = Ph[i];
+	}
+	//PhaseMap
+	//typedef map<string, int> phase_map;
+	//typedef pair<string, int> phase_map_pair;
+	//typedef pair<phase_map::iterator, bool> phase_map_insert_pair;
+	phase_map::iterator it;
+
+	for (it = PhaseMap.begin(); it != PhaseMap.end() ; it++) {
+		clone->PhaseMap.insert(phase_map_pair(it->first, it->second));
+	}
+
+	return clone;
+}
+
+
+phase& phase::operator= (const phase &Phase) {
+	cout << "Entering phase assignment operator\n";
+
+	if (this == &Phase)
+		return *this;
+
+	NElem = Phase.NElem;
+	Rho = Phase.Rho;
+	Z = new int[NElem]; 
+	memcpy(Z, Phase.Z, sizeof(int)*NElem);
+	W = new double[NElem]; 
+	memcpy(W, Phase.W, sizeof(double)*NElem);
+	MuAtom = new double[NElem];
+	memcpy(MuAtom, Phase.MuAtom, sizeof(double)*NElem);
+	LastMu = Phase.LastMu;
+	LastDelta = Phase.LastDelta;
+	
+	return *this;
 }

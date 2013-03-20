@@ -425,3 +425,46 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
   return 0;
 }
 
+basesource *sample::Clone(string dev_name) {
+	cout << "Entering sample::Clone\n";	
+	sample *clone = new sample(dev_name);
+	clone->Path = Path->Clone();
+	clone->ScattOrderNum = ScattOrderNum;
+	clone->PhotonNum = new int[ScattOrderNum];
+	memcpy(clone->PhotonNum, PhotonNum, sizeof(int)*ScattOrderNum);  
+	clone->ScattOrderIdx = ScattOrderIdx;
+	clone->PhotonIdx = PhotonIdx;
+	clone->WeightedStepLength = WeightedStepLength;
+	//clone Source
+	clone->Source = Source->Clone(SourceName);
+	clone->SourceName = SourceName;
+	clone->Geom3D = Geom3D->Clone(Geom3DName);
+	clone->Geom3DName = Geom3DName;
+	clone->CompName = CompName;
+	//Comp is to be fetched from geom3d if possible
+	if (CompName == Geom3D->CompName)
+		clone->Comp = clone->Geom3D->Comp;
+	else
+		clone->Comp = Comp->Clone(CompName);
+
+
+
+
+	return dynamic_cast<basesource*>(clone);
+}
+
+path *path::Clone() {
+	cout << "Entering path::Clone\n";
+	path *clone = new path;
+	clone->MaxNSteps = MaxNSteps;
+	clone->t = new double[MaxNSteps];
+	clone->Step = new double[MaxNSteps];
+	clone->iPh0 = new int[MaxNSteps];
+	clone->iPh1 = new int[MaxNSteps];
+	clone->Mu = new double[MaxNSteps];
+	clone->Delta = new double[MaxNSteps];
+	clone->SumMuS = new double[MaxNSteps];
+	clone->SumS = new double[MaxNSteps];
+
+	return clone;
+}
