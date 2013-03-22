@@ -320,6 +320,9 @@ int quadric::Intersect(vect3 x0, vect3 u) {
     Enter[i] = (a*tInters[i]+beta)<0;
   }
 
+  cout << "tInters[0]" << tInters[0] << "\n";
+  cout << "Enter[0]" << Enter[0] << "\n";
+
   return 0;
 }
 
@@ -337,9 +340,11 @@ quadricarray *quadricarray::Clone(string dev_name) {
 	//typedef pair<quadric_map::iterator, bool> quadric_map_insert_pair;
 	quadric_map::iterator it;
 
-	for (it = QuadricMap.begin() ; it != QuadricMap.end() ; it++)
-		clone->QuadricMap.insert(quadric_map_pair(it->first, it->second));
-
+	int j = 0;
+	//for (it = QuadricMap.begin() ; it != QuadricMap.end() ; it++) {
+	//	clone->QuadricMap.insert(quadric_map_pair(it->first, &clone->Quadr[j++]));
+	//}
+	clone->QuadricMap = QuadricMap;
 	return clone;
 }
 

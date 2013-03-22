@@ -27,12 +27,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "randmt.h"
 
 #define Rnd() (rand_unif())
+#define Rnd_r(x) (rand_unif_r(x))
+#define GaussRnd_r(x) (rand_normal_r(x))
+#define GaussRnd() (rand_normal())
 
 namespace xrmc_algo
 {  
   // find position of a real value in a sorted array
   int Locate(double x, double x_arr[], int N, int *idx);
-  double GaussRnd(); // random number with Gaussian distribution
+  //double GaussRnd(); // random number with Gaussian distribution
   // integral of the real function func from a to b
   double Integrate(double (*func)(double), double a, double b);
   int SortInters(double *t, int *iph0, int *iph1, int n_inters);

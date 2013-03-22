@@ -2,5 +2,6 @@
 ; Parameters of Monte Carlo simulation
 ;
 
-Seed 123456789	;	 Random number generation seed
+;Seed 123456789	;	 Random number generation seed
+Seed 54123
 

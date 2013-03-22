@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_device.h"
 #include "xrmc_source.h"
 #include "xrmc_arrayNd.h"
+#include "randmt.h"
 
 //  detectorarray class definition, member variables and functions
 class detectorarray : public bodydevice
@@ -80,10 +81,12 @@ class detectorarray : public bodydevice
   
   int Init(); // detectorarray initialization
   vect3 RandomPointOnPixel(int i); // Generates a random point
+  vect3 RandomPointOnPixel(int i, randmt_t *rng);
                                    // on the pixel surface
   double dOmega(vect3 DRp); // evaluates the factor dOmega, related to
   // the probability that the last photon trajectory crosses the pixel  
   int Poisson(); // generate uncertainty on pixel count using Poisson statistic
+  int Poisson(randmt_t *rng); // generate uncertainty on pixel count using Poisson statistic
 
 };
 

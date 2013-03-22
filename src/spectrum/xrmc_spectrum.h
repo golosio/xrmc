@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SpectrumH
 #include <string>
 #include "xrmc_device.h"
+#include "randmt.h"
 using namespace std;
 
 // spectrum class definition, member variables and functions
@@ -70,6 +71,7 @@ class spectrum : public xrmc_device
   int Resample(); // method for resampling the continuous spectrum
  public:
   double TotalIntensity;
+  randmt_t *rng;
 
   ~spectrum() { // destructor
     if (ContinuousEne!=NULL) delete[] ContinuousEne;
@@ -96,6 +98,7 @@ class spectrum : public xrmc_device
       LineIntensity[0] = LineIntensity[1] = LineWeight[0] = 
       LineWeight[1] = LineCumul = NULL;
     EneContinuousNum = EneLineNum = 0;
+    rng = NULL;
     xrmc_device(dev_name, "spectrum");
   }
   int Load(FILE *fp); // load spectrum parameters from file

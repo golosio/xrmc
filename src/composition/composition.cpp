@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xraylib.h"
 #include "xrmc_algo.h"
 #include <iostream>
+#include <string.h>
 
 using namespace xrmc_algo;
 
@@ -125,6 +126,8 @@ composition *composition::Clone(string dev_name) {
 	for (it = PhaseMap.begin(); it != PhaseMap.end() ; it++) {
 		clone->PhaseMap.insert(phase_map_pair(it->first, it->second));
 	}
+
+
 
 	return clone;
 }

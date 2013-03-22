@@ -29,6 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_algo.h"
 #include "xrmc_gettoken.h"
 #include "xrmc_exception.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 using namespace std;
 using namespace gettoken;
@@ -63,7 +66,11 @@ int xrmc::LoadParams(FILE *fp)
       seed=(long)t1; // convert t1 to long type
     } 
     cout << "Random seed: " <<  seed << "\n";
+#ifndef _OPENMP
     init_randmt(seed);
+#else
+    cout << "Operating in OpenMP mode: ignoring Seed\n";
+#endif
   }
 
   fclose(par_fp);

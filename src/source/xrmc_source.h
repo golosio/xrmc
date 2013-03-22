@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_photon.h"
 #include "xrmc_device.h"
 #include "xrmc_math.h"
+#include "randmt.h"
 
 // generic (virtual) class for sources
 class basesource : public bodydevice
@@ -60,9 +61,15 @@ class source : public basesource
   double Omega; // source aperture solid angle  
   double Sigmax, Sigmay, Sigmaz; // source size in local coordinate system
   int SizeFlag;
+  randmt_t *rng;
+  spectrum *Spectrum; // input spectrum device
+  string SpectrumName; // name of input spectrum device
 
   // Constructor
-  source(string dev_name) {xrmc_device(dev_name, "source");}
+  source(string dev_name) {
+	rng = NULL;
+  	xrmc_device(dev_name, "source");
+  }
   int Load(FILE *fp); // method for loading source parameters from file
  // method for importing input spectrum device
   int ImportDevice(xrmc_device_map *dev_map);
@@ -79,8 +86,6 @@ class source : public basesource
   basesource *Clone(string dev_name);
 
  private:
-  spectrum *Spectrum; // input spectrum device
-  string SpectrumName; // name of input spectrum device
 
   // extract the initial direction of a photon produced by the source
   int PhotonDirection(photon *Photon, int pol);
