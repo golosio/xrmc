@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <iostream>
 #include "xrmc_geom3d.h"
+#include "xrmc_exception.h"
 
 using namespace std;
 
@@ -320,8 +321,10 @@ int quadric::Intersect(vect3 x0, vect3 u) {
     Enter[i] = (a*tInters[i]+beta)<0;
   }
 
-  cout << "tInters[0]" << tInters[0] << "\n";
-  cout << "Enter[0]" << Enter[0] << "\n";
+  //cout << "tInters[0]" << tInters[0] << "\n";
+  //cout << "tInters[1]" << tInters[1] << "\n";
+  //cout << "Enter[0]" << Enter[0] << "\n";
+  //cout << "Enter[1]" << Enter[1] << "\n";
 
   return 0;
 }
@@ -341,11 +344,25 @@ quadricarray *quadricarray::Clone(string dev_name) {
 	quadric_map::iterator it;
 
 	int j = 0;
-	//for (it = QuadricMap.begin() ; it != QuadricMap.end() ; it++) {
-	//	clone->QuadricMap.insert(quadric_map_pair(it->first, &clone->Quadr[j++]));
-	//}
-	clone->QuadricMap = QuadricMap;
+	for (it = QuadricMap.begin() ; it != QuadricMap.end() ; it++) {
+		string name = it->first;
+		quadric *quadr = it->second;
+		bool match = false;
+		for (int i = 0 ; i < clone->NQuadr ; i++) {
+			if (clone->Quadr[i] == *quadr) {
+				match = true;
+				clone->QuadricMap.insert(quadric_map_pair(name, &(clone->Quadr[i])));
+				break;
+			}
+		}
+		if (match == false) {
+			throw xrmc_exception("No match found for quadric. Cannot generate quadricmap\n");	
+		}
+	}
 	return clone;
 }
 
+bool operator==(quadric &Quadr1, quadric &Quadr2) {
+	return (Quadr1.Matr == Quadr2.Matr);
+}
 

@@ -198,7 +198,6 @@ int detectorarray::Acquisition()
         // surface: 
 	Source->Out_Photon_x1(&Photon, Rp, &mode_idx);
 	if (Photon.w != 0) { // check that weight is not 0
-	  fprintf(stdout,"Photon.w : %lf\n", Photon.w);
 	  if (Shape==1) Photon.w *= PI/4; // if pixel is elliptical, correct
 	                                  // the weight
 	  DRp = Rp - Photon.x;
@@ -223,7 +222,6 @@ int detectorarray::Acquisition()
 	    }
 	  }
 	  // add the signal to the pixel bin
-	  fprintf(stdout,"signal: %lf\n", signal);
 #pragma omp atomic
 	  Image[mode_idx][ipix][bin] += signal;
 	}

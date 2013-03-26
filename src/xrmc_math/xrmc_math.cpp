@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 #include <iostream>
+#include <cstring>
 #include <cmath>
 #include "xraylib.h"
 #include "xrmc_math.h"
@@ -530,4 +531,11 @@ matr4 matr4::Identity()
   }
 
   return m;
+}
+
+bool operator==(matr4 &Matr1, matr4 &Matr2) {
+	if (memcmp(Matr1.Elem, Matr2.Elem, sizeof(double)*4*4) == 0)
+		return true;
+	else
+		return false;
 }

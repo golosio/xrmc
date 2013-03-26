@@ -56,6 +56,7 @@ public:
   int Transform(matr4 M); // Congruence transform of the quadric with matrix M
   int SetElem(int i, int j, double elem); // Mij and Mji to the value elem
   int ChangeSign(); // change the sign
+  friend bool operator==(quadric &Quadr1, quadric &Quadr2);
 };
 
 typedef map<string, quadric*> quadric_map;
