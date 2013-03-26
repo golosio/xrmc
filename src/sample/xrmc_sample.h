@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_composition.h"
 #include "xrmc_device.h"
 #include "xrmc_source.h"
+#include "randmt.h"
 
 using namespace std;
 
@@ -52,6 +53,8 @@ class path
   double DeltaL; // sum of delta * steplength
   double *SumMuS; // cumulative sum of mu * steplength
   double *SumS; // cumulative sum of steplengths
+  randmt_t *rng;
+
   ~path() { // destructor
     if(t!=NULL) delete[] t;
     if(Step!=NULL) delete[] Step;
@@ -66,6 +69,7 @@ class path
     t = Step = Mu = Delta = SumMuS = SumS = NULL;
     iPh0 = iPh1 = NULL;
     NSteps = 0;
+    rng = NULL;
   }
   // evaluate the absorption coefficient at each step of the intersection
   int StepMu(composition *comp);
@@ -75,6 +79,7 @@ class path
   double StepLength(int *step_idx, double *weight);
   //Extract the next interaction position using the weighted steplength approach
   double WeightedStepLength(int *step_idx, double *weight);
+  path *Clone();
 };
 
 // sample class definition, member variables and functions
@@ -88,6 +93,9 @@ class sample : public basesource
   int ScattOrderIdx; // scattering order index
   int PhotonIdx; // event index
   int WeightedStepLength; // flag for weighted steplength extraction method
+  randmt_t *rng;
+  basesource *Source; // input source device
+  string SourceName; // input source name
 
   ~sample() { // destructor
     if (PhotonNum!=NULL) delete[] PhotonNum;
@@ -97,6 +105,7 @@ class sample : public basesource
   sample(string dev_name) {
     PhotonNum = NULL;
     Path = NULL;
+    rng = NULL;
     xrmc_device(dev_name, "sample");
   }
   int ImportDevice(xrmc_device_map *dev_map); // import input devices method
@@ -120,9 +129,8 @@ class sample : public basesource
   int Out_Photon_x1(photon *Photon, vect3 x1);
   int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
   int Init(); // sample initialization method
+  basesource *Clone(string dev_name);
  private:
-  basesource *Source; // input source device
-  string SourceName; // input source name
   geom3d *Geom3D; // input geom3d device
   string Geom3DName; // input geom3d name
   string CompName; // input composition name

@@ -145,7 +145,7 @@ int photon::InteractionType(double *cs_interaction, double cs_tot)
 {
   double R;
 
-  R = Rnd()*cs_tot; // random number between 0 and total cross section
+  R = (rng == NULL ? Rnd() : Rnd_r(rng))*cs_tot; // random number between 0 and total cross section
 
   // determine in which of the three intervals the random number is comprised
   // and return the index of the interval
@@ -180,7 +180,7 @@ int photon::ChangeDirection(double theta, double phi)
     // normalize ui. If it is not zero, its\'s done 
     if (ui.Normalize() == 0)  break;
     for (i=0; i<3; i++) { // otherwise extract a random direction
-      ui.Elem[i] = 2.0*Rnd() - 1.0; //  and repeat the loop
+      ui.Elem[i] = 2.0*(rng == NULL ? Rnd() : Rnd_r(rng)) - 1.0; //  and repeat the loop
     }
   }
   uj=uk^ui;
@@ -203,7 +203,7 @@ int photon::SetFluorescenceEnergy(int Z)
     sum += CS_FluorLine(Z, Line[Z][i_line], E);
     cs_line_sum[i_line+1] = sum; // cumulative sum of their cross sections
   }
-  R = Rnd()*sum; // random number between 0 and total fluor. cross section
+  R = (rng == NULL ? Rnd() : Rnd_r(rng))*sum; // random number between 0 and total fluor. cross section
   Locate(R, cs_line_sum, NLines[Z], &i_line); // extract a line
 
   E = LineEnergy(Z, Line[Z][i_line]); // fluorescent line energy
@@ -298,18 +298,18 @@ int photon::Fluorescence()
   double r;
 
   do {
-      uk.Elem[0] = Rnd()-0.5; // random direction
-      uk.Elem[1] = Rnd()-0.5; // elements between -0.5
-      uk.Elem[2] = Rnd()-0.5; // and +0.5
+      uk.Elem[0] = (rng == NULL ? Rnd() : Rnd_r(rng))-0.5; // random direction
+      uk.Elem[1] = (rng == NULL ? Rnd() : Rnd_r(rng))-0.5; // elements between -0.5
+      uk.Elem[2] = (rng == NULL ? Rnd() : Rnd_r(rng))-0.5; // and +0.5
       r = uk.Mod();
   } while (r>0.5 || r==0); // uniform distribution inside a r=1/2 sphere
   uk = uk/r; // normalize uk to 1
 
   do {
     do {
-      ui.Elem[0] = Rnd()-0.5; // random polarization vector
-      ui.Elem[1] = Rnd()-0.5; // elements between -0.5
-      ui.Elem[2] = Rnd()-0.5; // and +0.5
+      ui.Elem[0] = (rng == NULL ? Rnd() : Rnd_r(rng))-0.5; // random polarization vector
+      ui.Elem[1] = (rng == NULL ? Rnd() : Rnd_r(rng))-0.5; // elements between -0.5
+      ui.Elem[2] = (rng == NULL ? Rnd() : Rnd_r(rng))-0.5; // and +0.5
       r = ui.Mod();
     } while (r>0.5 || r==0); // uniform distribution inside a r=1/2 sphere
     uj = uk^ui; // vector perpendicular to both ui and uk 
@@ -331,9 +331,9 @@ int photon::Coherent(int Z)
 {
   double theta, phi, cos_theta, weight;
 
-  cos_theta = 2*Rnd()-1;   // random polar angles theta and phi with uniform
+  cos_theta = 2*(rng == NULL ? Rnd() : Rnd_r(rng))-1;   // random polar angles theta and phi with uniform
   theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
-  phi = 2*PI*Rnd();
+  phi = 2*PI*(rng == NULL ? Rnd() : Rnd_r(rng));
   double num = 4.*PI*DCSP_Rayl(Z, E, theta, phi); // differential cross section
   double denom = CS_Rayl(Z, E); // total cross section
   if (num+denom==num) weight = 0; // check for division overflow
@@ -355,10 +355,10 @@ int photon::Incoherent(int Z)
   const double th_min=1e-10;
   double theta, phi, cos_theta, weight;
 
-  cos_theta = 2*Rnd()-1;   // random polar angles theta and phi with uniform
+  cos_theta = 2*(rng == NULL ? Rnd() : Rnd_r(rng))-1;   // random polar angles theta and phi with uniform
   theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
   if (theta<th_min) theta=th_min;
-  phi = 2*PI*Rnd();
+  phi = 2*PI*(rng == NULL ? Rnd() : Rnd_r(rng));
   double num = 4.*PI*DCSP_Compt(Z, E, theta, phi); // differential cross section
   double denom = CS_Compt(Z, E); // total cross section
   if (num+denom==num) weight = 0; // check for division overflow

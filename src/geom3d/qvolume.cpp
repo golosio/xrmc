@@ -70,7 +70,8 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
       // cout << "t_q: " << t_q << "\n";
       enter_q = Quadr[iq]->Enter[ii]; // check if the quadric is crossed from
                                       // outside to inside or viceversa
-      // cout << "enter_q: " << enter_q << "\n";
+      //cout << "enter_q: " << enter_q << "\n";
+      //cout << "t_q: " << t_q << "\n";
       // t01flag: flag for at least one crossing from outside to inside
       // t01max: maximum value of t for this type of crossing
       if (enter_q==1 && (t01flag==0 || t_q>t01max)) {
@@ -84,8 +85,8 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
 	t10min = t_q;
       }
     }
-    // cout << "t01max: " << t01max << "\n";
-    // cout << "t10min: " << t10min << "\n";
+    //cout << "t01max: " << t01max << "\n";
+    //cout << "t10min: " << t10min << "\n";
   }
 
   if (t01flag && t10flag && t10min>t01max) {
@@ -104,7 +105,24 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
       (*n_inters)++;
     }
   }
-  // cout << "n_inters: " << *n_inters << "\n";
+  //cout << "n_inters: " << *n_inters << "\n";
 
   return 0;
+}
+
+
+qvolume& qvolume::operator= (const qvolume &QVolume) {
+	cout << "Entering qvolume assignment operator\n";
+
+	if (this == &QVolume)
+		return *this;
+	NQuadr = QVolume.NQuadr;
+	iPhaseIn = QVolume.iPhaseIn;
+	iPhaseOut = QVolume.iPhaseOut;
+	PhaseInName = QVolume.PhaseInName;
+	PhaseOutName = QVolume.PhaseOutName;
+	Quadr = new quadric*[NQuadr];
+
+	cout << "Leaving qvolume assignment operator\n";
+
 }

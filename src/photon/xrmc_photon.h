@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef XRMCPHOTONH
 #define XRMCPHOTONH
 #include "xrmc_math.h"
+#include "randmt.h"
 
 #define FLUORESCENCE 0
 #define COHERENT 1
@@ -47,6 +48,7 @@ class photon
   vect3 x; // photon position
   vect3 ui, uj, uk; // photon local coord. system
   // uk: direction; ui: polarization vector
+  randmt_t *rng;
 
 // move the photon in the direction uk by a distance step_length
   int MoveForward(double step_length); 
