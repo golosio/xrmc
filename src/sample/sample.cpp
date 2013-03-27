@@ -437,7 +437,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
 }
 
 basesource *sample::Clone(string dev_name) {
-	cout << "Entering sample::Clone\n";	
+	//cout << "Entering sample::Clone\n";	
 	sample *clone = new sample(dev_name);
 	clone->Path = Path->Clone();
 	clone->ScattOrderNum = ScattOrderNum;
@@ -469,7 +469,7 @@ basesource *sample::Clone(string dev_name) {
 }
 
 path *path::Clone() {
-	cout << "Entering path::Clone\n";
+	//cout << "Entering path::Clone\n";
 	path *clone = new path;
 	clone->MaxNSteps = MaxNSteps;
 	clone->t = new double[MaxNSteps];

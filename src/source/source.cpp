@@ -282,7 +282,7 @@ int source::Out_Photon_x1(photon *Photon, vect3 x1)
 }
 
 basesource *source::Clone(string dev_name) {
-	cout << "Entering source::Clone\n";
+	//cout << "Entering source::Clone\n";
 	source *clone = new source(dev_name);
 	clone->Thx = Thx;
 	clone->Thy = Thy;
