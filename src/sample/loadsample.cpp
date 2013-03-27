@@ -48,18 +48,18 @@ int sample::Load(FILE *fp)
     // parse the command and decide what to do
     if (comm=="SourceName") { // set the source input device name
       GetToken(fp, s);
-      SourceName = s;
-      cout << "Source input device name: " << SourceName << "\n";
+      InputDeviceName[0] = s;
+      cout << "Source input device name: " << InputDeviceName[0] << "\n";
     } 
     else if (comm=="Geom3DName") { // set the geom3d device name
       GetToken(fp, s);
-      Geom3DName = s;
-      cout << "Geom3D input device name: " << Geom3DName << "\n"; 
+      InputDeviceName[1] = s;
+      cout << "Geom3D input device name: " << InputDeviceName[1] << "\n"; 
     } 
     else if (comm=="CompName") { // set the composition device name
       GetToken(fp, s);
-      CompName = s;
-      cout << "Composition input device name: " << CompName << "\n"; 
+      InputDeviceName[2] = s;
+      cout << "Composition input device name: " << InputDeviceName[2] << "\n"; 
     } 
     // flag for weighted step length
     else if(comm=="WeightedStepLength") { 
@@ -101,9 +101,9 @@ int sample::Load(FILE *fp)
 int sample::SetDefault()
 // set default values for sample parameters
 {
-  SourceName = "Source"; // source input device name
-  Geom3DName = "Geom3D"; // geom3d input device name
-  CompName = "Composition"; // composition device name
+  InputDeviceName[0] = "Source"; // source input device name
+  InputDeviceName[1] = "Geom3D"; // geom3d input device name
+  InputDeviceName[2] = "Composition"; // composition device name
   WeightedStepLength = 0; // flag for weighted step length
   photon::FluorFlag = 1; // flag for activating fluorescent emission
   ScattOrderNum = 1; // Num. of scattering orders (including transmission)

@@ -33,29 +33,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace xrmc_algo;
 
+// Constructor
+source::source(string dev_name) {
+  Runnable = false;
+  NInputDevices=1;
+  SetDevice(dev_name, "source");
+}
 //////////////////////////////////////////////////////////////////////
-// method for importing spectrum input device
+// method for casting input device to type spectrum
 /////////////////////////////////////////////////////////////////////
-int source::ImportDevice(xrmc_device_map *dev_map)
+int source::CastInputDevices()
 {
-  // check if the input spectrum device is defined
-  xrmc_device_map::iterator it = dev_map->find(SpectrumName);
-
- // if not display error and exit
-  if (it==dev_map->end())
-    throw xrmc_exception(string("Device ") + SpectrumName 
-			 + " not found in device map\n");
-
-  // get device pointer from the device map
-  xrmc_device *dev_pt = (*it).second;
-  // cast it to type spectrum*
-  Spectrum = dynamic_cast<spectrum*>(dev_pt);
+  // cast InputDevice[0] to type spectrum*
+  Spectrum = dynamic_cast<spectrum*>(InputDevice[0]);
   if (Spectrum==0)
-    throw xrmc_exception(string("Device ") + SpectrumName
+    throw xrmc_exception(string("Device ") + InputDeviceName[0]
 			 + " cannot be casted to type spectrum\n");
 
   return 0;
 }
+
+//////////////////////////////////////////////////////////////////////
+// method for linking input device
+/////////////////////////////////////////////////////////////////////
+/*
+int source::LinkInputDevice(string command, xrmc_device *dev_pt)
+{
+  if (command=="SpectrumName") {
+    // cast it to type spectrum*
+    Spectrum = dynamic_cast<spectrum*>(dev_pt);
+    if (Spectrum==0)
+      throw xrmc_exception(string("Device cannot be casted to type"
+				  " spectrum\n"));
+  }
+  else
+    throw xrmc_exception(string("Unrecognized command: ") + command + "\n");
+
+  return 0;
+}
+*/
 
 // initialize loop on events
 int source::Begin()

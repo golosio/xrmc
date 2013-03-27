@@ -22,16 +22,88 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Methods of the class device
 //
 #include <string>
+#include <vector>
 #include "xrmc_device.h"
 
 using namespace std;
 
-// constructor of the class device
-xrmc_device::xrmc_device(string dev_name, string dev_type)
+// initialization of the class device
+int xrmc_device::SetDevice(string dev_name, string dev_type)
 {
   Name = dev_name; // device name
   DeviceType = dev_type; // device type
+  if (NInputDevices>0) {
+    InputDevice = vector<xrmc_device*>(NInputDevices,NULL);
+    InputDeviceName = vector<string>(NInputDevices,"");
+  }
+
+  return 0;
 }
 
+//////////////////////////////////////////////////////////////////////
+// method for linking input devices
+/////////////////////////////////////////////////////////////////////
+int xrmc_device::LinkInputDevices(xrmc_device_map *dev_map)
+{
+  // loop on input devices
+  for (int id=0; id<NInputDevices; id++) {
+    // check if the input device is defined
+    xrmc_device_map::iterator it = dev_map->find(InputDeviceName[id]);
 
+  // if not display error and exit
+    if (it==dev_map->end())
+      throw xrmc_exception(string("Device ") + InputDeviceName[id]
+			 + " not found in device map\n");
 
+    // get device pointer from the device map
+    InputDevice[id] = (*it).second;
+  }
+  CastInputDevices();
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// recursive link method
+//////////////////////////////////////////////////////////////////////
+int xrmc_device::RecursiveLink(xrmc_device_map *dev_map)
+{
+  LinkInputDevices(dev_map);
+
+  // loop on input devices
+  for (int id=0; id<NInputDevices; id++) {
+    InputDevice[id]->RecursiveLink(dev_map);
+  }
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// recursive run initialization method
+//////////////////////////////////////////////////////////////////////
+int xrmc_device::RecursiveRunInit()
+{
+  // loop on input devices
+  for (int id=0; id<NInputDevices; id++) {
+    InputDevice[id]->RecursiveRunInit();
+  }
+  RunInit();
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// recursive cleaning after run method
+//////////////////////////////////////////////////////////////////////
+/*
+int xrmc_device::RecursiveRunFree()
+{
+  RunFree();
+  // loop on input devices
+  for (int id=0; id<NInputDevices; id++) {
+    InputDevice[id]->RecursiveRunFree();
+  }
+
+  return 0;
+}
+*/

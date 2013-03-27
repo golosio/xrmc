@@ -36,18 +36,37 @@ using namespace std;
 using namespace xrmc_algo;
 using namespace arrayNd;
 
+// destructor
+detectorarray::~detectorarray() {
+  if (PixelX!=NULL) delete[] PixelX;
+  if (Image!=NULL) arrayNd::free_double_array3d(Image);
+}
+
+// constructor
+detectorarray::detectorarray(string dev_name) {
+  Runnable = true;
+  SaveDataName.push_back("Image");
+  NInputDevices = 1;
+  PixelX=NULL;
+  Image=NULL;
+  NX = NY = N = PhotonNum = NBins = ModeNum = 0;
+  SetDevice(dev_name, "detectorarray");
+}
+
 //////////////////////////////////////////////////////////////////////
-// detectorarray initialization method
+// detectorarray initialization before run method
 //////////////////////////////////////////////////////////////////////
-int detectorarray::Init()
+int detectorarray::RunInit()
 {
   double x, y;
 
   PixelSurf = PixelSizeX*PixelSizeY; // pixel surface
   N = NX*NY; // number of pixels
+  if (PixelX!=NULL) delete[] PixelX;
   PixelX = new vect3[N]; // array of pixel coordinates 
   ModeNum = Source->ModeNum(); // number of modes (scattering orders)
  
+  if (Image!=NULL) free_double_array3d(Image);
   Image = double_array3d(ModeNum, N, NBins); // allocate the image array
 
   double x0 = -(PixelSizeX*NX)/2 + PixelSizeX/2; // starting (local) coordinates
@@ -218,31 +237,39 @@ int detectorarray::EventMulti()
 }
 
 //////////////////////////////////////////////////////////////////////
-// method for importing a basesource device
+// method for casting input device to type basesource
 /////////////////////////////////////////////////////////////////////
-int detectorarray::ImportDevice(xrmc_device_map *dev_map)
+int detectorarray::CastInputDevices()
 
 {
-  // check if the input device is defined
-  xrmc_device_map::iterator it = dev_map->find(SourceName);
-
-  // if not display error and exit
-  if (it==dev_map->end())
-    throw xrmc_exception(string("Device ") + SourceName
-			 + " not found in device map\n");
-
-  // get device pointer from the device map
-  xrmc_device *dev_pt = (*it).second;
   // cast it to type basesource*
-  Source = dynamic_cast<basesource*>(dev_pt);
+  Source = dynamic_cast<basesource*>(InputDevice[0]);
   if (Source==0)
-    throw xrmc_exception(string("Device ") + SourceName
+    throw xrmc_exception(string("Device ") + InputDeviceName[0]
 			 + " cannot be casted to type basesource\n");
-
-  Init();  // initialize the detectorarray 
 
   return 0;
 }
+
+//////////////////////////////////////////////////////////////////////
+// method for linking input device
+/////////////////////////////////////////////////////////////////////
+/*
+int detectorarray::LinkInputDevice(string command, xrmc_device *dev_pt)
+{
+  if (command=="SourceName") {
+    // cast it to type basesource*
+    Source = dynamic_cast<basesource*>(dev_pt);
+    if (Source==0)
+      throw xrmc_exception(string("Device cannot be casted to type "
+				  "basesource\n"));
+  }
+  else
+    throw xrmc_exception(string("Unrecognized command: ") + command + "\n");
+
+  return 0;
+}
+*/
 
 //////////////////////////////////////////////////////////////////////
 // evaluates the factor dOmega, related to

@@ -18,7 +18,7 @@ Load geom3d.dat			; Qvolume file
 
 Load composition.dat		; Composition file
 
-Link				; Link devices
+;Link				; Link devices
 
 Run DetectorArray		; Run device
 

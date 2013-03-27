@@ -89,17 +89,10 @@ class sample : public basesource
   int PhotonIdx; // event index
   int WeightedStepLength; // flag for weighted steplength extraction method
 
-  ~sample() { // destructor
-    if (PhotonNum!=NULL) delete[] PhotonNum;
-    if (Path!=NULL) delete Path;
-  }
-  // constructor
-  sample(string dev_name) {
-    PhotonNum = NULL;
-    Path = NULL;
-    xrmc_device(dev_name, "sample");
-  }
-  int ImportDevice(xrmc_device_map *dev_map); // import input devices method
+  ~sample(); // destructor
+  sample(std::string dev_name); // constructor
+  // method for casting input devices
+  int CastInputDevices();
   int Load(FILE *fp); // load sample parameters from file
   int SetDefault(); // set default values for sample parameters
   int Begin(); // begin event loop
@@ -119,13 +112,14 @@ class sample : public basesource
   // generate an event with a photon forced to end on the point x1
   int Out_Photon_x1(photon *Photon, vect3 x1);
   int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
-  int Init(); // sample initialization method
+  virtual int RunInit(); // sample run initialization method
+  //virtual int RunFree(); // sample cleaning after run method
  private:
   basesource *Source; // input source device
-  string SourceName; // input source name
+  //string SourceName; // input source name
   geom3d *Geom3D; // input geom3d device
-  string Geom3DName; // input geom3d name
-  string CompName; // input composition name
+  //string Geom3DName; // input geom3d name
+  //string CompName; // input composition name
 
   vect3 RandomPoint(); // generate a random position in the sample region
 

@@ -51,13 +51,13 @@ int geom3d::Load(FILE *fp)
     // parse the command and decide what to do
     if(comm=="QArrName") { // set the quadricarray input device name
       GetToken(fp, s);
-      QArrName = s;
-      cout << "Quadric array input device name: " << QArrName << "\n";
+      InputDeviceName[0] = s;
+      cout << "Quadric array input device name: " << InputDeviceName[0] << "\n";
     }
     else if (comm=="CompName") { // set the composition device name
       GetToken(fp, s);
-      CompName = s;
-      cout << "Composition input device name: " << CompName << "\n"; 
+      InputDeviceName[1] = s;
+      cout << "Composition input device name: " << InputDeviceName[1] << "\n"; 
     } 
     else if(comm=="X") { // set the sample region center coordinates
       cout << "Sample region center coordinates: \t"; 
@@ -135,8 +135,8 @@ int geom3d::Load(FILE *fp)
 // set default values for geom3d parameters
 int geom3d::SetDefault()
 {
-  QArrName = "QuadricArray"; // Quadric array input device name
-  CompName = "Composition"; // composition device name
+  InputDeviceName[0] = "QuadricArray"; // Quadric array input device name
+  InputDeviceName[1] = "Composition"; // composition device name
   X.Set(0,0,0); // Sample region center coordinates
   HW[0] = HW[1] = HW[2] = 20; // Sample region half-sides
   MaxNQVol = 10000; // maximum num. of 3d objects

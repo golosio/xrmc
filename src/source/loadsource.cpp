@@ -69,8 +69,8 @@ int source::Load(FILE *fp)
     // parse the command and decide what to do
     if(comm=="SpectrumName") { // set the spectrum input device name
       GetToken(fp, s);
-      SpectrumName = s;
-      cout << "Spectrum input device name: " << SpectrumName << "\n";
+      InputDeviceName[0] = s;
+      cout << "Spectrum input device name: " << InputDeviceName[0] << "\n";
     } 
     else if(comm=="X") { // set the source coordinates
       cout << "Source position :\t";
@@ -169,7 +169,7 @@ int source::Load(FILE *fp)
 int source::SetDefault()
 // set default values for source parameters
 {
-  SpectrumName = "Spectrum"; // input spectrum device name
+  InputDeviceName[0] = "Spectrum"; // input spectrum device name
 
   costhl_Source = this;
   X.Set(0, -50, 0); // Source position coordinates 

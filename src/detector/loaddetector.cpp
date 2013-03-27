@@ -52,8 +52,8 @@ int detectorarray::Load(FILE *fp)
     // parse the command and decide what to do
     if(comm=="SourceName") { // set the source input device name
       GetToken(fp, s);
-      SourceName = s;
-      cout << "Source input device name: " << SourceName << "\n";
+      InputDeviceName[0] = s;
+      cout << "Source input device name: " << InputDeviceName[0] << "\n";
     } 
     else if(comm=="NPixels") { // set the number of pixels (rows and columns)
       GetIntToken(fp, &NX);
@@ -240,7 +240,7 @@ int detectorarray::Save(string file_name)
 int detectorarray::SetDefault()
 // set default values for detectorarray parameters
 {
-  SourceName = "Sample"; // input device name
+  InputDeviceName[0] = "Sample"; // input device name
   NX = NY = 1; // number of rows and columns
 
   PixelSizeX = PixelSizeY = 1; // Pixel size (Sx x Sy) = 1x1 cm2

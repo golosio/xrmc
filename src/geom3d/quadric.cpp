@@ -28,8 +28,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+// quadricarray destructor
+quadricarray::~quadricarray() {
+  if (Quadr!=NULL) delete[] Quadr;
+}
+
+// quadricarray constructor
+quadricarray::quadricarray(string dev_name) {
+  Runnable = false;
+  NInputDevices = 0;
+  Quadr = NULL;
+  NQuadr = 0;
+  SetDevice(dev_name, "quadricarray");
+}
+
 //////////////////////////////////////////////////////////////////////
-// Default constructor
+// quadric default constructor
 //////////////////////////////////////////////////////////////////////
 quadric::quadric()
 {

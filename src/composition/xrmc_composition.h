@@ -27,9 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "xrmc_device.h"
 
-using namespace std;
-
-
 // phase class definition, member variables and functions
 class phase
 {
@@ -74,15 +71,8 @@ class composition : public xrmc_device
   phase *Ph;   // phase array
   phase_map PhaseMap; // map of phases with their names
 
-  ~composition() { // destructor
-    if (Ph!=NULL) delete[] Ph;
-  }
-  // constructor
-  composition(string dev_name) {
-    Ph = NULL;
-    NPhases = 0;
-    xrmc_device(dev_name, "composition");
-  }
+  ~composition(); // destructor
+  composition(std::string dev_name);  // constructor
   int Load(FILE *fp); // Loads sample phases composition and density
   int SetDefault(); // Set default values for composition parameters
   // insert name and index of the phase in the phase map

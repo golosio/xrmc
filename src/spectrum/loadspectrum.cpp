@@ -172,7 +172,7 @@ int spectrum::Load(FILE *fp)
 			 "points in the continuous spectrum are both null.\n");
 
 
-  Init();
+  //Init();
   return 0;
 }
 

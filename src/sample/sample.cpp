@@ -34,71 +34,90 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace xrmc_algo;
 
+// destructor
+sample::~sample() { // destructor
+  if (PhotonNum!=NULL) delete[] PhotonNum;
+  if (Path!=NULL) delete Path;
+}
+
+// constructor
+sample::sample(string dev_name) {
+  Runnable = false;
+  NInputDevices = 3;
+  PhotonNum = NULL;
+  Path = NULL;
+  SetDevice(dev_name, "sample");
+}
+
 //////////////////////////////////////////////////////////////////////
-// method for importing basesource, geom3d and composition devices
+// method for casting input devices
+// to basesource, geom3d and composition types
 /////////////////////////////////////////////////////////////////////
-int sample::ImportDevice(xrmc_device_map *dev_map)
+int sample::CastInputDevices()
 {
-  // check if the input source device is defined
-  xrmc_device_map::iterator it = dev_map->find(SourceName);
-
-  // if not display error and exit
-  if (it==dev_map->end())
-    throw xrmc_exception(string("Device ") + SourceName
-			 + " not found in device map\n");
-
-  // get device pointer from the device map
-  xrmc_device *dev_pt = (*it).second;
-  // cast it to type basesource*
-  Source = dynamic_cast<basesource*>(dev_pt);
+  // cast InputDevice[0] to type basesource*
+  Source = dynamic_cast<basesource*>(InputDevice[0]);
   if (Source==0)
-    throw xrmc_exception(string("Device ") + SourceName +
+    throw xrmc_exception(string("Device ") + InputDeviceName[0] +
 			 " cannot be casted to type basesource\n");
 
-  // check if the input geom3d device is defined
-  it = dev_map->find(Geom3DName);
-
-  // if not display error and exit
-  if (it==dev_map->end())
-    throw xrmc_exception(string("Device ") + Geom3DName
-			 + " not found in device map\n");
-
-  // get device pointer from the device map
-  dev_pt = (*it).second;
-  // cast it to type geom3d*
-  Geom3D = dynamic_cast<geom3d*>(dev_pt);
+  // cast InputDevice[1] to type geom3d*
+  Geom3D = dynamic_cast<geom3d*>(InputDevice[1]);
   if (Geom3D==0)
-    throw xrmc_exception(string("Device ") + Geom3DName +
+    throw xrmc_exception(string("Device ") + InputDeviceName[1] +
               " cannot be casted to type geom3d\n");
 
-  // check if the input composition device is defined
-  it = dev_map->find(CompName);
-
-  // if not display error and exit
-  if (it==dev_map->end())
-    throw xrmc_exception(string("Device ") + CompName +
-			 " not found in device map\n");
-
-  // get device pointer from the device map
-  dev_pt = (*it).second;
-  // cast it to type composition*
-  Comp = dynamic_cast<composition*>(dev_pt);
+  // cast InputDevice[2] to type composition*
+  Comp = dynamic_cast<composition*>(InputDevice[2]);
   if (Comp==0)
-    throw xrmc_exception(string("Device ") + CompName +
+    throw xrmc_exception(string("Device ") + InputDeviceName[2] +
               " cannot be casted to type composition\n");
-
-  Init(); // initialize the sample device
 
   return 0;
 }
 
 //////////////////////////////////////////////////////////////////////
-// sample initialization method
+// method for linking an input device
+/////////////////////////////////////////////////////////////////////
+/*
+int sample::LinkInputDevice(string command, xrmc_device *dev_pt)
+{
+  if (command=="Geom3DName") {
+    // cast it to type geom3d*
+    Geom3D = dynamic_cast<geom3d*>(dev_pt);
+    if (Geom3D==0)
+      throw xrmc_exception(string("Device cannot be casted to type "
+				  "geom3d\n"));
+  }
+  else if (command=="SourceName") {
+    // cast it to type basesource*
+    Source = dynamic_cast<basesource*>(dev_pt);
+    if (Source==0)
+      throw xrmc_exception(string("Device cannot be casted to type "
+				  "basesource\n"));
+  }
+  else if (command=="CompName") {
+    // cast it to type composition*
+    Comp = dynamic_cast<composition*>(dev_pt);
+    if (Comp==0)
+      throw xrmc_exception(string("Device cannot be casted to type "
+				  "composition\n"));
+  }
+  else
+    throw xrmc_exception(string("Unrecognized command: ") + command + "\n");
+
+  return 0;
+}
+*/
+
 //////////////////////////////////////////////////////////////////////
-int sample::Init()
+// sample run initialization method
+//////////////////////////////////////////////////////////////////////
+int sample::RunInit()
 {
   int mns;
-
+ 
+  if (Path!=NULL) delete Path;
   Path = new path; // allocate the path member variable
   mns = 2*(Geom3D->QArr->NQuadr+4)+2; // maximum number of intersections
   Path->MaxNSteps = mns;            // (steplengths)
@@ -113,6 +132,25 @@ int sample::Init()
 
   return 0;
 }
+
+//////////////////////////////////////////////////////////////////////
+// sample cleaning after run method
+//////////////////////////////////////////////////////////////////////
+//int sample::RunFree()
+//{
+//  // deallocate arrays related to intersection steps
+//  delete[] Path->t;
+//  delete[] Path->Step;
+//  delete[] Path->iPh0;
+//  delete[] Path->iPh1;
+//  delete[] Path->Mu;
+//  delete[] Path->Delta;
+//  delete[] Path->SumMuS;
+//  delete[] Path->SumS;
+//  delete Path; // deallocate the path member variable
+
+//  return 0;
+//}
 
 // initialize loop on events
 int sample::Begin()

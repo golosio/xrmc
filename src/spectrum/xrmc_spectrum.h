@@ -71,39 +71,14 @@ class spectrum : public xrmc_device
  public:
   double TotalIntensity;
 
-  ~spectrum() { // destructor
-    if (ContinuousEne!=NULL) delete[] ContinuousEne;
-    if (ContSIntensity[0]!=NULL) delete[] ContSIntensity[0];
-    if (ContSIntensity[1]!=NULL) delete[] ContSIntensity[1];
-    if (IntervalIntensity[0]!=NULL) delete[] IntervalIntensity[0];
-    if (IntervalIntensity[1]!=NULL) delete[] IntervalIntensity[1];
-    if (IntervalWeight[0]!=NULL) delete[] IntervalWeight[0];
-    if (IntervalWeight[1]!=NULL) delete[] IntervalWeight[1];
-    if (IntervalCumul!=NULL) delete[] IntervalCumul;
-    if (LineEne!=NULL) delete[] LineEne;
-    if (LineSigma!=NULL) delete[] LineSigma;
-    if (LineIntensity[0]!=NULL) delete[] LineIntensity[0];
-    if (LineIntensity[1]!=NULL) delete[] LineIntensity[1];
-    if (LineWeight[0]!=NULL) delete[] LineWeight[0];
-    if (LineWeight[1]!=NULL) delete[] LineWeight[1];
-    if (LineCumul!=NULL) delete[] LineCumul;
-  }
-  // constructor
-  spectrum(string dev_name) {
-    ContinuousEne = ContSIntensity[0] = ContSIntensity[1] =
-      IntervalIntensity[0] = IntervalIntensity[1] = IntervalWeight[0] =
-      IntervalWeight[1] = IntervalCumul = LineEne = LineSigma =
-      LineIntensity[0] = LineIntensity[1] = LineWeight[0] = 
-      LineWeight[1] = LineCumul = NULL;
-    EneContinuousNum = EneLineNum = 0;
-    xrmc_device(dev_name, "spectrum");
-  }
+  ~spectrum(); // destructor
+  spectrum(string dev_name); // constructor
   int Load(FILE *fp); // load spectrum parameters from file
   int Begin(); // begin the event loop
   int Next();  // next step of the event loop  
   bool End(); // check if the end of the event loop is reached
   int EventMulti(); // event multiplicity
-  int Init(); // initialize the spectrum
+  int RunInit(); // initialize the spectrum before run
   int SetDefault(); // set default values for spectrum parameters
 
   // Generates a random energy value and polarization type

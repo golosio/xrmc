@@ -32,6 +32,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace xrmc_algo;
 
+ // destructor
+spectrum::~spectrum() {
+  if (ContinuousEne!=NULL) delete[] ContinuousEne;
+  if (ContSIntensity[0]!=NULL) delete[] ContSIntensity[0];
+  if (ContSIntensity[1]!=NULL) delete[] ContSIntensity[1];
+  if (IntervalIntensity[0]!=NULL) delete[] IntervalIntensity[0];
+  if (IntervalIntensity[1]!=NULL) delete[] IntervalIntensity[1];
+  if (IntervalWeight[0]!=NULL) delete[] IntervalWeight[0];
+  if (IntervalWeight[1]!=NULL) delete[] IntervalWeight[1];
+  if (IntervalCumul!=NULL) delete[] IntervalCumul;
+  if (LineEne!=NULL) delete[] LineEne;
+  if (LineSigma!=NULL) delete[] LineSigma;
+  if (LineIntensity[0]!=NULL) delete[] LineIntensity[0];
+  if (LineIntensity[1]!=NULL) delete[] LineIntensity[1];
+  if (LineWeight[0]!=NULL) delete[] LineWeight[0];
+  if (LineWeight[1]!=NULL) delete[] LineWeight[1];
+  if (LineCumul!=NULL) delete[] LineCumul;
+}
+// constructor
+spectrum::spectrum(string dev_name) {
+  Runnable = false;
+  NInputDevices = 0;
+  ContinuousEne = ContSIntensity[0] = ContSIntensity[1] =
+    IntervalIntensity[0] = IntervalIntensity[1] = IntervalWeight[0] =
+    IntervalWeight[1] = IntervalCumul = LineEne = LineSigma =
+    LineIntensity[0] = LineIntensity[1] = LineWeight[0] = 
+    LineWeight[1] = LineCumul = NULL;
+  EneContinuousNum = EneLineNum = 0;
+  SetDevice(dev_name, "spectrum");
+}
+
 // initialize loop on events
 int spectrum::Begin()
 {
@@ -147,13 +178,18 @@ int spectrum::Resample()
   return 0;
 }
 //////////////////////////////////////////////////////////////////////
-// method for spectrum initialization
+// method for spectrum initialization before run
 //////////////////////////////////////////////////////////////////////
-int spectrum::Init()
+int spectrum::RunInit()
 {
   int i;
   double intensity;
 
+  if (IntervalIntensity[0]!=NULL) delete[] IntervalIntensity[0];
+  if (IntervalIntensity[1]!=NULL) delete[] IntervalIntensity[1];
+  if (IntervalWeight[0]!=NULL) delete[] IntervalWeight[0];
+  if (IntervalWeight[1]!=NULL) delete[] IntervalWeight[1];
+  if (IntervalCumul!=NULL) delete[] IntervalCumul;
   // if continuous spectrum is present allocate its arrays
   if (EneContinuousNum > 1) {
     IntervalIntensity[0] = new double[EneContinuousNum-1];
@@ -162,17 +198,22 @@ int spectrum::Init()
     IntervalWeight[1] = new double[EneContinuousNum-1];
     IntervalCumul = new double[2*EneContinuousNum-1];
   }
+  
+  if (LineWeight[0]!=NULL) delete[] LineWeight[0];
+  if (LineWeight[1]!=NULL) delete[] LineWeight[1];
+  if (LineCumul!=NULL) delete[] LineCumul;
+  
   // if discrete lines are present allocate their arrays
   if (EneLineNum > 0) {
     LineWeight[0] = new double[EneLineNum];
     LineWeight[1] = new double[EneLineNum];
     LineCumul = new double[2*EneLineNum+1];
   }
-
+  
   // initialize maximum intensity, total continuous intensity
   // and range of continuous energies
   MaxIntensity = ContinuousIntensity = ContinuousEnergyRange = 0;
-
+  
   // if continuous spectrum is present fill its arrays  
   if (EneContinuousNum > 1) {
     ContinuousEnergyRange = ContinuousEne[EneContinuousNum-1]-ContinuousEne[0];

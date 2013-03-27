@@ -39,18 +39,12 @@ class detectorarray : public bodydevice
   int NBins; // Num. of energy bins
   int ModeNum; // Num. of modes (scattering orders)
   
-  ~detectorarray() {  // destructor
-    if (PixelX!=NULL) delete[] PixelX;
-    if (Image!=NULL) arrayNd::free_double_array3d(Image);
-  }
-  // constructor
-  detectorarray(string dev_name) {
-    PixelX=NULL;
-    Image=NULL;
-    NX = NY = N = PhotonNum = NBins = ModeNum = 0;
-    xrmc_device(dev_name, "detectorarray");
-  }
-  int ImportDevice(xrmc_device_map *dev_map); // import device method
+  ~detectorarray(); // destructor
+  detectorarray(std::string dev_name); // constructor
+
+  int CastInputDevices(); // cast input device method
+  // method for linking input device
+  //int LinkInputDevice(string command, xrmc_device *dev_pt);
   int Load(FILE *fp); // load detector parameters, position, orientation
   int Save(string file_name); // save the acquired, convoluted image in a file
   int SetDefault(); // set the default values for detector parameters
@@ -61,7 +55,7 @@ class detectorarray : public bodydevice
 
  protected:
   basesource *Source; // input device (typically the sample device)
-  string SourceName; // name of the input device
+  //string SourceName; // name of the input device
   double PixelSizeX, PixelSizeY, PixelSurf; // pixel size and surface (cm2) 
   double dOmegaLim; // cut on solid angle from interaction point to pixel 
   int Shape; // pixel shape (0: rectangular, 1: elliptical)
@@ -78,7 +72,7 @@ class detectorarray : public bodydevice
   int  SaturateEmax; // flag to saturate energies greater than Emin
   double Emin, Emax; // minimum and maximum bin energy
   
-  int Init(); // detectorarray initialization
+  int RunInit(); // detectorarray initialization before run
   vect3 RandomPointOnPixel(int i); // Generates a random point
                                    // on the pixel surface
   double dOmega(vect3 DRp); // evaluates the factor dOmega, related to

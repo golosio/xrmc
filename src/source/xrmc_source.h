@@ -36,9 +36,9 @@ class basesource : public bodydevice
  public:
   virtual ~basesource() {};
   virtual int ModeNum() {return 1;} // number of modes
-  virtual int Out_Photon(photon *Photon) {return 0;} // generate an event
+  virtual int Out_Photon(photon *) {return 0;} // generate an event
   // generate an event with a photon directed toward the position x1
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1) {return 0;}
+  virtual int Out_Photon_x1(photon *, vect3) {return 0;}
  // generate an event for a specified mode
   virtual int Out_Photon(photon *Photon, int *ModeIdx)
     {*ModeIdx=0; return Out_Photon(Photon);}
@@ -61,10 +61,12 @@ class source : public basesource
   int SizeFlag;
 
   // Constructor
-  source(string dev_name) {xrmc_device(dev_name, "source");}
+  source(std::string dev_name);
   int Load(FILE *fp); // method for loading source parameters from file
- // method for importing input spectrum device
-  int ImportDevice(xrmc_device_map *dev_map);
+  // method for casting input device to type spectrum
+  int CastInputDevices();
+  // method for linking input device
+  //int LinkInputDevice(string command, xrmc_device *dev_pt);
   int Begin(); // begin event loop method
   int Next(); // next event method
   bool End(); // check for end event loop method
@@ -78,7 +80,6 @@ class source : public basesource
 
  private:
   spectrum *Spectrum; // input spectrum device
-  string SpectrumName; // name of input spectrum device
 
   // extract the initial direction of a photon produced by the source
   int PhotonDirection(photon *Photon, int pol);

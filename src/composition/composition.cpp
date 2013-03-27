@@ -25,9 +25,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xraylib.h"
 #include "xrmc_algo.h"
 
+using namespace std;
 using namespace xrmc_algo;
 
 const double phase::KD=4.15179082788e-4; // constant for computing Delta
+
+ // destructor
+composition::~composition() {
+  if (Ph!=NULL) delete[] Ph;
+}
+
+// constructor
+composition::composition(string dev_name) {
+  Runnable = false;
+  NInputDevices=0;
+  Ph = NULL;
+  NPhases = 0;
+  SetDevice(dev_name, std::string("composition"));
+}
 
 // Evaluates the absorption coefficient Mu of each phase at energy E
 int composition::Mu(double E)

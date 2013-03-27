@@ -96,7 +96,7 @@ int xrmc::LinkDevices()
   for (xrmc_device_map::iterator it=DeviceMap.begin(); it!=DeviceMap.end();
        it++) {
     dev_pt=it->second; // pointer to the device
-    dev_pt->ImportDevice(&DeviceMap); // launch ImportDevice method on it
+    dev_pt->LinkInputDevices(&DeviceMap); // launch ImportDevice method on it
   }
 
   return 0;
@@ -119,6 +119,11 @@ int xrmc::RunDevice(FILE *fp)
     throw xrmc_exception("Device not found in device map.\n");
 
   dev_pt = (*it).second;
+   // check that the run method is defined for this device
+  if (dev_pt->Runnable==false)
+    throw xrmc_exception("Run method is not defined for this device.\n");
+  dev_pt->RecursiveLink(&DeviceMap); // recursive link
+  dev_pt->RecursiveRunInit(); // recursive run initialization
   dev_pt->Run(); // launch the Run method on the device
 
   return 0;

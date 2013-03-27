@@ -29,7 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_math.h"
 #include "xrmc_composition.h"
 
-using namespace std;
 
 // quadric class definition, member variables and functions
 class quadric
@@ -58,9 +57,9 @@ public:
   int ChangeSign(); // change the sign
 };
 
-typedef map<string, quadric*> quadric_map;
-typedef pair<string, quadric*> quadric_map_pair;
-typedef pair<quadric_map::iterator, bool> quadric_map_insert_pair;
+typedef std::map<std::string, quadric*> quadric_map;
+typedef std::pair<std::string, quadric*> quadric_map_pair;
+typedef std::pair<quadric_map::iterator, bool> quadric_map_insert_pair;
 
 // quadricarray class definition, member variables and functions
 class quadricarray : public xrmc_device
@@ -71,15 +70,8 @@ class quadricarray : public xrmc_device
   quadric *Quadr; // pointer to the quadric array
   quadric_map QuadricMap; // map of quadrics with their names
 
-  ~quadricarray() { // destructor
-    if (Quadr!=NULL) delete[] Quadr;
-  }
-  // constructor
-  quadricarray(string dev_name) {
-    Quadr = NULL;
-    NQuadr = 0;
-    xrmc_device(dev_name, "quadricarray");
-  }
+  ~quadricarray(); // destructor
+  quadricarray(std::string dev_name); // constructor
   int Load(FILE *fp); // method for loading quadric array from file
   int SetDefault(); // set default values for quadricarray parameters
 
@@ -97,8 +89,8 @@ class qvolume
   int NQuadr; // number of quadrics delimiting the object
   int iPhaseIn; // index of the phase inside the object
   int iPhaseOut; // index of the phase surrounding the object
-  string PhaseInName; // name of the phase inside the object
-  string PhaseOutName; // name of the phase surrounding the object
+  std::string PhaseInName; // name of the phase inside the object
+  std::string PhaseOutName; // name of the phase surrounding the object
   quadric **Quadr; // array of pointers to the quadrics delimiting the object
 
   ~qvolume() { // destructor
@@ -108,7 +100,7 @@ class qvolume
     Quadr = NULL;
     NQuadr = 0;
   }
-  int Init(string s_ph_in, string s_ph_out, int n_quadr); // initializ. method
+  int Init(std::string s_ph_in, std::string s_ph_out, int n_quadr); // initializ. method
   // method for finding the intersections of a line with the object
   int Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1, \
 		 int *n_inters);
@@ -122,31 +114,21 @@ class geom3d : public xrmc_device
   double HW[3]; // sample region half sides
 
   quadricarray *QArr; // array of quadrics used in the geometric description
-  string QArrName;
+  std::string QArrName;
   composition *Comp; // input composition device
-  string CompName;
+  std::string CompName;
 
   int NQVol; // number of 3d objects used in the geometric description
   int MaxNQVol; // maximum number of 3d objects in the geometric description
   qvolume *QVol; // array of 3d objects
 
-  ~geom3d() { // destructor
-    for (int i=0; i<NQVol; i++) {
-      if (QVolMap[i]!=NULL) delete[] QVolMap[i];
-    }
-    if (QVolMap!=NULL) delete[] QVolMap;
-    if (QVol!=NULL) delete[] QVol;
-  }
-  // constructor
-  geom3d(string dev_name) {
-    QVolMap = NULL;
-    QVol = NULL;
-    NQVol = 0;
-    xrmc_device(dev_name, "geom3d");
-  }
+  ~geom3d(); // destructor  
+  geom3d(std::string dev_name); // constructor
   int Load(FILE *fp); // method for loading the geometric description
   int ImportDevice(xrmc_device_map *dev_map); // import device method
-  int Init(); // geometry initialization method
+  // method for casting input devices
+  int CastInputDevices();
+  int RunInit(); // geometry initialization before run method
   int SetDefault(); // set default values for geometric description
 
   // method for finding the intersections of a straight line
@@ -154,7 +136,7 @@ class geom3d : public xrmc_device
   int Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1, \
 		int *n_inters);
  private:
-  string **QVolMap; // map of the quadrics delimiting the objects 
+  std::string **QVolMap; // map of the quadrics delimiting the objects 
 };
 
 #endif

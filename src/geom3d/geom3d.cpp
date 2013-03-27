@@ -31,48 +31,74 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace xrmc_algo;
 
-// method for importing quadricarray and composition devices
-int geom3d::ImportDevice(xrmc_device_map *dev_map)
+// destructor
+geom3d::~geom3d() {
+  for (int i=0; i<NQVol; i++) {
+    if (QVolMap[i]!=NULL) delete[] QVolMap[i];
+  }
+  if (QVolMap!=NULL) delete[] QVolMap;
+  if (QVol!=NULL) delete[] QVol;
+}
+
+// constructor
+geom3d::geom3d(string dev_name) {
+  Runnable = false;
+  NInputDevices = 2;
+  QVolMap = NULL;
+  QVol = NULL;
+  NQVol = 0;
+  SetDevice(dev_name, "geom3d");
+}
+
+// method for casting input devices to types quadricarray and composition
+int geom3d::CastInputDevices()
 {
-  // check if the input quadricarray device is defined
-  xrmc_device_map::iterator it = dev_map->find(QArrName);
-
-  // if not display error and exit
-  if (it==dev_map->end())
-    throw xrmc_exception(string("Device ") + QArrName
-			 + " not found in device map\n");
-
-  // get device pointer from the device map
-  xrmc_device *dev_pt = (*it).second;
-  // cast it to type quadricarray*
-  QArr = dynamic_cast<quadricarray*>(dev_pt);
+  // cast InputDevice[0] to type quadricarray*
+  QArr = dynamic_cast<quadricarray*>(InputDevice[0]);
   if (QArr==0)
-    throw xrmc_exception(string("Device ") + QArrName
+    throw xrmc_exception(string("Device ") + InputDeviceName[0]
 			 + " cannot be casted to type quadricarray\n");
 
-  // check if the input composition device is defined
-  it = dev_map->find(CompName);
-
-  // if not display error and exit
-  if (it==dev_map->end())
-    throw xrmc_exception(string("Device ") + CompName +
-			 " not found in device map\n");
-
-  // get device pointer from the device map
-  dev_pt = (*it).second;
-  // cast it to type composition*
-  Comp = dynamic_cast<composition*>(dev_pt);
+  // cast InputDevice[1] to type composition*
+  Comp = dynamic_cast<composition*>(InputDevice[1]);
   if (Comp==0)
-    throw xrmc_exception(string("Device ") + CompName +
+    throw xrmc_exception(string("Device ") + InputDeviceName[1] +
               " cannot be casted to type composition\n");
 
-  Init(); // initialize 3d geometry
   return 0;
 }
 
-// method for initializing the 3d geometry
-int geom3d::Init()
+//////////////////////////////////////////////////////////////////////
+// method for linking input devices
+/////////////////////////////////////////////////////////////////////
+/*
+int geom3d::LinkInputDevice(string command, xrmc_device *dev_pt)
 {
+  if (command=="QArrName") {
+    // cast it to type quadricarray*
+    QArr = dynamic_cast<quadricarray*>(dev_pt);
+    if (QArr==0)
+      throw xrmc_exception(string("Device cannot be casted to type "
+				  "quadricarray\n"));
+  }
+  else if (command=="CompName") {
+    // cast it to type composition*
+    Comp = dynamic_cast<composition*>(dev_pt);
+    if (Comp==0)
+      throw xrmc_exception(string("Device cannot be casted to type "
+				  "composition\n"));
+  }
+  else
+    throw xrmc_exception(string("Unrecognized command: ") + command + "\n");
+
+  return 0;
+}
+*/
+
+// method for initializing the 3d geometry before a run
+int geom3d::RunInit()
+{
+
   for(int iqv=0; iqv<NQVol; iqv++) { // loop on 3d objects
     for(int iq=0; iq<QVol[iqv].NQuadr; iq++) { // loop on quadrics delimiting
                                                // the 3d object
