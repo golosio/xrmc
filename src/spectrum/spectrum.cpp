@@ -425,31 +425,43 @@ int spectrum::ContinuousRandomEnergy(double *Energy, int *polarization)
 }
 
 spectrum *spectrum::Clone(string dev_name) {
-	cout << "Entering spectrum::Clone\n";
+	//cout << "Entering spectrum::Clone\n";
 	spectrum *clone = new spectrum(dev_name);
 	clone->PolarizedFlag = PolarizedFlag;
 	clone->LoopFlag = LoopFlag;
 	clone->RandomEneFlag = RandomEneFlag;
 	clone->ResampleFlag = ResampleFlag;
 	clone->EneContinuousNum = EneContinuousNum;
-	if (ContinuousEne) {
+	if (ResampleFlag && ContinuousEne) {
 		clone->ContinuousEne =new double[ResampleNum];
 		memcpy(clone->ContinuousEne, ContinuousEne, sizeof(double)*ResampleNum);
+	}
+	else if (ContinuousEne) {
+		clone->ContinuousEne =new double[EneContinuousNum];
+		memcpy(clone->ContinuousEne, ContinuousEne, sizeof(double)*EneContinuousNum);
 	}
 	else {
 		clone->ContinuousEne = NULL;
 	}
 	
-	if (ContSIntensity[0]) {
+	if (ResampleFlag && ContSIntensity[0]) {
 		clone->ContSIntensity[0] =new double[ResampleNum];
 		memcpy(clone->ContSIntensity[0], ContSIntensity[0], sizeof(double)*ResampleNum);
+	}
+	else if (ContSIntensity[0]) {
+		clone->ContSIntensity[0] =new double[EneContinuousNum];
+		memcpy(clone->ContSIntensity[0], ContSIntensity[0], sizeof(double)*EneContinuousNum);
 	}
 	else {
 		clone->ContSIntensity[0] = NULL;
 	}
-	if (ContSIntensity[1]) {
+	if (ResampleFlag && ContSIntensity[1]) {
 		clone->ContSIntensity[1] =new double[ResampleNum];
 		memcpy(clone->ContSIntensity[1], ContSIntensity[1], sizeof(double)*ResampleNum);
+	}
+	else if (ContSIntensity[1]) {
+		clone->ContSIntensity[1] =new double[EneContinuousNum];
+		memcpy(clone->ContSIntensity[1], ContSIntensity[1], sizeof(double)*EneContinuousNum);
 	}
 	else {
 		clone->ContSIntensity[1] = NULL;

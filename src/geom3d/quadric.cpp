@@ -344,7 +344,7 @@ int quadric::Intersect(vect3 x0, vect3 u) {
 }
 
 quadricarray *quadricarray::Clone(string dev_name) {
-	cout << "Entering quadricarray::Clone\n";
+	//cout << "Entering quadricarray::Clone\n";
 	quadricarray *clone = new quadricarray(dev_name);
 	clone->NQuadr = NQuadr;
 	clone->MaxNQuadr = MaxNQuadr;

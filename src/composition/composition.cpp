@@ -124,7 +124,7 @@ int phase::AtomType(int *Zelem, double *mu_atom)
 
 
 composition *composition::Clone(string dev_name) {
-	cout << "Entering composition::Clone\n";
+	//cout << "Entering composition::Clone\n";
 	composition *clone = new composition(dev_name);
 	clone->NPhases = NPhases;
 	clone->MaxNPhases = MaxNPhases;
@@ -149,7 +149,7 @@ composition *composition::Clone(string dev_name) {
 
 
 phase& phase::operator= (const phase &Phase) {
-	cout << "Entering phase assignment operator\n";
+	//cout << "Entering phase assignment operator\n";
 
 	if (this == &Phase)
 		return *this;

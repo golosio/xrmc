@@ -174,7 +174,7 @@ int geom3d::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
 }
 
 geom3d *geom3d::Clone(string dev_name) {
-	cout << "Entering geom3d::Clone\n";
+	//cout << "Entering geom3d::Clone\n";
 	geom3d *clone = new geom3d(dev_name);
 	clone->X = X;
 	clone->HW[0] = HW[0];

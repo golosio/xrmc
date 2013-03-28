@@ -112,7 +112,7 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
 
 
 qvolume& qvolume::operator= (const qvolume &QVolume) {
-	cout << "Entering qvolume assignment operator\n";
+	//cout << "Entering qvolume assignment operator\n";
 
 	if (this == &QVolume)
 		return *this;
@@ -123,6 +123,6 @@ qvolume& qvolume::operator= (const qvolume &QVolume) {
 	PhaseOutName = QVolume.PhaseOutName;
 	Quadr = new quadric*[NQuadr];
 
-	cout << "Leaving qvolume assignment operator\n";
+	//cout << "Leaving qvolume assignment operator\n";
 
 }
