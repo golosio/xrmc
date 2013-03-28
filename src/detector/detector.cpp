@@ -64,6 +64,8 @@ int detectorarray::RunInit()
 {
   double x, y;
 
+  OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
+
   PixelSurf = PixelSizeX*PixelSizeY; // pixel surface
   N = NX*NY; // number of pixels
   if (PixelX!=NULL) delete[] PixelX;

@@ -38,18 +38,6 @@ using namespace std;
 using namespace gettoken;
 using namespace xrmc_algo;
 
-source *costhl_Source; // temporary object needed to define the following
-                       // function costhl
-
-//////////////////////////////////////////////////////////////////////
-// Function passed as input to the integration algorithm
-// used to evaluate the solid angle 
-//////////////////////////////////////////////////////////////////////
-double one_min_costhl(double phi)
-{
-  return -costhl_Source->CosThL(phi) + 1.;
-}
-
 //////////////////////////////////////////////////////////////////////
 int source::Load(FILE *fp)
   // Loads source position/orientation
@@ -150,18 +138,6 @@ int source::Load(FILE *fp)
     }
   }
 
-  Cos2Thx = cos(Thx)*cos(Thx);
-  Sin2Thx = sin(Thx)*sin(Thx);
-  Cos2Thy = cos(Thy)*cos(Thy);
-  Sin2Thy = sin(Thy)*sin(Thy);
-  if (Thx==0 || Thy==0) Omega = 0;
-  else {
-    Omega = Integrate(one_min_costhl, 0, 2*PI); // evaluate the solid angle
-  }
-  cout << "Omega: " << Omega << "\n";
-
-  OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
-
   return 0;
 }
 
@@ -171,7 +147,6 @@ int source::SetDefault()
 {
   InputDeviceName[0] = "Spectrum"; // input spectrum device name
 
-  costhl_Source = this;
   X.Set(0, -50, 0); // Source position coordinates 
   // Source orientation :
   uk.Set(0,1,0); // uk is directed as the y axis

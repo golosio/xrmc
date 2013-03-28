@@ -202,7 +202,6 @@ int detectorarray::Load(FILE *fp)
       throw xrmc_exception("syntax error in detectorarray input file"); 
     }
   }
-  OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
 
   return 0;
 }

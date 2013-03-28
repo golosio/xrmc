@@ -39,6 +39,41 @@ source::source(string dev_name) {
   NInputDevices=1;
   SetDevice(dev_name, "source");
 }
+
+source *costhl_Source; // temporary object needed to define the following
+                       // function costhl
+
+//////////////////////////////////////////////////////////////////////
+// Function passed as input to the integration algorithm
+// used to evaluate the solid angle 
+//////////////////////////////////////////////////////////////////////
+double one_min_costhl(double phi)
+{
+  return -costhl_Source->CosThL(phi) + 1.;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// source run initialization method
+//////////////////////////////////////////////////////////////////////
+int source::RunInit()
+{
+  costhl_Source = this;
+  Cos2Thx = cos(Thx)*cos(Thx);
+  Sin2Thx = sin(Thx)*sin(Thx);
+  Cos2Thy = cos(Thy)*cos(Thy);
+  Sin2Thy = sin(Thy)*sin(Thy);
+  if (Thx==0 || Thy==0) Omega = 0;
+  else {
+    Omega = Integrate(one_min_costhl, 0, 2*PI); // evaluate the solid angle
+  }
+  cout << "Omega: " << Omega << "\n";
+  
+  OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
+  
+  return 0;
+}
+
 //////////////////////////////////////////////////////////////////////
 // method for casting input device to type spectrum
 /////////////////////////////////////////////////////////////////////

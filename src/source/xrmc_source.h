@@ -83,7 +83,7 @@ class source : public basesource
   // maximum value of polar angle theta for a specified value of phi
   double CosThL(double phi);
   basesource *Clone(string dev_name);
-
+  virtual int RunInit(); // source run initialization method
  private:
   // extract the initial direction of a photon produced by the source
   int PhotonDirection(photon *Photon, int pol);

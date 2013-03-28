@@ -167,12 +167,7 @@ int spectrum::Load(FILE *fp)
       throw xrmc_exception("syntax error in spectrum input file"); 
     }
   }   
-  if ((EneLineNum + EneContinuousNum) == 0)
-    throw xrmc_exception("Number of discrete lines and number of sampling "
-			 "points in the continuous spectrum are both null.\n");
 
-
-  //Init();
   return 0;
 }
 

@@ -186,6 +186,10 @@ int spectrum::RunInit()
   int i;
   double intensity;
 
+  if ((EneLineNum + EneContinuousNum) == 0)
+    throw xrmc_exception("Number of discrete lines and number of sampling "
+			 "points in the continuous spectrum are both null.\n");
+
   if (IntervalIntensity[0]!=NULL) delete[] IntervalIntensity[0];
   if (IntervalIntensity[1]!=NULL) delete[] IntervalIntensity[1];
   if (IntervalWeight[0]!=NULL) delete[] IntervalWeight[0];
