@@ -33,10 +33,95 @@ using namespace std;
 using namespace xrmc_algo;
 using namespace arrayNd;
 
+  //destructor
+detectorconvolute::~detectorconvolute() {
+  if (xd->n_crystal_layers > 0 && xd->crystal_layers != NULL) {
+    for (int i = 0 ; i < xd->n_crystal_layers ; i++) {
+      free(xd->crystal_layers[i].Z);
+      free(xd->crystal_layers[i].weight);
+    }
+    free(xd->crystal_layers);
+  }
+  if (det_absorber != NULL) {
+    free(det_absorber->Z);
+    free(det_absorber->weight);
+    free(det_absorber);
+  }
+  
+  if (xd != NULL)
+    free(xd);
+  if (convolutedImage != NULL)
+    free(convolutedImage);
+}
 
-int detectorconvolute::Init() {
-	
+//constructor
+detectorconvolute::detectorconvolute(string dev_name)
+  : detectorarray(dev_name) {
+  SaveDataName.push_back("convolutedImage");
+  NInputDevices = 2;
+  SetDevice(dev_name, "detectorconvolute");
 
+  xd = (struct xmi_detector *) malloc(sizeof(struct xmi_detector));
+  xd->detector_type = -1;
+  xd->live_time = 0.0;
+  xd->pulse_width = 0.0;
+  xd->gain = 0.0;
+  xd->zero = 0.0;
+  xd->fano = 0.0;
+  xd->noise = 0.0;
+  xd->max_convolution_energy = 0.0;
+  xd->n_crystal_layers = 0;
+  xd->crystal_layers = NULL;
+  convolutedImage = NULL;
+  CrystalThickness = 0.0;
+  WindowThickness = 0.0;
+  det_absorber = NULL;
+  Composition = NULL; 
+  CrystalPhase = NULL;
+  WindowPhase = NULL;
+  //xrmc_device(dev_name, "detectorconvolute");
+
+  //Initialize xrmc_xmimsim
+  XmiCheckXrmcXmimsimPlugin xmi_check_xrmc_xmimsim_plugin;
+  gchar *module_path;
+  gchar *plugin_dir;
+  
+  if (!g_module_supported()) {
+    throw xrmc_exception("GModule not supported\n");
+  }
+  //environment variable could also be useful here
+  if ((plugin_dir = (gchar *) g_getenv("XRMC_XMIMSIM_MODULE")) == NULL)
+    plugin_dir = g_strdup(XRMC_XMIMSIM_LIB);
+  
+  module_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s.%s", plugin_dir, "xrmc-xmimsim", G_MODULE_SUFFIX);
+  xrmc_xmimsim = g_module_open(module_path, (GModuleFlags) 0);
+  g_free(module_path);
+  
+  if (!xrmc_xmimsim) {
+    g_fprintf(stderr,"GModule error message: %s\n", g_module_error());
+    throw xrmc_exception("Could not load module xrmc-xmimsim\n");
+  }
+  
+  if (!g_module_symbol(xrmc_xmimsim, "xmi_check_xrmc_xmimsim_plugin", (gpointer *) &xmi_check_xrmc_xmimsim_plugin)) {
+    g_module_close(xrmc_xmimsim);
+    g_fprintf(stderr, "GModule error message: %s\n", g_module_error());
+    throw xrmc_exception("Could not get symbol xmi_check_xrmc_xmimsim_plugin from module xrmc-xmimsim\n");
+  }
+  
+  if (xmi_check_xrmc_xmimsim_plugin == NULL) {
+    g_module_close(xrmc_xmimsim);
+    throw xrmc_exception("Symbol xmi_check_xrmc_xmimsim_plugin from module xrmc-xmimsim is NULL\n");
+  }
+  
+  if (xmi_check_xrmc_xmimsim_plugin() == 1) {
+    g_fprintf(stdout,"xrmc_xmimsim plugin is functional\n");
+  }
+
+}
+
+int detectorconvolute::RunInit() {
+        detectorarray::RunInit();
+        if (convolutedImage!=NULL) free_double_array3d(Image);
 	convolutedImage = double_array3d(ModeNum, N, NBins);	
 	xd->live_time = ExpTime;
 	xd->zero = 0.0;
@@ -79,6 +164,7 @@ int detectorconvolute::Init() {
 
 	return 0;
 }
+
 int detectorconvolute::Clear()
 {
   detectorarray::Clear();
@@ -93,32 +179,18 @@ int detectorconvolute::Clear()
 
   return 0;
 }
-int detectorconvolute::ImportDevice(xrmc_device_map *dev_map) {
-	detectorarray::ImportDevice(dev_map);
-
-	// check if the input device is defined
-	xrmc_device_map::iterator it;
-	xrmc_device *dev_pt;
-
-	it = dev_map->find(CompositionName);
-
-	// if not display error and exit
-	if (it==dev_map->end())
-		throw xrmc_exception(string("Device ") + CompositionName
-			 + " not found in device map\n");
-
-	// get device pointer from the device map
-	dev_pt = (*it).second;
-	// cast it to type basesource*
-	Composition = dynamic_cast<composition*>(dev_pt);
+int detectorconvolute::CastInputDevices() {
+	detectorarray::CastInputDevices();
+	// cast it to type composition*
+	Composition = dynamic_cast<composition*>(InputDevice[1]);
 	if (Composition==0)
-		throw xrmc_exception(string("Device ") + CompositionName
+		throw xrmc_exception(string("Device ") + InputDeviceName[1]
 			 + " cannot be casted to type composition\n");
 
 	//now get the crystal phase
 	phase_map::iterator it2 = Composition->PhaseMap.find(CrystalPhaseName);
 	if (it2 == Composition->PhaseMap.end())
-		throw xrmc_exception(string("Device") + CrystalPhaseName
+		throw xrmc_exception(string("Phase ") + CrystalPhaseName
 			+ " not found in composition map\n");
 
 	int i_phase = (*it2).second;
@@ -128,7 +200,7 @@ int detectorconvolute::ImportDevice(xrmc_device_map *dev_map) {
 	if (WindowPhaseName != "Vacuum") {
 		it2 = Composition->PhaseMap.find(WindowPhaseName);
 		if (it2 == Composition->PhaseMap.end())
-			throw xrmc_exception(string("Device") + WindowPhaseName
+			throw xrmc_exception(string("Phase ") + WindowPhaseName
 				+ " not found in composition map\n");
 
 		i_phase = (*it2).second;
@@ -138,45 +210,7 @@ int detectorconvolute::ImportDevice(xrmc_device_map *dev_map) {
 		WindowPhase = NULL;
 	}
 
-	//Initialize xrmc_xmimsim
-    	XmiCheckXrmcXmimsimPlugin xmi_check_xrmc_xmimsim_plugin;
-    	gchar *module_path;
-    	gchar *plugin_dir;
-
-    	if (!g_module_supported()) {
-    		throw xrmc_exception("GModule not supported\n");
-    	}
-   	//environment variable could also be useful here
-	if ((plugin_dir = (gchar *) g_getenv("XRMC_XMIMSIM_MODULE")) == NULL)
-    		plugin_dir = g_strdup(XRMC_XMIMSIM_LIB);
-	
-    	module_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s.%s", plugin_dir, "xrmc-xmimsim", G_MODULE_SUFFIX);
-    	xrmc_xmimsim = g_module_open(module_path, (GModuleFlags) 0);
-    	g_free(module_path);
-
-    	if (!xrmc_xmimsim) {
-		g_fprintf(stderr,"GModule error message: %s\n", g_module_error());
-    	throw xrmc_exception("Could not load module xrmc-xmimsim\n");
-    }
-
-    if (!g_module_symbol(xrmc_xmimsim, "xmi_check_xrmc_xmimsim_plugin", (gpointer *) &xmi_check_xrmc_xmimsim_plugin)) {
-        g_module_close(xrmc_xmimsim);
-	g_fprintf(stderr, "GModule error message: %s\n", g_module_error());
-    	throw xrmc_exception("Could not get symbol xmi_check_xrmc_xmimsim_plugin from module xrmc-xmimsim\n");
-    }
-
-    if (xmi_check_xrmc_xmimsim_plugin == NULL) {
-        g_module_close(xrmc_xmimsim);
-    	throw xrmc_exception("Symbol xmi_check_xrmc_xmimsim_plugin from module xrmc-xmimsim is NULL\n");
-    }
-
-    if (xmi_check_xrmc_xmimsim_plugin() == 1) {
-        g_fprintf(stdout,"xrmc_xmimsim plugin is functional\n");
-    }
-	
-
-
-  	Init();  // initialize detectorconvolute
+  	//Init();  // initialize detectorconvolute
 
 	return 0;
 }

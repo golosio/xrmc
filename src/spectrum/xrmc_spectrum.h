@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SpectrumH
 #include <string>
 #include "xrmc_device.h"
+#include "randmt.h"
 using namespace std;
 
 // spectrum class definition, member variables and functions
@@ -70,6 +71,7 @@ class spectrum : public xrmc_device
   int Resample(); // method for resampling the continuous spectrum
  public:
   double TotalIntensity;
+  randmt_t *rng;
 
   ~spectrum(); // destructor
   spectrum(string dev_name); // constructor
@@ -97,6 +99,8 @@ class spectrum : public xrmc_device
   // Extract the energy value and polarization type from a specified 
   // interval of the continuous spectrum distribution
   int IntervalRandomEnergy(double *E, int interval_idx, int pol_idx);
+
+  spectrum *Clone(string dev_name);
 }; 
 
 #endif

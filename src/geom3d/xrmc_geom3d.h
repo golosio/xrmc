@@ -55,6 +55,7 @@ public:
   int Transform(matr4 M); // Congruence transform of the quadric with matrix M
   int SetElem(int i, int j, double elem); // Mij and Mji to the value elem
   int ChangeSign(); // change the sign
+  friend bool operator==(quadric &Quadr1, quadric &Quadr2);
 };
 
 typedef std::map<std::string, quadric*> quadric_map;
@@ -77,6 +78,7 @@ class quadricarray : public xrmc_device
 
   // insert name and pointer to the quadric in the quadric map
   int MapQuadric(FILE *fp);
+  quadricarray *Clone(string dev_name);
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -104,6 +106,7 @@ class qvolume
   // method for finding the intersections of a line with the object
   int Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1, \
 		 int *n_inters);
+  qvolume& operator= (const qvolume &QVolume);
 };
 
 
@@ -135,6 +138,7 @@ class geom3d : public xrmc_device
   //  with all quadrics and all 3d objects
   int Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1, \
 		int *n_inters);
+  geom3d *Clone(string dev_name);
  private:
   std::string **QVolMap; // map of the quadrics delimiting the objects 
 };

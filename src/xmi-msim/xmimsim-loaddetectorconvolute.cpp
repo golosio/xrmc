@@ -44,8 +44,8 @@ int detectorconvolute::Load(FILE *fp) {
     		// parse the command and decide what to do
 		if (comm == "CompositionName") {
 			GetToken(fp, s);
-			CompositionName = s;
-			cout << "Composition device name: " << CompositionName << "\n";
+			InputDeviceName[1] = s;
+			cout << "Composition device name: " << InputDeviceName[1] << "\n";
 		}
 		else if (comm == "CrystalPhase") {
 			GetToken(fp, s);
@@ -79,7 +79,7 @@ int detectorconvolute::Load(FILE *fp) {
 		}
     		else if(comm=="SourceName") { // set the source input device name
       			GetToken(fp, s);
-      			SourceName = s;
+      			InputDeviceName[0] = s;
       			cout << "Source input device name: " << SourceName << "\n";
     		} 
     		else if(comm=="NPixels") { // set the number of pixels (rows and columns)
@@ -271,7 +271,7 @@ int detectorconvolute::SaveUnconvoluted(string file_name) {
 
 int detectorconvolute::SetDefault() {
 	detectorarray::SetDefault();
-	CompositionName = "Composition";
+	InputDeviceName[1] = "Composition";
 	CrystalPhaseName = "Crystal";
 	WindowPhaseName = "Window";
 	xd->detector_type = XMI_DETECTOR_SILI;

@@ -101,6 +101,7 @@ class matr4
   static matr4 Identity(); // 4 x 4 identity matrix
   // 4 x 4 matrix insertion (output) operator
   friend std::ostream &operator<<(std::ostream &stream, matr4 m);
+  friend bool operator==(matr4 &Matr1, matr4 &Matr2);
 };
 
 // build a orthonormal basis from the two vectors vk, vi

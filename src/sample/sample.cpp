@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <cmath>
+#include <string.h>
 #include "xrmc_sample.h"
 #include "xrmc_composition.h"
 #include "xrmc_algo.h"
@@ -294,9 +295,16 @@ int sample::LinearMuDelta(vect3 x0, vect3 u)
 vect3 sample::RandomPoint()
 {
   vect3 v = Geom3D->X; // center of the sample region
-  v.Elem[0] += (-1. + 2.*Rnd())*Geom3D->HW[0]; // uniform probability
-  v.Elem[1] += (-1. + 2.*Rnd())*Geom3D->HW[1]; // distribution
-  v.Elem[2] += (-1. + 2.*Rnd())*Geom3D->HW[2]; // in a parallelepiped
+  if (rng == NULL) {
+  	v.Elem[0] += (-1. + 2.*Rnd())*Geom3D->HW[0]; // uniform probability
+  	v.Elem[1] += (-1. + 2.*Rnd())*Geom3D->HW[1]; // distribution
+  	v.Elem[2] += (-1. + 2.*Rnd())*Geom3D->HW[2]; // in a parallelepiped
+  }
+  else {
+  	v.Elem[0] += (-1. + 2.*Rnd_r(rng))*Geom3D->HW[0]; // uniform probability
+  	v.Elem[1] += (-1. + 2.*Rnd_r(rng))*Geom3D->HW[1]; // distribution
+  	v.Elem[2] += (-1. + 2.*Rnd_r(rng))*Geom3D->HW[2]; // in a parallelepiped
+  }
 
   return 0;
 }
@@ -360,7 +368,10 @@ double path::StepLength(int *step_idx, double *p_abs)
   *p_abs = 1. - exp(-sum_mu_s); // total absorption probability
   
   do {
-    R = Rnd(); // random number 0-1
+    if (rng == NULL)
+      R = Rnd(); // random number 0-1
+    else
+      R = Rnd_r(rng);
     logarg = 1 - R*(*p_abs); // use the inverse cumulative distribution
   } while (logarg<logargmin); // check for logarith underflow
   
@@ -386,7 +397,7 @@ double path::WeightedStepLength(int *step_idx, double *weight)
   double sum, step_length, l, MuS, w;
   int i, m;
 
-  m = (int)floor(Rnd()*NSteps);  // choose a step at random
+  m = (int)floor((rng == NULL ? Rnd() : Rnd_r(rng))*NSteps);  // choose a step at random
   if (m >= NSteps) m = NSteps - 1;
 
   sum = 0;
@@ -397,7 +408,7 @@ double path::WeightedStepLength(int *step_idx, double *weight)
   }
   MuS = Mu[m]*Step[m]; // mu * steplength on the step extracted
   w = exp(-sum)*NSteps;
-  l = Rnd()*Step[m]; // random position on last step
+  l = (rng == NULL ? Rnd() : Rnd_r(rng))*Step[m]; // random position on last step
   step_length += l; // total steplength up to the interaction position
   *weight = w*exp(-Mu[m]*l) * MuS; // weight of the event
   *step_idx = m;
@@ -463,3 +474,49 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
   return 0;
 }
 
+basesource *sample::Clone(string dev_name) {
+	cout << "Entering sample::Clone\n";	
+	sample *clone = new sample(dev_name);
+	clone->Path = Path->Clone();
+	clone->ScattOrderNum = ScattOrderNum;
+	clone->PhotonNum = new int[ScattOrderNum];
+	memcpy(clone->PhotonNum, PhotonNum, sizeof(int)*ScattOrderNum);  
+	clone->ScattOrderIdx = ScattOrderIdx;
+	clone->PhotonIdx = PhotonIdx;
+	clone->WeightedStepLength = WeightedStepLength;
+	//clone Source
+	clone->Source = Source->Clone(InputDeviceName[0]);
+	clone->Geom3D = Geom3D->Clone(InputDeviceName[1]);
+	clone->InputDeviceName[1] = InputDeviceName[1];
+	clone->InputDeviceName[2] = InputDeviceName[2];
+	//Comp is to be fetched from geom3d if possible
+	if (InputDeviceName[2] == Geom3D->InputDeviceName[1])
+		clone->Comp = clone->Geom3D->Comp;
+	else
+		clone->Comp = Comp->Clone(InputDeviceName[2]);
+
+	clone->X = X;
+	clone->ui = ui;
+	clone->uk = uk;
+	clone->uj = uj;
+
+
+
+	return dynamic_cast<basesource*>(clone);
+}
+
+path *path::Clone() {
+	cout << "Entering path::Clone\n";
+	path *clone = new path;
+	clone->MaxNSteps = MaxNSteps;
+	clone->t = new double[MaxNSteps];
+	clone->Step = new double[MaxNSteps];
+	clone->iPh0 = new int[MaxNSteps];
+	clone->iPh1 = new int[MaxNSteps];
+	clone->Mu = new double[MaxNSteps];
+	clone->Delta = new double[MaxNSteps];
+	clone->SumMuS = new double[MaxNSteps];
+	clone->SumS = new double[MaxNSteps];
+
+	return clone;
+}

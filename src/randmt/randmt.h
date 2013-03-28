@@ -56,6 +56,10 @@ int main(void)
 #ifndef _RANDMT_H_
 #define _RANDMT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef M_PI
 /** \brief The constant \f$ \pi \f$ */
 #define M_PI        3.14159265358979323846264338327950288419176939937510
@@ -427,4 +431,7 @@ for(i = 0; i < 10; i++)
 
 /** \} */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _RANDMT_H_ */

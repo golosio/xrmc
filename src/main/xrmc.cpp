@@ -96,7 +96,7 @@ int xrmc::LinkDevices()
   for (xrmc_device_map::iterator it=DeviceMap.begin(); it!=DeviceMap.end();
        it++) {
     dev_pt=it->second; // pointer to the device
-    dev_pt->LinkInputDevices(&DeviceMap); // launch ImportDevice method on it
+    dev_pt->LinkInputDevices(&DeviceMap); //launch LinkInputDevice method on it
   }
 
   return 0;

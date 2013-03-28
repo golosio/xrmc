@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_photon.h"
 #include "xrmc_device.h"
 #include "xrmc_math.h"
+#include "randmt.h"
 
 // generic (virtual) class for sources
 class basesource : public bodydevice
@@ -46,6 +47,7 @@ class basesource : public bodydevice
   // the position x1
   virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx)
     {*ModeIdx=0; return Out_Photon_x1(Photon, x1);}  
+  virtual basesource *Clone(string dev_name) {return NULL;};
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -59,9 +61,12 @@ class source : public basesource
   double Omega; // source aperture solid angle  
   double Sigmax, Sigmay, Sigmaz; // source size in local coordinate system
   int SizeFlag;
+  randmt_t *rng;
+  spectrum *Spectrum; // input spectrum device
 
   // Constructor
   source(std::string dev_name);
+
   int Load(FILE *fp); // method for loading source parameters from file
   // method for casting input device to type spectrum
   int CastInputDevices();
@@ -77,10 +82,9 @@ class source : public basesource
   int Out_Photon_x1(photon *Photon, vect3 x1);
   // maximum value of polar angle theta for a specified value of phi
   double CosThL(double phi);
+  basesource *Clone(string dev_name);
 
  private:
-  spectrum *Spectrum; // input spectrum device
-
   // extract the initial direction of a photon produced by the source
   int PhotonDirection(photon *Photon, int pol);
   // build the photon local axis based on its direction and polarization

@@ -1,4 +1,4 @@
 noinst_LTLIBRARIES = librandmt.la
 
-librandmt_la_SOURCES = randmt.cpp randmt.h
+librandmt_la_SOURCES = randmt.c randmt.h
 

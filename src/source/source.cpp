@@ -113,8 +113,12 @@ int source::Out_Photon(photon *Photon)
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-    Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
-      + uk*Sigmaz*GaussRnd();
+    if (rng == NULL)
+      Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
+        + uk*Sigmaz*GaussRnd();
+    else
+      Photon->x += ui*Sigmax*GaussRnd_r(rng) + uj*Sigmay*GaussRnd_r(rng)
+        + uk*Sigmaz*GaussRnd_r(rng);
   }
   // call source method for extracting photon initial direction
   PhotonDirection(Photon, pol);
@@ -133,24 +137,24 @@ int source::PhotonDirection(photon *Photon, int pol)
   if (Thy==0) {
     sin_phi = 0;
     cos_phi = 1;
-    double theta = (2.*Rnd()-1)*Thx;
+    double theta = (2.*(rng == NULL ? Rnd() : Rnd_r(rng))-1)*Thx;
     sin_theta=sin(theta);
     cos_theta=cos(theta);
   }
   else if (Thx==0) {
     sin_phi = 1;
     cos_phi = 0;
-    double theta = (2.*Rnd()-1)*Thy;
+    double theta = (2.*(rng == NULL ? Rnd() : Rnd_r(rng))-1)*Thy;
     sin_theta=sin(theta);
     cos_theta=cos(theta);
   }
   else {
-    phi = 2*PI*Rnd(); // random azimuthal angle phi (0,2*PI)
+    phi = 2*PI*(rng == NULL ? Rnd() : Rnd_r(rng)); // random azimuthal angle phi (0,2*PI)
     cos_phi = cos(phi);
     sin_phi = sin(phi);
     cos_theta_lim = CosThL(phi); //maximum value of theta for this value of phi 
     Photon->w *= 2*PI*(1. - cos_theta_lim)/Omega;
-    cos_theta = 1. - Rnd()*(1. - cos_theta_lim); // cosine of polar angle theta
+    cos_theta = 1. - (rng == NULL ? Rnd() : Rnd_r(rng))*(1. - cos_theta_lim); // cosine of polar angle theta
     sin_theta = sqrt(1 - cos_theta*cos_theta); // sine of theta
   }
   x = sin_theta*cos_phi; // components of the photon direction
@@ -269,8 +273,12 @@ int source::Out_Photon_x1(photon *Photon, vect3 x1)
  
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-    Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
-      + uk*Sigmaz*GaussRnd();
+    if (rng == NULL)
+      Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
+        + uk*Sigmaz*GaussRnd();
+    else
+      Photon->x += ui*Sigmax*GaussRnd_r(rng) + uj*Sigmay*GaussRnd_r(rng)
+        + uk*Sigmaz*GaussRnd_r(rng);
   }
   // ask spectrum device to extrace the photon energy and polarization
   Spectrum->ExtractEnergy(&w, &E, &pol);
@@ -288,3 +296,30 @@ int source::Out_Photon_x1(photon *Photon, vect3 x1)
 
   return 0;
 }
+
+basesource *source::Clone(string dev_name) {
+	cout << "Entering source::Clone\n";
+	source *clone = new source(dev_name);
+	clone->Thx = Thx;
+	clone->Thy = Thy;
+	clone->Cos2Thx = Cos2Thx;
+	clone->Sin2Thx = Sin2Thx;
+	clone->Cos2Thy = Cos2Thy;
+	clone->Sin2Thy = Sin2Thy;
+	clone->Omega = Omega;
+	clone->Sigmax = Sigmax;
+	clone->Sigmay = Sigmay;
+	clone->Sigmaz = Sigmaz;
+	clone->SizeFlag = SizeFlag;
+	clone->InputDeviceName[0] = InputDeviceName[0];
+	clone->X = X;
+	clone->ui = ui;
+	clone->uj = uj;
+	clone->uk = uk;
+	//clone Spectrum
+	clone->Spectrum = Spectrum->Clone(InputDeviceName[0]);
+
+
+	return dynamic_cast<basesource*>(clone);
+}
+

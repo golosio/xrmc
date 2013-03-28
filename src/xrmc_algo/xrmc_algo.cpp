@@ -68,7 +68,7 @@ int xrmc_algo::Locate(double x, double x_arr[], int N, int *idx)
 // according to a 2d Gaussian distribution, and returns the value of X
 // At odd calls, it returns the value of Y generated in the previous call
 //////////////////////////////////////////////////////////////////////
-double xrmc_algo::GaussRnd()
+/*double xrmc_algo::GaussRnd()
 {
   double x, y, r2, inv_cumul, X;
   static int PrevFlag = 0; //1 if there is a ready value of Y from previous call
@@ -94,7 +94,7 @@ double xrmc_algo::GaussRnd()
   PrevFlag = 1;
 
   return X;
-}
+}*/
 
 //////////////////////////////////////////////////////////////////////
 // Computes the integral of the real function func from a to b

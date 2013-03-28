@@ -42,9 +42,18 @@ if test -z $CXX ; then
         AC_MSG_ERROR([no C++ compiler was found on the system.])
 fi
 
+#look for openmp support in C++
+AC_LANG_PUSH(C++)
+AC_OPENMP
+AC_LANG_POP(C++)
+
+
+
+
 #look for xraylib
 #initialize pkg-config
 PKG_PROG_PKG_CONFIG
+
 
 #search for xraylib and other modules
 PKG_CHECK_MODULES([xraylib],libxrl >= 2.15.0)
