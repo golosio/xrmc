@@ -1,6 +1,6 @@
 ; Composition file
 ;
-composition			; Device type
+Newdevice composition			; Device type
 Composition			; Device name
 
 Phase PMMA	   ; PMMA (Polymethyl methacrylate)

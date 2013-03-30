@@ -1,6 +1,6 @@
 ; 3D object geometric description file
 ;
-geom3d				; Device type
+Newdevice geom3d				; Device type
 Geom3D				; Device name
 QArrName QuadricArray		; Quadric array input device name
 CompName Composition		; Composition input device name

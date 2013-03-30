@@ -21,11 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////
 // Methods of the class device
 //
+#include <iostream>
 #include <string>
 #include <vector>
+#include "xrmc.h"
+#include "xrmc_gettoken.h"
 #include "xrmc_device.h"
 
 using namespace std;
+using namespace gettoken;
 
 // initialization of the class device
 int xrmc_device::SetDevice(string dev_name, string dev_type)
@@ -107,3 +111,23 @@ int xrmc_device::RecursiveRunFree()
   return 0;
 }
 */
+
+//////////////////////////////////////////////////////////////////////
+// parse device file for input device commands
+//////////////////////////////////////////////////////////////////////
+bool xrmc_device::ParseInputDeviceCommand(FILE *fp, string comm_str)
+{
+  char s[MAXSTRLEN];
+
+  for(int i=0; i<NInputDevices; i++) {
+    if (comm_str==InputDeviceCommand[i]) { // set the input device name
+      GetToken(fp, s);
+      InputDeviceName[i] = s;
+      cout << InputDeviceDescription[i] << ": " << InputDeviceName[i] << "\n";
+      return true;
+    } 
+  }
+
+  return false;
+}
+

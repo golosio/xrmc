@@ -44,7 +44,7 @@ class xrmc
  private:
   xrmc_device_map DeviceMap; // map of devices used by the simulation
 
-  int LoadDevice(FILE *fp); //method for loading a new device
+  int LoadDevice(FILE *fp); //method for loading a (new or existing) device
   int LinkDevices(); // method for linking all previously defined devices
   int RunDevice(FILE *fp); // launch the run method on a device
   int SaveDevice(FILE *fp); // launching the save method on a device

@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_exception.h"
 #include "xrmc_device.h"
 #include "xrmc_gettoken.h"
+				    /*
 #include "xrmc_spectrum.h"
 #include "xrmc_source.h"
 #include "xrmc_composition.h"
@@ -38,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef HAVE_XMIMSIM
 #include "xrmc_detectorconvolute.h"
 #endif
-
+				    */
 using namespace std;
 using namespace gettoken;
 
@@ -48,65 +49,44 @@ using namespace gettoken;
 //////////////////////////////////////////////////////////////////////
 int xrmc::LoadDevice(FILE *fp)
 {
-  char file_name[MAXSTRLEN], dev_type[MAXSTRLEN], dev_name[MAXSTRLEN];
-  string type_str;
+  char file_name[MAXSTRLEN], comm[MAXSTRLEN], dev_name[MAXSTRLEN];
+  string comm_str;
   FILE *dev_fp;
-  xrmc_device *dev_pt;
   xrmc_device_map_insert_pair insert_pair;
+  xrmc_device *dev_pt;
 
   GetToken(fp, file_name); // read from fp the name of the device input file
   cout << "Device file: " << file_name << "\n";
   if ((dev_fp = fopen(file_name,"r")) == NULL)
     throw xrmc_exception("Device file can not be opened.");
-  GetToken(dev_fp, dev_type); // read the device type
-  cout << "Device type: " << dev_type << "\n";
-  GetToken(dev_fp, dev_name); // read the device name
-  cout << "Device name: " << dev_name << "\n";
-  type_str = dev_type;
-
-  // compare the device type against known types
-  // and creates the device with the appropriate derived class constructor
-  if (type_str=="spectrum") {
-    dev_pt = new spectrum(dev_name);
+  GetToken(dev_fp, comm); // read the command
+  comm_str = comm;
+  if (comm_str=="Newdevice") {
+    if (xrmc_device::LoadNewDevice(dev_fp, dev_pt)==0) {
+      // insert name and pointer to the new device in the device map
+      insert_pair = DeviceMap.insert(xrmc_device_map_pair(dev_pt->Name,
+							  dev_pt));
+      if(insert_pair.second == false) // check that it was not already inserted
+	throw xrmc_exception(string("Device ") + dev_pt->Name + 
+			     " already inserted in device map\n");
+    }
   }
-  else if (type_str=="source") {
-    dev_pt = new source(dev_name);
+  else if (comm_str=="Device") {
+    GetToken(dev_fp, dev_name); // read the device name
+    cout << "Device name: " << dev_name << "\n";
+    xrmc_device_map::iterator it = DeviceMap.find(dev_name);
+     // check that the device was defined in device map
+    if (it==DeviceMap.end()) {
+      throw xrmc_exception(string("Device ") + dev_name + 
+			   " not found in device map!");
+    }
+    dev_pt = (*it).second;
+    dev_pt->Load(dev_fp); // load device parameters from device file
   }
-  else if (type_str=="composition") {
-    dev_pt = new composition(dev_name);
-  }
-  else if (type_str=="quadricarray") {
-    dev_pt = new quadricarray(dev_name);
-  }
-  else if (type_str=="geom3d") {
-    dev_pt = new geom3d(dev_name);
-  }
-  else if (type_str=="sample") {
-    dev_pt = new sample(dev_name);
-  }
-  else if (type_str=="detectorarray") {
-    dev_pt = new detectorarray(dev_name);
-  }
-  else if (type_str=="detectorconvolute") {
-#ifdef HAVE_XMIMSIM
-    dev_pt = new detectorconvolute(dev_name);
-#else
-    throw xrmc_exception(string("Device type ") + type_str + " not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
-#endif
-  }
-  else // unknown device type
-    throw xrmc_exception(string("Device type ") + type_str + " not known.\n");
-  // insert name and pointer to the new device in the device map
-  insert_pair = DeviceMap.insert(xrmc_device_map_pair(dev_name,
-						       dev_pt));
-  if(insert_pair.second == false) // check that it was not already inserted
-    throw xrmc_exception(string("Device ") + dev_name + 
-	      " already inserted in device map\n");
-   
-  dev_pt->SetDefault(); // set default values for device parameters
-  dev_pt->Load(dev_fp); // load device parameters from device file
-                        // and initialize the device
-  fclose(dev_fp);
+  else // unknown command
+    throw xrmc_exception(string("Unrecognized command ") + comm_str +
+			 " in device file.\n");
   
   return 0;
 }
+

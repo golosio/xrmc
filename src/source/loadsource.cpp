@@ -46,7 +46,7 @@ int source::Load(FILE *fp)
   vect3 x0, u;
   matr3 R;
   double theta;
-  char comm_ch[MAXSTRLEN], s[MAXSTRLEN];
+  char comm_ch[MAXSTRLEN];
   string comm="";
 
   cout << "Source position/orientation file\n";
@@ -55,11 +55,9 @@ int source::Load(FILE *fp)
     GetToken(fp, comm_ch); // get a command/variable name from input file
     comm = comm_ch;
     // parse the command and decide what to do
-    if(comm=="SpectrumName") { // set the spectrum input device name
-      GetToken(fp, s);
-      InputDeviceName[0] = s;
-      cout << "Spectrum input device name: " << InputDeviceName[0] << "\n";
-    } 
+    //
+    // check if it's a command for setting an input device name
+    if (ParseInputDeviceCommand(fp, comm)) continue;
     else if(comm=="X") { // set the source coordinates
       cout << "Source position :\t";
       for (i=0; i<3; i++) {

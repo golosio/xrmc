@@ -59,6 +59,9 @@ detectorconvolute::detectorconvolute(string dev_name)
   : detectorarray(dev_name) {
   SaveDataName.push_back("convolutedImage");
   NInputDevices = 2;
+  InputDeviceCommand.push_back("CompositionName");
+  InputDeviceDescription.push_back("Composition input device name");
+
   SetDevice(dev_name, "detectorconvolute");
 
   xd = (struct xmi_detector *) malloc(sizeof(struct xmi_detector));

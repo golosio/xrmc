@@ -42,11 +42,9 @@ int detectorconvolute::Load(FILE *fp) {
     		GetToken(fp, comm_ch); // get a command/variable name from input file
     		comm = comm_ch;
     		// parse the command and decide what to do
-		if (comm == "CompositionName") {
-			GetToken(fp, s);
-			InputDeviceName[1] = s;
-			cout << "Composition device name: " << InputDeviceName[1] << "\n";
-		}
+		//
+		// check if it's a command for setting an input device name
+		if (ParseInputDeviceCommand(fp, comm)) continue;
 		else if (comm == "CrystalPhase") {
 			GetToken(fp, s);
 			CrystalPhaseName = s;

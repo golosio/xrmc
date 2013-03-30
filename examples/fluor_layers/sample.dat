@@ -1,7 +1,7 @@
 ; Sample parameters file
 ;
 ;
-sample      ; Device type
+Newdevice sample      ; Device type
 Sample      ; Device name
 SourceName Source               ; Source input device name
 Geom3DName Geom3D               ; Geom3d input device name

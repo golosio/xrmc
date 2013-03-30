@@ -32,8 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_math.h"
 #include "xrmc_exception.h"
 
-				    //using namespace std;
-
 class xrmc_device;
 
 typedef std::map<std::string, xrmc_device*> xrmc_device_map;
@@ -53,6 +51,8 @@ class xrmc_device
   int NInputDevices;
   std::vector<xrmc_device*> InputDevice;
   std::vector<std::string> InputDeviceName;
+  std::vector<std::string> InputDeviceDescription;
+  std::vector<std::string> InputDeviceCommand;
   // initialization
   int SetDevice(std::string dev_name, std::string dev_type);
   // method for linking input devices
@@ -63,7 +63,8 @@ class xrmc_device
   int RecursiveRunInit();
   // recursive cleaning after run method
   //int RecursiveRunFree();
-
+  //method for loading a new device
+  static int LoadNewDevice(FILE *dev_fp, xrmc_device*& dev_pt);
   //////////////////////////////////////////////////////////////////////
   //virtual methods of the class 
   //////////////////////////////////////////////////////////////////////
@@ -87,7 +88,7 @@ class xrmc_device
   //  throw xrmc_exception(string("Device of type ") + DeviceType + 
   //			 "does not have input devices\n");
   //}
-
+  virtual bool ParseInputDeviceCommand(FILE *fp, std::string str);
  protected:
   int LoopIdx; // index of event loop
 };

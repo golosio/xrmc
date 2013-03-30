@@ -1,6 +1,6 @@
 ; Spectrum file
 ;
-spectrum		; Device type
+Newdevice spectrum		; Device type
 Spectrum		; Device name
 PolarizedFlag 0		; unpolarized/polarized beam (0/1)
 LoopFlag 1		; 0: extract random energies on the whole spectrum

@@ -41,7 +41,7 @@ int detectorarray::Load(FILE *fp)
   vect3 x0, u;
   matr3 R;
   double theta;
-  char comm_ch[MAXSTRLEN], s[MAXSTRLEN];
+  char comm_ch[MAXSTRLEN];
   string comm="";
 
   cout << "Detector Array parameters, position, orientation and size file\n";
@@ -50,11 +50,9 @@ int detectorarray::Load(FILE *fp)
     GetToken(fp, comm_ch); // get a command/variable name from input file
     comm = comm_ch;
     // parse the command and decide what to do
-    if(comm=="SourceName") { // set the source input device name
-      GetToken(fp, s);
-      InputDeviceName[0] = s;
-      cout << "Source input device name: " << InputDeviceName[0] << "\n";
-    } 
+    //
+    // check if it's a command for setting an input device name
+    if (ParseInputDeviceCommand(fp, comm)) continue;
     else if(comm=="NPixels") { // set the number of pixels (rows and columns)
       GetIntToken(fp, &NX);
       GetIntToken(fp, &NY);

@@ -1,6 +1,6 @@
 ; Source position/orientation file
 ;
-source				; Device type
+Newdevice source				; Device type
 Source				; Device name
 SpectrumName Spectrum		; Spectrum input device name
 X 0 -100  0			; source x, y, z

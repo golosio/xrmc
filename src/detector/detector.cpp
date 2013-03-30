@@ -51,6 +51,9 @@ detectorarray::detectorarray(string dev_name) {
   Runnable = true;
   SaveDataName.push_back("Image");
   NInputDevices = 1;
+  InputDeviceCommand.push_back("SourceName");
+  InputDeviceDescription.push_back("Source input device name");
+
   PixelX=NULL;
   Image=NULL;
   NX = NY = N = PhotonNum = NBins = ModeNum = 0;

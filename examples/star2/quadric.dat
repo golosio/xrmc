@@ -1,6 +1,6 @@
 ; Quadric array file
 ;
-quadricarray				; Device type
+Newdevice quadricarray				; Device type
 QuadricArray				; Device name
 
 ;external pentagon

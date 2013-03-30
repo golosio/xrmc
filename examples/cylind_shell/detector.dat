@@ -1,6 +1,6 @@
 ; Detector array parameter file
 ;
-detectorarray			; Device type
+Newdevice detectorarray			; Device type
 DetectorArray			; Device name
 SourceName Sample		; Source input device name
 NPixels 400 400			; Pixel number (NX x NY)

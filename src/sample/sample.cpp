@@ -45,6 +45,13 @@ sample::~sample() { // destructor
 sample::sample(string dev_name) {
   Runnable = false;
   NInputDevices = 3;
+  InputDeviceCommand.push_back("SourceName");
+  InputDeviceDescription.push_back("Source input device name");
+  InputDeviceCommand.push_back("Geom3DName");
+  InputDeviceDescription.push_back("Geom3D input device name");
+  InputDeviceCommand.push_back("CompName");
+  InputDeviceDescription.push_back("Composition input device name");
+
   PhotonNum = NULL;
   Path = NULL;
   SetDevice(dev_name, "sample");

@@ -37,7 +37,7 @@ using namespace gettoken;
 int sample::Load(FILE *fp)
   // Loads sample parameters file
 {
-  char comm_ch[MAXSTRLEN], s[MAXSTRLEN];
+  char comm_ch[MAXSTRLEN];
   string comm="";
 
   cout << "Sample parameters file\n";
@@ -46,21 +46,9 @@ int sample::Load(FILE *fp)
     GetToken(fp, comm_ch); // get a command/variable name from input file
     comm = comm_ch;
     // parse the command and decide what to do
-    if (comm=="SourceName") { // set the source input device name
-      GetToken(fp, s);
-      InputDeviceName[0] = s;
-      cout << "Source input device name: " << InputDeviceName[0] << "\n";
-    } 
-    else if (comm=="Geom3DName") { // set the geom3d device name
-      GetToken(fp, s);
-      InputDeviceName[1] = s;
-      cout << "Geom3D input device name: " << InputDeviceName[1] << "\n"; 
-    } 
-    else if (comm=="CompName") { // set the composition device name
-      GetToken(fp, s);
-      InputDeviceName[2] = s;
-      cout << "Composition input device name: " << InputDeviceName[2] << "\n"; 
-    } 
+    //
+    // check if it's a command for setting an input device name
+    if (ParseInputDeviceCommand(fp, comm)) continue;
     // flag for weighted step length
     else if(comm=="WeightedStepLength") { 
       GetIntToken(fp, &WeightedStepLength);

@@ -44,6 +44,11 @@ geom3d::~geom3d() {
 geom3d::geom3d(string dev_name) {
   Runnable = false;
   NInputDevices = 2;
+  InputDeviceCommand.push_back("QArrName");
+  InputDeviceDescription.push_back("Quadric array input device name");
+  InputDeviceCommand.push_back("CompName");
+  InputDeviceDescription.push_back("Composition input device name");
+
   QVolMap = NULL;
   QVol = NULL;
   NQVol = 0;

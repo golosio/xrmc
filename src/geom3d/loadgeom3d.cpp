@@ -49,16 +49,9 @@ int geom3d::Load(FILE *fp)
     GetToken(fp, comm_ch); // get a command/variable name from input file
     comm = comm_ch;
     // parse the command and decide what to do
-    if(comm=="QArrName") { // set the quadricarray input device name
-      GetToken(fp, s);
-      InputDeviceName[0] = s;
-      cout << "Quadric array input device name: " << InputDeviceName[0] << "\n";
-    }
-    else if (comm=="CompName") { // set the composition device name
-      GetToken(fp, s);
-      InputDeviceName[1] = s;
-      cout << "Composition input device name: " << InputDeviceName[1] << "\n"; 
-    } 
+    //
+    // check if it's a command for setting an input device name
+    if (ParseInputDeviceCommand(fp, comm)) continue;
     else if(comm=="X") { // set the sample region center coordinates
       cout << "Sample region center coordinates: \t"; 
       for (i=0; i<3; i++) {

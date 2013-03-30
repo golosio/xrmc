@@ -37,6 +37,9 @@ using namespace xrmc_algo;
 source::source(string dev_name) {
   Runnable = false;
   NInputDevices=1;
+  InputDeviceCommand.push_back("SpectrumName");
+  InputDeviceDescription.push_back("Spectrum input device name");
+
   SetDevice(dev_name, "source");
 }
 
