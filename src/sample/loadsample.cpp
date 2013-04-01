@@ -34,39 +34,38 @@ using namespace std;
 using namespace gettoken;
 
 //////////////////////////////////////////////////////////////////////
-int sample::Load(FILE *fp)
+int sample::Load(istream &fs)
   // Loads sample parameters file
 {
-  char comm_ch[MAXSTRLEN];
   string comm="";
 
   cout << "Sample parameters file\n";
 
-  while (!feof(fp) && comm!="End") {
-    GetToken(fp, comm_ch); // get a command/variable name from input file
-    comm = comm_ch;
+  // get a command/variable name from input file
+  while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     //
     // check if it's a command for setting an input device name
-    if (ParseInputDeviceCommand(fp, comm)) continue;
+    if (ParseInputDeviceCommand(fs, comm)) continue;
     // flag for weighted step length
     else if(comm=="WeightedStepLength") { 
-      GetIntToken(fp, &WeightedStepLength);
+      GetIntToken(fs, &WeightedStepLength);
       cout << "Weighted step length (0/1): " << WeightedStepLength << "\n";
     }
     // flag for activating/deactivating fluorescent emission
     else if(comm=="FluorFlag") { 
-      GetIntToken(fp, &photon::FluorFlag);
+      GetIntToken(fs, &photon::FluorFlag);
       cout << "Activate Fluorescence (0/1): " << photon::FluorFlag << "\n";
     }
     else if(comm=="ScattOrderNum") { // Maximum scattering order
-      GetIntToken(fp, &ScattOrderNum);
+      GetIntToken(fs, &ScattOrderNum);
       cout << "Maximum scattering order: " << ScattOrderNum << "\n";
       ScattOrderNum++;
-      delete[] PhotonNum; // remove previously allocated array
+      // remove previously allocated array
+      if (PhotonNum!=NULL) delete[] PhotonNum;
       PhotonNum = new int[ScattOrderNum]; // allocate new array
       for (int i=0; i<ScattOrderNum; i++) {
-	GetIntToken(fp, &PhotonNum[i]); // Multiplicity of simulated events
+	GetIntToken(fs, &PhotonNum[i]); // Multiplicity of simulated events
 	cout << "Multiplicity of simulated events for scattering order "
 	     << i << ": " << PhotonNum[i] << "\n";
       }

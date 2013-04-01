@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <string>
 #include <iostream>
-#include <stdio.h>
 #include "xrmc_photon.h"
 #include "xrmc_sample.h"
 #include "xrmc_composition.h"

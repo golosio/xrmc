@@ -1,4 +1,4 @@
-/*
+3/*
 Copyright (C) 2013 Bruno Golosio and Tom Schoonjans
 
 This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ class detectorconvolute : public detectorarray
   detectorconvolute(string dev_name); //constructor
 
   int CastInputDevices(); // cast input device method
-  int Load(FILE *fp); // load detector parameters, position, orientation
+  int Load(istream &fs); // load detector parameters, position, orientation
   int Save(string file_name); // save the acquired image in a file
   int SaveUnconvoluted(string file_name); // save the acquired, unconvoluted image in a file
   int SetDefault(); // set the default values for detector parameters

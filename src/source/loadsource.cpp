@@ -39,29 +39,27 @@ using namespace gettoken;
 using namespace xrmc_algo;
 
 //////////////////////////////////////////////////////////////////////
-int source::Load(FILE *fp)
+int source::Load(istream &fs)
   // Loads source position/orientation
 {
   int i;
   vect3 x0, u;
   matr3 R;
   double theta;
-  char comm_ch[MAXSTRLEN];
   string comm="";
 
   cout << "Source position/orientation file\n";
 
-  while (!feof(fp) && comm!="End") {
-    GetToken(fp, comm_ch); // get a command/variable name from input file
-    comm = comm_ch;
+ // get a command/variable name from input file
+  while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     //
     // check if it's a command for setting an input device name
-    if (ParseInputDeviceCommand(fp, comm)) continue;
+    if (ParseInputDeviceCommand(fs, comm)) continue;
     else if(comm=="X") { // set the source coordinates
       cout << "Source position :\t";
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &X.Elem[i]);
+	GetDoubleToken(fs, &X.Elem[i]);
 	//cout << X[i] << "\t";
       }
       cout << X << endl;
@@ -71,7 +69,7 @@ int source::Load(FILE *fp)
       cout << "Source orientation :\n"; 
       cout << "\tuk vector (local z axis, main source direction):\t"; 
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &uk.Elem[i]);
+	GetDoubleToken(fs, &uk.Elem[i]);
 	//cout << uk[i] << "\t";
       }
       cout << uk << endl;
@@ -81,24 +79,24 @@ int source::Load(FILE *fp)
       cout << "Source orientation :\n"; 
       cout << "\tui vector (local x axis direction):\t"; 
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &ui.Elem[i]);
+	GetDoubleToken(fs, &ui.Elem[i]);
 	//cout << ui[i] << "\t";
       }
       cout << ui << endl;
       //cout << "\n";
     }	
     else if(comm=="Divergence") { // Beam divergence (thetax, thetay)
-      GetDoubleToken(fp, &Thx);
-      GetDoubleToken(fp, &Thy);
+      GetDoubleToken(fs, &Thx);
+      GetDoubleToken(fs, &Thy);
       cout << "Beam divergence (thetax, thetay): "
 	   << Thx << "\t" << Thy << "\n";
     }
     else if(comm=="Size") { // Source size (sigmax, sigmay, sigmaz)
                             // in local coordinate system
       SizeFlag = 1;
-      GetDoubleToken(fp, &Sigmax);
-      GetDoubleToken(fp, &Sigmay);
-      GetDoubleToken(fp, &Sigmaz);
+      GetDoubleToken(fs, &Sigmax);
+      GetDoubleToken(fs, &Sigmay);
+      GetDoubleToken(fs, &Sigmaz);
       cout << "Source size (sigmax, sigmay, sigmaz in local source coordinate "
 	"system):\n" << Sigmax << ", " << Sigmay << ", " << Sigmaz << "\n";
     }
@@ -106,17 +104,17 @@ int source::Load(FILE *fp)
       cout << "Source rotation :\n"; 
       cout << "\tPoint on rotation axis x0:\t";
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &x0.Elem[i]); // translation components
+	GetDoubleToken(fs, &x0.Elem[i]); // translation components
       }
       cout << x0 << endl;
       cout << "\tRotation axis direction u:\t"; 
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &u.Elem[i]); // get rotation axis direction
+	GetDoubleToken(fs, &u.Elem[i]); // get rotation axis direction
       }
       u.Normalize(); // normalize axis direction
       cout << u << endl;
       cout << "\tRotation angle theta (degrees): ";
-      GetDoubleToken(fp, &theta); // get angle in degrees
+      GetDoubleToken(fs, &theta); // get angle in degrees
       cout << theta << endl;
       R = matr3::RotMatr(u, -theta); // build rotation matrix
       X -= x0; // translate source position: rotation axis-> origin

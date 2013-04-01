@@ -23,8 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <cmath>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include "xrmc_math.h"
 #include "xrmc_detector.h"
 #include "xrmc_photon.h"

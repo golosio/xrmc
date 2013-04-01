@@ -41,26 +41,24 @@ using namespace xrmc_algo;
 // method for loading simulation parameters
 // fp is a pointer to the main input file
 //////////////////////////////////////////////////////////////////////
-int xrmc::LoadParams(FILE *fp)
+int xrmc::LoadParams(istream &fs)
 {
-  FILE *par_fp;
-  char file_name[MAXSTRLEN], comm_ch[MAXSTRLEN];
-  string comm="";
+  string file_name, comm="";
   time_t t1;
   long seed;
 
-  GetToken(fp, file_name); // read the name of the parameter file
+  GetToken(fs, file_name); // read the name of the parameter file
   cout << "Parameters file: " << file_name << "\n";
-  if ((par_fp = fopen(file_name,"r")) == NULL)
+  ifstream par_fs(file_name.c_str());
+  if (!par_fs)
     throw xrmc_exception("Parameters file not found.\n");
 
-  GetToken(par_fp, comm_ch); // get a command/variable name from input file
-  comm = comm_ch;
+  GetToken(par_fs, comm); // get a command/variable name from input file
   if(comm!="Seed")
     throw xrmc_exception("syntax error in parameter file. "
 			 "Seed command expected"); 
   else {
-    GetLongToken(par_fp, &seed); // read the starting seed for random numbers
+    GetLongToken(par_fs, &seed); // read the starting seed for random numbers
     if (seed == 0) { // if it is zero use the time from system clock as seed
       (void) time(&t1);
       seed=(long)t1; // convert t1 to long type
@@ -73,7 +71,7 @@ int xrmc::LoadParams(FILE *fp)
 #endif
   }
 
-  fclose(par_fp);
+  par_fs.close();
 
   return 0;
 }

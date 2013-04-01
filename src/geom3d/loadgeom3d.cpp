@@ -36,26 +36,23 @@ using namespace gettoken;
 //////////////////////////////////////////////////////////////////////
 // Method for loading 3d geometric shapes
 //////////////////////////////////////////////////////////////////////
-int geom3d::Load(FILE *fp)
+int geom3d::Load(istream &fs)
 {
-
-  char comm_ch[MAXSTRLEN], s[MAXSTRLEN], ch_ph_in[MAXSTRLEN], ch_ph_out[MAXSTRLEN];
-  string comm="", qname, s_ph_in, s_ph_out;
+  string comm="", s, qname, s_ph_in, s_ph_out;
   int n_quadr, i;
 
   cout << "Geometric shapes file\n";
 
-  while (!feof(fp) && comm!="End") {
-    GetToken(fp, comm_ch); // get a command/variable name from input file
-    comm = comm_ch;
+ // get a command/variable name from input file
+  while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     //
     // check if it's a command for setting an input device name
-    if (ParseInputDeviceCommand(fp, comm)) continue;
+    if (ParseInputDeviceCommand(fs, comm)) continue;
     else if(comm=="X") { // set the sample region center coordinates
       cout << "Sample region center coordinates: \t"; 
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &X.Elem[i]);
+	GetDoubleToken(fs, &X.Elem[i]);
 	//cout << X[i] << "\t";
       }
       cout << X << endl;
@@ -64,13 +61,13 @@ int geom3d::Load(FILE *fp)
     else if(comm=="HW") { // set the sample region half-sides
       cout << "Sample region half-sides: \t"; 
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &HW[i]);
+	GetDoubleToken(fs, &HW[i]);
 	cout << HW[i] << "\t";
       }
       cout << "\n";
     }
     else if(comm=="MaxNQVol") { // set the maximum number of 3d objects    
-      GetIntToken(fp, &MaxNQVol);
+      GetIntToken(fs, &MaxNQVol);
       cout << "Maximum number of 3d objects: " << MaxNQVol << "\n";
       delete[] QVol;
       delete[] QVolMap;
@@ -79,14 +76,12 @@ int geom3d::Load(FILE *fp)
       NQVol = 0;
     }
     else if(comm=="Object") { // read parameters for a new 3d object
-      GetToken(fp, s); // object name
+      GetToken(fs, s); // object name
       //ObjName = s;
       cout << "Object: " << s << endl;
-      GetToken(fp, ch_ph_in); // set internal phase
-      s_ph_in = ch_ph_in;
-      GetToken(fp, ch_ph_out);  // set external phase
-      s_ph_out = ch_ph_out;
-      GetIntToken(fp, &n_quadr); // num. of quadrics delimiting the 3d object
+      GetToken(fs, s_ph_in); // set internal phase
+      GetToken(fs, s_ph_out);  // set external phase
+      GetIntToken(fs, &n_quadr); // num. of quadrics delimiting the 3d object
       QVol[NQVol].Init(s_ph_in, s_ph_out, n_quadr); // initialize 3d object
       QVolMap[NQVol] = new string[n_quadr]; // initialize map of quadrics
       // delimiting the 3d object
@@ -95,7 +90,7 @@ int geom3d::Load(FILE *fp)
       cout << "\tNum. of quadrics: " << QVol[NQVol].NQuadr << endl;
       
       for(i=0; i<n_quadr; i++) { // loop on quadrics delimiting the 3d object
-	GetToken(fp, s);
+	GetToken(fs, s);
 	qname = s; // quadric name
 	QVolMap[NQVol][i] = qname; // put the quadric in the map
 	cout << "\tQuadric: " << qname << "\n";

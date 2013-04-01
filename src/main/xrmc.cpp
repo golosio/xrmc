@@ -41,47 +41,45 @@ using namespace gettoken;
 // 
 int xrmc::Run(string file_name)
 {
-  FILE *fp;
-  char s[MAXSTRLEN];
   string command;
   
   cout.precision(7); // max number of digits on floating-point values cout
   cout << "Files used by the simulation: " <<  file_name << "\n";
-  if ((fp = fopen(file_name.c_str(),"r")) == NULL)
+  ifstream fs(file_name.c_str());
+  if (!fs)
     throw xrmc_exception("Input file not found.\n");
-
-  while(1) { 
-    GetToken(fp, s); // read a command from input file
-    if (feof(fp)) break;
-    command = s;
+  while(GetToken(fs, command)) { // read a command from input file
     // parse the command and decide what to do
     if (command=="LoadParams") { // read simulation parameter file
-      LoadParams(fp);
+      LoadParams(fs);
     }
     else if (command=="Load") { // load a new device
-      LoadDevice(fp);
+      LoadDevice(fs);
     }
     else if (command=="Link") { // link all previously loaded devices
       LinkDevices();
     }
     else if (command=="Run") {// launch the Run method on a device
-      RunDevice(fp);
+      RunDevice(fs);
     }
     else if (command=="Save") { // launch the Save method on a device
-      SaveDevice(fp);
+      SaveDevice(fs);
     }
     else if (command=="SaveUnconvoluted") {
 #ifdef HAVE_XMIMSIM
-      SaveUnconvolutedDevice(fp);
+      SaveUnconvolutedDevice(fs);
 #else
       throw xrmc_exception("Command SaveUnconvoluted is not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
 #endif
     }
-    else if (command!="End")
+    else if (command=="End")
+      break;
+    else
       throw xrmc_exception(string("Syntax error: ") + command
 			   + "\ncommand not found.\n");
   }
-  
+  fs.close();
+
   return 0;
 }
 
@@ -106,12 +104,12 @@ int xrmc::LinkDevices()
 // RunDevice method
 // fp is the main input file
 //////////////////////////////////////////////////////////////////////
-int xrmc::RunDevice(FILE *fp)
+int xrmc::RunDevice(istream &fs)
 {
-  char dev_name[MAXSTRLEN];
+  string dev_name;
   xrmc_device *dev_pt;
 
-  GetToken(fp, dev_name); // device on which the Run method should be launched  
+  GetToken(fs, dev_name); // device on which the Run method should be launched  
   cout << "Run device: " << dev_name << "\n";
   xrmc_device_map::iterator it = DeviceMap.find(dev_name);
    // check that the device was defined in device map
@@ -132,13 +130,13 @@ int xrmc::RunDevice(FILE *fp)
 // SaveDevice method
 // fp is the main input file
 //////////////////////////////////////////////////////////////////////
-int xrmc::SaveDevice(FILE *fp)
+int xrmc::SaveDevice(istream &fs)
 {
-  char dev_name[MAXSTRLEN], file_name[MAXSTRLEN];
+  string dev_name, file_name;
   xrmc_device *dev_pt;
 
-  GetToken(fp, dev_name); // device on which the Save method should be launched
-  GetToken(fp, file_name);
+  GetToken(fs, dev_name); // device on which the Save method should be launched
+  GetToken(fs, file_name);
   cout << "Save device: " << dev_name << " to file " << file_name << "\n";
   xrmc_device_map::iterator it = DeviceMap.find(dev_name);
    // check that the device was defined in device map

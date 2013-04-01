@@ -34,44 +34,42 @@ using namespace std;
 using namespace gettoken;
 
 //////////////////////////////////////////////////////////////////////
-int detectorarray::Load(FILE *fp)
+int detectorarray::Load(istream &fs)
   // Loads detector array position/orientation/size
 {
   int i;
   vect3 x0, u;
   matr3 R;
   double theta;
-  char comm_ch[MAXSTRLEN];
   string comm="";
 
   cout << "Detector Array parameters, position, orientation and size file\n";
 
-  while (!feof(fp) && comm!="End") {
-    GetToken(fp, comm_ch); // get a command/variable name from input file
-    comm = comm_ch;
+ // get a command/variable name from input file
+  while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     //
     // check if it's a command for setting an input device name
-    if (ParseInputDeviceCommand(fp, comm)) continue;
+    if (ParseInputDeviceCommand(fs, comm)) continue;
     else if(comm=="NPixels") { // set the number of pixels (rows and columns)
-      GetIntToken(fp, &NX);
-      GetIntToken(fp, &NY);
+      GetIntToken(fs, &NX);
+      GetIntToken(fs, &NY);
       cout << "Pixel number (NX x NY): " << NX << " x " << NY << "\n";
     }
     else if(comm=="PixelSize") { // set the pixel size in x and y directions
-      GetDoubleToken(fp, &PixelSizeX);
-      GetDoubleToken(fp, &PixelSizeY);
+      GetDoubleToken(fs, &PixelSizeX);
+      GetDoubleToken(fs, &PixelSizeY);
       cout << "Pixel size (Sx x Sy) (cm): " << PixelSizeX << " x "
 	   <<  PixelSizeY << "\n";
     }
     else if(comm=="Shape") { // detector elements shape
                              // (rectangular or elliptical)
-      GetIntToken(fp, &Shape);
+      GetIntToken(fs, &Shape);
       cout << "Detector elements shape (0 rectangular/1 elliptical): "
 	   << Shape << "\n";
     }
     else if(comm=="dOmegaLim") { // set the cut on solid angle
-      GetDoubleToken(fp, &dOmegaLim);
+      GetDoubleToken(fs, &dOmegaLim);
       if (dOmegaLim==0) dOmegaLim=2*PI; // if 0 set it to the default value
       cout << "Cut on solid angle from interaction point to a single pixel: "
 	   << dOmegaLim << "\n";
@@ -79,7 +77,7 @@ int detectorarray::Load(FILE *fp)
     else if(comm=="X") { // set the detector center coordinates
       cout << "Detector array center position :\t"; 
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &X.Elem[i]);
+	GetDoubleToken(fs, &X.Elem[i]);
 	//cout << X[i] << "\t";
       }
       cout << X << endl;
@@ -89,7 +87,7 @@ int detectorarray::Load(FILE *fp)
       cout << "Detector orientation :\n"; 
       cout << "\tuk vector:\t"; 
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &uk.Elem[i]);
+	GetDoubleToken(fs, &uk.Elem[i]);
 	//cout << uk[i] << "\t";
       }
       cout << uk << endl;
@@ -99,71 +97,71 @@ int detectorarray::Load(FILE *fp)
       cout << "Detector orientation :\n"; 
       cout << "\tui vector:\t"; 
       for (i=0; i<3; i++) {
-	GetDoubleToken(fp, &ui.Elem[i]);
+	GetDoubleToken(fs, &ui.Elem[i]);
 	//cout << ui[i] << "\t";
       }
       cout << ui << endl;
       //cout << "\n";
     }	
     else if(comm=="ExpTime") { // set the Exposure Time
-      GetDoubleToken(fp, &ExpTime);
+      GetDoubleToken(fs, &ExpTime);
       cout << "Exposure Time (s): " << ExpTime << "\n";
     }	
     else if(comm=="PhotonNum") { // Multiplicity of simulated events per pixel
-      GetIntToken(fp, &PhotonNum);
+      GetIntToken(fs, &PhotonNum);
       cout << "Multiplicity of simulated events per pixel: "
 	   << PhotonNum << "\n";
     }
     else if(comm=="RandomPixelFlag") { // enable/disable random point on pixels
-      GetIntToken(fp, &RandomPixelFlag);
+      GetIntToken(fs, &RandomPixelFlag);
       cout << "Enable random point on pixels (0/1): " << RandomPixelFlag
 	   << "\n";
     }
     else if(comm=="PoissonFlag") { // flag to enable/disable Poisson statistic
-      GetIntToken(fp, &PoissonFlag);
+      GetIntToken(fs, &PoissonFlag);
       cout << "Enable Poisson statistic on pixel counts (0/1): "
 	   << PoissonFlag << "\n";
     }
     else if(comm=="RoundFlag") { // enable/disable round counts to integer
-      GetIntToken(fp, &RoundFlag);
+      GetIntToken(fs, &RoundFlag);
       cout << "Round pixel counts to integer (0/1): " << RoundFlag << "\n";
     }
     else if(comm=="HeaderFlag") { // flag to use or not header in output file
-      GetIntToken(fp, &HeaderFlag);
+      GetIntToken(fs, &HeaderFlag);
       cout << "Use header in output file (0/1): " << HeaderFlag << "\n"; 
     }
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
-      GetIntToken(fp, &RunningFasterFlag);
+      GetIntToken(fs, &RunningFasterFlag);
       if (RunningFasterFlag==0) 
 	cout << "Columns running faster than rows in output file\n"; 
       else
 	cout << "Rows running faster than columns in output file\n"; 
     }
     else if(comm=="PixelType") { // set the pixel content type
-      GetIntToken(fp, &PixelType);
+      GetIntToken(fs, &PixelType);
       cout << "Pixel content type: " << PixelType << "\n"; 
       cout << "0: fluence, 1: energy fluence, 2: fluence(E), " 
 	"3: energy fluence(E)\n";
     }
     else if(comm=="Emin") { // set the minimum bin energy
-      GetDoubleToken(fp, &Emin);
+      GetDoubleToken(fs, &Emin);
       cout << "\tEmin: " << Emin << "\n"; 
     }	
     else if(comm=="Emax") { // set the maximum bin energy
-      GetDoubleToken(fp, &Emax);
+      GetDoubleToken(fs, &Emax);
       cout << "\tEmax: " << Emax << "\n"; 
     }	
     else if(comm=="NBins") { // set the number of energy bins
-      GetIntToken(fp, &NBins);
+      GetIntToken(fs, &NBins);
       cout << "\tNBins: " << NBins << "\n"; 
     }	
     else if(comm=="SaturateEmin") { // flag to saturate energies < Emin
-      GetIntToken(fp, &SaturateEmin);
+      GetIntToken(fs, &SaturateEmin);
       cout << "\tSaturate energies lower than Emin (0/1):"
 	     << SaturateEmin << "\n"; 
     }
     else if(comm=="SaturateEmax") { // flag to saturate energies > Emax
-      GetIntToken(fp, &SaturateEmax);
+      GetIntToken(fs, &SaturateEmax);
       cout << "\tSaturate energies greater than Emax (0/1):"
 	   << SaturateEmax << "\n";
     }
@@ -171,17 +169,17 @@ int detectorarray::Load(FILE *fp)
       cout << "Detector rotation :\n"; 
       cout << "\tPoint on rotation axis x0:\t";
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &x0.Elem[i]); // translation components
+	GetDoubleToken(fs, &x0.Elem[i]); // translation components
       }
       cout << x0 << endl;
       cout << "\tRotation axis direction u:\t"; 
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &u.Elem[i]); // get rotation axis direction
+	GetDoubleToken(fs, &u.Elem[i]); // get rotation axis direction
       }
       u.Normalize(); // normalize axis direction
       cout << u << endl;
       cout << "\tRotation angle theta (degrees): ";
-      GetDoubleToken(fp, &theta); // get angle in degrees
+      GetDoubleToken(fs, &theta); // get angle in degrees
       cout << theta << endl;
       R = matr3::RotMatr(u, -theta); // build rotation matrix
       X -= x0; // translate detector position: rotation axis-> origin

@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include "xrmc.h"
 #include "xrmc_math.h"
 #include "xrmc_geom3d.h"
@@ -37,9 +37,8 @@ using namespace gettoken;
 //////////////////////////////////////////////////////////////////////
 // Method for loading quadric array
 //////////////////////////////////////////////////////////////////////
-int quadricarray::Load(FILE *fp)
+int quadricarray::Load(istream &fs)
 {
-  char comm_ch[MAXSTRLEN];
   string comm="";
   double xc[3], a[3], theta, elem;
   vect3 u;
@@ -47,14 +46,12 @@ int quadricarray::Load(FILE *fp)
   int i;
 
   cout << "Quadric array file\n";
-
-  while (!feof(fp) && comm!="End") {
-    GetToken(fp, comm_ch); // get a command/variable name from input file
-    comm = comm_ch;
+ // get a command/variable name from input file
+  while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     if (comm=="End") break;
     else if(comm=="MaxNQuadr") { // set the maximum number of quadrics    
-      GetIntToken(fp, &MaxNQuadr);
+      GetIntToken(fs, &MaxNQuadr);
       cout << "Maximum number of quadrics: " << MaxNQuadr << "\n";
       delete[] Quadr;
       Quadr = new quadric[MaxNQuadr+1]; // allocate quadric array
@@ -62,10 +59,10 @@ int quadricarray::Load(FILE *fp)
     }
     else if (comm=="Ellipsoid") { // define ellipsoid quadric
       cout << "Ellipsoid ";
-      MapQuadric(fp);
-      for (i=0; i<3; i++) GetDoubleToken(fp, &xc[i]); // center coordinates
+      MapQuadric(fs);
+      for (i=0; i<3; i++) GetDoubleToken(fs, &xc[i]); // center coordinates
       printf("\txc: %g\t%g\t%g\n", xc[0], xc[1], xc[2]);
-      for (i=0; i<3; i++) GetDoubleToken(fp, &a[i]); // semi-axes
+      for (i=0; i<3; i++) GetDoubleToken(fs, &a[i]); // semi-axes
       printf("\ta: %g\t%g\t%g\n", a[0], a[1], a[2]);
       Quadr[NQuadr].Ellipsoid(xc, a); // build ellipsoid quadric
       // Quadr[NQuadr].Print();
@@ -73,10 +70,10 @@ int quadricarray::Load(FILE *fp)
     }
     else if (comm=="Plane") { // define plane quadric 
       cout << "Plane ";
-      MapQuadric(fp);
-      for (i=0; i<3; i++) GetDoubleToken(fp, &xc[i]); // point coordinates
+      MapQuadric(fs);
+      for (i=0; i<3; i++) GetDoubleToken(fs, &xc[i]); // point coordinates
       printf("\txc: %g\t%g\t%g\n", xc[0], xc[1], xc[2]);
-      for (i=0; i<3; i++) GetDoubleToken(fp, &a[i]);  // normal vector
+      for (i=0; i<3; i++) GetDoubleToken(fs, &a[i]);  // normal vector
       printf("\ta: %g\t%g\t%g\n", a[0], a[1], a[2]);
       Quadr[NQuadr].Plane(xc, a); // build plane
       // Quadr[NQuadr].Print();
@@ -84,10 +81,10 @@ int quadricarray::Load(FILE *fp)
     }
     else if (comm=="CylinderX") { // cylinder parallel to x
       cout << "CylinderX ";
-      MapQuadric(fp);
-      for (i=0; i<2; i++) GetDoubleToken(fp, &xc[i]); // y,z coordinates
+      MapQuadric(fs);
+      for (i=0; i<2; i++) GetDoubleToken(fs, &xc[i]); // y,z coordinates
       printf("\txc: %g\t%g\n", xc[0], xc[1]);
-      for (i=0; i<2; i++) GetDoubleToken(fp, &a[i]); // Ry, Rz
+      for (i=0; i<2; i++) GetDoubleToken(fs, &a[i]); // Ry, Rz
       printf("\ta: %g\t%g\n", a[0], a[1]);
       Quadr[NQuadr].CilinderX(xc, a); // build cylinder
       // Quadr[NQuadr].Print();
@@ -95,10 +92,10 @@ int quadricarray::Load(FILE *fp)
     }
     else if (comm=="CylinderY") { // cylinder parallel to y
       cout << "CylinderY ";
-      MapQuadric(fp);
-     for (i=0; i<2; i++) GetDoubleToken(fp, &xc[i]); // x,z coordinates
+      MapQuadric(fs);
+     for (i=0; i<2; i++) GetDoubleToken(fs, &xc[i]); // x,z coordinates
      printf("\txc: %g\t%g\n", xc[0], xc[1]);
-     for (i=0; i<2; i++) GetDoubleToken(fp, &a[i]); // Rx, Rz
+     for (i=0; i<2; i++) GetDoubleToken(fs, &a[i]); // Rx, Rz
      printf("\ta: %g\t%g\n", a[0], a[1]);
      Quadr[NQuadr].CilinderY(xc, a); // build cylinder
      // Quadr[NQuadr].Print();
@@ -106,10 +103,10 @@ int quadricarray::Load(FILE *fp)
     }
     else if (comm=="CylinderZ") { // cylinder parallel to z
       cout << "CylinderX ";
-      MapQuadric(fp);
-      for (i=0; i<2; i++) GetDoubleToken(fp, &xc[i]); // x,y coordinates
+      MapQuadric(fs);
+      for (i=0; i<2; i++) GetDoubleToken(fs, &xc[i]); // x,y coordinates
       printf("\txc: %g\t%g\n", xc[0], xc[1]);
-      for (i=0; i<2; i++) GetDoubleToken(fp, &a[i]); // Rx, Ry
+      for (i=0; i<2; i++) GetDoubleToken(fs, &a[i]); // Rx, Ry
       printf("\ta: %g\t%g\n", a[0], a[1]);
       Quadr[NQuadr].CilinderZ(xc, a); // build cylinder
       // Quadr[NQuadr].Print();
@@ -117,10 +114,10 @@ int quadricarray::Load(FILE *fp)
     }
     else if (comm=="Quadric") { // generic quadric
       cout << "Quadric ";
-      MapQuadric(fp);
+      MapQuadric(fs);
       for (int i=0; i<4; i++) { // loop on elements
 	for (int j=i; j<4; j++) { // j>=i since quadric is symmetric
-	  GetDoubleToken(fp, &elem);
+	  GetDoubleToken(fs, &elem);
 	  Quadr[NQuadr].SetElem(i,j, elem); // fill quadric elements 
 	}
       }
@@ -133,7 +130,7 @@ int quadricarray::Load(FILE *fp)
       //Quadr[NQuadr-1].Print();
       T = matr4::Identity(); // start from identity matrix
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &xc[i]); // translation components
+	GetDoubleToken(fs, &xc[i]); // translation components
 	T.Elem[i][3] = -xc[i]; // set elements of translation matrix
       }
       printf("\tdx: %g\t%g\t%g\n", xc[0], xc[1], xc[2]);
@@ -145,17 +142,17 @@ int quadricarray::Load(FILE *fp)
       //Quadr[NQuadr-1].Print();
       T1 = T = matr4::Identity(); // start from identity matrix
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &xc[i]); // translation components
+	GetDoubleToken(fs, &xc[i]); // translation components
 	T.Elem[i][3] = -xc[i]; // set elements of translation matrix
 	T1.Elem[i][3] = xc[i]; // set elements of translation matrix
       }
       printf("\txc: %g\t%g\t%g\n", xc[0], xc[1], xc[2]);
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &u.Elem[i]); // get rotation axis direction
+	GetDoubleToken(fs, &u.Elem[i]); // get rotation axis direction
       }
       printf("\tu: %g\t%g\t%g\n", u.Elem[0], u.Elem[1], u.Elem[2]);
       u.Normalize(); // normalize axis direction
-      GetDoubleToken(fp, &theta); // get angle in degrees
+      GetDoubleToken(fs, &theta); // get angle in degrees
       cout << "\ttheta: " << theta <<endl;
       R = matr4::RotMatr(u, theta); // build rotation matrix
       Quadr[NQuadr-1].Transform(T1); // translate: rotation axis-> origin
@@ -174,7 +171,7 @@ int quadricarray::Load(FILE *fp)
       cout << "TranslateAll\n";
       T = matr4::Identity(); // start from identity matrix
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &xc[i]);
+	GetDoubleToken(fs, &xc[i]);
 	T.Elem[i][3] = -xc[i];  // translation components
       }
       printf("\tdx: %g\t%g\t%g\n", xc[0], xc[1], xc[2]);
@@ -186,17 +183,17 @@ int quadricarray::Load(FILE *fp)
       cout << "RotateAll\n";
       T1 = T = matr4::Identity(); // start from identity matrix
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &xc[i]); // translation components
+	GetDoubleToken(fs, &xc[i]); // translation components
 	T.Elem[i][3] = -xc[i]; // set elements of translation matrix
 	T1.Elem[i][3] = xc[i]; // set elements of translation matrix
       }
       printf("\txc: %g\t%g\t%g\n", xc[0], xc[1], xc[2]);
       for (int i=0; i<3; i++) {
-	GetDoubleToken(fp, &u.Elem[i]); // get rotation axis direction
+	GetDoubleToken(fs, &u.Elem[i]); // get rotation axis direction
       }
       printf("\tu: %g\t%g\t%g\n", u.Elem[0], u.Elem[1], u.Elem[2]);
       u.Normalize(); // normalize axis direction
-      GetDoubleToken(fp, &theta); // get angle in degrees
+      GetDoubleToken(fs, &theta); // get angle in degrees
       cout << "\ttheta: " << theta <<endl;
       R = matr4::RotMatr(u, theta); // build rotation matrix
 
@@ -224,14 +221,12 @@ int quadricarray::Load(FILE *fp)
 }
 
 // insert name and pointer to the quadric in the quadric map
-int quadricarray::MapQuadric(FILE *fp)
+int quadricarray::MapQuadric(istream &fs)
 {
-  char ch[MAXSTRLEN];
   string qname;
   quadric_map_insert_pair insert_pair;
 
-  GetToken(fp, ch);
-  qname = ch;
+  GetToken(fs, qname);
   cout << qname << endl;
   
   // insert name and pointer to the quadric in the quadric map

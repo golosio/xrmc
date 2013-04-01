@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <cmath>
-#include <string.h>
+#include <cstring>
 #include "xrmc_sample.h"
 #include "xrmc_composition.h"
 #include "xrmc_algo.h"
@@ -37,7 +37,9 @@ using namespace xrmc_algo;
 
 // destructor
 sample::~sample() { // destructor
-  if (PhotonNum!=NULL) delete[] PhotonNum;
+  if (PhotonNum!=NULL) {
+    delete[] PhotonNum;
+  }
   if (Path!=NULL) delete Path;
 }
 
@@ -54,6 +56,7 @@ sample::sample(string dev_name) {
 
   PhotonNum = NULL;
   Path = NULL;
+  rng = NULL;
   SetDevice(dev_name, "sample");
 }
 

@@ -100,7 +100,7 @@ class sample : public basesource
   sample(std::string dev_name); // constructor
   // method for casting input devices
   int CastInputDevices();
-  int Load(FILE *fp); // load sample parameters from file
+  int Load(istream &fs); // load sample parameters from file
   int SetDefault(); // set default values for sample parameters
   int Begin(); // begin event loop
   int Next();  // next step in event loop

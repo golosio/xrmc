@@ -75,7 +75,7 @@ class spectrum : public xrmc_device
 
   ~spectrum(); // destructor
   spectrum(string dev_name); // constructor
-  int Load(FILE *fp); // load spectrum parameters from file
+  int Load(istream &fs); // load spectrum parameters from file
   int Begin(); // begin the event loop
   int Next();  // next step of the event loop  
   bool End(); // check if the end of the event loop is reached

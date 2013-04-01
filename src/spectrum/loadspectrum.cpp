@@ -35,27 +35,25 @@ using namespace gettoken;
 //////////////////////////////////////////////////////////////////////
 // method for loading spectrum parameters from a file
 //////////////////////////////////////////////////////////////////////
-int spectrum::Load(FILE *fp)
+int spectrum::Load(istream &fs)
 {
   int i;
-  char comm_ch[MAXSTRLEN], spectrum_file[MAXSTRLEN];
+  string spectrum_file;
   string comm="";
-  FILE *sp_fp;
 
   cout << "Spectrum File\n";
 
-  while (!feof(fp) && comm!="End") {
-    GetToken(fp, comm_ch); // get a command/variable name from input file
-    comm = comm_ch;
+  // get a command/variable name from input file
+  while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     if(comm=="PolarizedFlag") { // flag for unpolarized(0) or polarized(1) beam
-      GetIntToken(fp, &PolarizedFlag);
+      GetIntToken(fs, &PolarizedFlag);
       if (PolarizedFlag == 0) cout << "Unpolarized beam\n";
       else if (PolarizedFlag == 1) cout << "Polarized beam\n";
       else throw xrmc_exception("Wrong polarization flag.\n");
     }
     else if(comm=="LoopFlag") { // flag for modality of energy extraction
-      GetIntToken(fp, &LoopFlag);
+      GetIntToken(fs, &LoopFlag);
       if (LoopFlag==0)
 	cout << "Extract random energies on the whole spectrum\n";
       else if (LoopFlag==1)
@@ -64,25 +62,25 @@ int spectrum::Load(FILE *fp)
     }
     else if(comm=="ContinuousPhotonNum") {
       // Number of samples for each interval in the continuous spectrum 
-      GetIntToken(fp, &ContinuousPhotonNum);
+      GetIntToken(fs, &ContinuousPhotonNum);
       cout <<"Number of samples for each interval in the continuous spectrum: " 
 	   << ContinuousPhotonNum << "\n";
     }
     else if(comm=="LinePhotonNum") {
       // Number of samples for each line in the spectrum 
-      GetIntToken(fp, &LinePhotonNum);
+      GetIntToken(fs, &LinePhotonNum);
       cout << "Number of samples for each line in the spectrum: " 
 	   << LinePhotonNum << "\n";
     }
     else if(comm=="RandomEneFlag") {
       // flag for enabling(1)/disabling(0) random energy in each interval
-      GetIntToken(fp, &RandomEneFlag);
+      GetIntToken(fs, &RandomEneFlag);
       if (RandomEneFlag==0) cout << "Random energy in intervals disabled\n";
       else if (RandomEneFlag==1) cout << "Random energy in intervals enabled\n";
       else throw xrmc_exception("Wrong random energy in intervals flag.\n");
     }
     else if(comm=="Lines") { // read discrete lines
-      GetIntToken(fp, &EneLineNum); // number of discrete lines
+      GetIntToken(fs, &EneLineNum); // number of discrete lines
       cout << "Number of lines in the spectrum: " << EneLineNum << "\n";
       if (EneLineNum > 0) {
 	LineEne = new double[EneLineNum];
@@ -91,9 +89,9 @@ int spectrum::Load(FILE *fp)
 	LineIntensity[1] = new double[EneLineNum];
 	cout << "Energy Lines :\n";
 	for (i=0; i<EneLineNum; i++) {
-	  GetDoubleToken(fp, &LineEne[i]);
-	  GetDoubleToken(fp, &LineSigma[i]);
-	  GetDoubleToken(fp, &LineIntensity[0][i]);
+	  GetDoubleToken(fs, &LineEne[i]);
+	  GetDoubleToken(fs, &LineSigma[i]);
+	  GetDoubleToken(fs, &LineIntensity[0][i]);
 	  if (PolarizedFlag == 0) {
 	    cout << LineEne[i] << "\t" << LineSigma[i] << "\t"
 		 <<  LineIntensity[0][i] << "\n";
@@ -101,7 +99,7 @@ int spectrum::Load(FILE *fp)
 	    LineIntensity[1][i] = LineIntensity[0][i];
 	  }
 	  else {
-	    GetDoubleToken(fp, &LineIntensity[1][i]);
+	    GetDoubleToken(fs, &LineIntensity[1][i]);
 	    cout << LineEne[i] << "\t" << LineSigma[i] << "\t"
 		 <<  LineIntensity[0][i] << "\t" << LineIntensity[1][i] << "\n";
 	  }
@@ -109,7 +107,7 @@ int spectrum::Load(FILE *fp)
       }
     }
     else if(comm=="ContinuousSpectrum") { // read continuous part of spectrum
-      GetIntToken(fp, &EneContinuousNum);
+      GetIntToken(fs, &EneContinuousNum);
       cout << "Number of sampling points in the continuous spectrum: "
 	   << EneContinuousNum << "\n";
       if (EneContinuousNum < 0 || EneContinuousNum==1)
@@ -119,26 +117,27 @@ int spectrum::Load(FILE *fp)
 	ContinuousEne = new double[EneContinuousNum];
 	ContSIntensity[0] = new double[EneContinuousNum];
 	ContSIntensity[1] = new double[EneContinuousNum];
-	GetToken(fp, spectrum_file); // continuous spectrum file name
+	GetToken(fs, spectrum_file); // continuous spectrum file name
 	cout << "Continuous spectrum file name: " << spectrum_file << "\n";
-	if ((sp_fp = fopen(spectrum_file,"r")) == NULL)
+	ifstream sp_fs(spectrum_file.c_str());
+	if (!sp_fs)
 	  throw xrmc_exception("Continuous spectrum file can not be opened.");
 	cout << "Continuos spectrum :\n";
 	for (i=0; i<EneContinuousNum; i++) {
-	  GetDoubleToken(sp_fp, &ContinuousEne[i]);
-	  GetDoubleToken(sp_fp, &ContSIntensity[0][i]);
+	  GetDoubleToken(sp_fs, &ContinuousEne[i]);
+	  GetDoubleToken(sp_fs, &ContSIntensity[0][i]);
 	  if (PolarizedFlag == 0) {
 	    cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\n";
 	    ContSIntensity[0][i] /= 2;
 	    ContSIntensity[1][i] = ContSIntensity[0][i];
 	  }
 	  else {
-	    GetDoubleToken(sp_fp, &ContSIntensity[1][i]);
+	    GetDoubleToken(sp_fs, &ContSIntensity[1][i]);
 	    cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\t"
 		 << ContSIntensity[1][i] << "\n";
 	  }
 	}
-	fclose(sp_fp);
+	sp_fs.close();
       }
     }
     else if(comm=="Resample") { // resample continuous part of spectrum
@@ -149,11 +148,11 @@ int spectrum::Load(FILE *fp)
 			     "spectrum must be >1 for resampling.\n");
       // if (RandomEneFlag != 1) { // check
       cout << "Resample continuous spectrum\n";
-      GetDoubleToken(fp, &Emin);
+      GetDoubleToken(fs, &Emin);
       cout << "Emin: " << Emin << "\n";
-      GetDoubleToken(fp, &Emax);
+      GetDoubleToken(fs, &Emax);
       cout << "Emax: " << Emax << "\n";
-      GetIntToken(fp, &ResampleNum);
+      GetIntToken(fs, &ResampleNum);
       cout << "Number of resampling points: " << ResampleNum << "\n";
       Resample();
     }

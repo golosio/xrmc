@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xraylib.h"
 #include "xrmc_algo.h"
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 using namespace std;
 using namespace xrmc_algo;

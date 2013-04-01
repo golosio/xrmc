@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <vector>
+#include <fstream>
 #include <map>
 #include "xrmc_math.h"
 #include "xrmc_exception.h"
@@ -53,6 +54,7 @@ class xrmc_device
   std::vector<std::string> InputDeviceName;
   std::vector<std::string> InputDeviceDescription;
   std::vector<std::string> InputDeviceCommand;
+  virtual ~xrmc_device() {};
   // initialization
   int SetDevice(std::string dev_name, std::string dev_type);
   // method for linking input devices
@@ -64,7 +66,7 @@ class xrmc_device
   // recursive cleaning after run method
   //int RecursiveRunFree();
   //method for loading a new device
-  static int LoadNewDevice(FILE *dev_fp, xrmc_device*& dev_pt);
+  static int LoadNewDevice(istream &dev_fs, xrmc_device*& dev_pt);
   //////////////////////////////////////////////////////////////////////
   //virtual methods of the class 
   //////////////////////////////////////////////////////////////////////
@@ -74,7 +76,8 @@ class xrmc_device
   virtual int RunInit() {return 0;}
   // cleaning after run method
   //virtual int RunFree();
-  virtual int Load(FILE*)=0;// {return 0;} // load device from input file
+  //virtual int Load(FILE*)=0;// {return 0;} // load device from input file
+  virtual int Load(std::istream&) {return 0;} // load device from input file
   virtual int SetDefault() {return 0;} // set default values for device params
   // save device output to a file
   virtual int Save(string) {return 0;}
@@ -88,7 +91,7 @@ class xrmc_device
   //  throw xrmc_exception(string("Device of type ") + DeviceType + 
   //			 "does not have input devices\n");
   //}
-  virtual bool ParseInputDeviceCommand(FILE *fp, std::string str);
+  virtual bool ParseInputDeviceCommand(std::istream &fs, std::string str);
  protected:
   int LoopIdx; // index of event loop
 };

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // xrmc method for loading device
 //
 
-#include <config.h>
+//#include <config.h>
 #include <string>
 #include <iostream>
 #include "xrmc.h"
@@ -47,22 +47,20 @@ using namespace gettoken;
 // xrmc method for loading device
 // fp is a opinter to the main input file
 //////////////////////////////////////////////////////////////////////
-int xrmc::LoadDevice(FILE *fp)
+int xrmc::LoadDevice(istream &fs)
 {
-  char file_name[MAXSTRLEN], comm[MAXSTRLEN], dev_name[MAXSTRLEN];
-  string comm_str;
-  FILE *dev_fp;
+  string file_name, comm, dev_name;
   xrmc_device_map_insert_pair insert_pair;
   xrmc_device *dev_pt;
 
-  GetToken(fp, file_name); // read from fp the name of the device input file
+  GetToken(fs, file_name); // read from fs the name of the device input file
   cout << "Device file: " << file_name << "\n";
-  if ((dev_fp = fopen(file_name,"r")) == NULL)
+  ifstream dev_fs(file_name.c_str());
+  if (!dev_fs)
     throw xrmc_exception("Device file can not be opened.");
-  GetToken(dev_fp, comm); // read the command
-  comm_str = comm;
-  if (comm_str=="Newdevice") {
-    if (xrmc_device::LoadNewDevice(dev_fp, dev_pt)==0) {
+  GetToken(dev_fs, comm); // read the command
+  if (comm=="Newdevice") {
+    if (xrmc_device::LoadNewDevice(dev_fs, dev_pt)==0) {
       // insert name and pointer to the new device in the device map
       insert_pair = DeviceMap.insert(xrmc_device_map_pair(dev_pt->Name,
 							  dev_pt));
@@ -71,8 +69,8 @@ int xrmc::LoadDevice(FILE *fp)
 			     " already inserted in device map\n");
     }
   }
-  else if (comm_str=="Device") {
-    GetToken(dev_fp, dev_name); // read the device name
+  else if (comm=="Device") {
+    GetToken(dev_fs, dev_name); // read the device name
     cout << "Device name: " << dev_name << "\n";
     xrmc_device_map::iterator it = DeviceMap.find(dev_name);
      // check that the device was defined in device map
@@ -81,12 +79,13 @@ int xrmc::LoadDevice(FILE *fp)
 			   " not found in device map!");
     }
     dev_pt = (*it).second;
-    dev_pt->Load(dev_fp); // load device parameters from device file
+    dev_pt->Load(dev_fs); // load device parameters from device file
   }
   else // unknown command
-    throw xrmc_exception(string("Unrecognized command ") + comm_str +
+    throw xrmc_exception(string("Unrecognized command ") + comm +
 			 " in device file.\n");
-  
+  dev_fs.close();
+
   return 0;
 }
 

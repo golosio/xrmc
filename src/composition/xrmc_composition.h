@@ -76,10 +76,10 @@ class composition : public xrmc_device
 
   ~composition(); // destructor
   composition(std::string dev_name);  // constructor
-  int Load(FILE *fp); // Loads sample phases composition and density
+  int Load(istream &fs); // Loads sample phases composition and density
   int SetDefault(); // Set default values for composition parameters
   // insert name and index of the phase in the phase map
-  int MapPhase(FILE *fp);
+  int MapPhase(istream &fs);
 
   int Mu(double E); // Evaluates the absorption coefficient of each phase
   int Delta(double E); // Evaluates the delta coefficient of each phase

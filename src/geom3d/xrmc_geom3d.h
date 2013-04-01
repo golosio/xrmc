@@ -73,11 +73,11 @@ class quadricarray : public xrmc_device
 
   ~quadricarray(); // destructor
   quadricarray(std::string dev_name); // constructor
-  int Load(FILE *fp); // method for loading quadric array from file
+  int Load(istream &fs); // method for loading quadric array from file
   int SetDefault(); // set default values for quadricarray parameters
 
   // insert name and pointer to the quadric in the quadric map
-  int MapQuadric(FILE *fp);
+  int MapQuadric(istream &fs);
   quadricarray *Clone(string dev_name);
 };
 
@@ -127,7 +127,7 @@ class geom3d : public xrmc_device
 
   ~geom3d(); // destructor  
   geom3d(std::string dev_name); // constructor
-  int Load(FILE *fp); // method for loading the geometric description
+  int Load(istream &fs); // method for loading the geometric description
   int ImportDevice(xrmc_device_map *dev_map); // import device method
   // method for casting input devices
   int CastInputDevices();

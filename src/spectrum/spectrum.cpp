@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 #include <string>
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <cmath>
 #include "xrmc_spectrum.h"
@@ -61,6 +61,7 @@ spectrum::spectrum(string dev_name) {
     LineIntensity[0] = LineIntensity[1] = LineWeight[0] = 
     LineWeight[1] = LineCumul = NULL;
   EneContinuousNum = EneLineNum = 0;
+  rng = NULL;
   SetDevice(dev_name, "spectrum");
 }
 

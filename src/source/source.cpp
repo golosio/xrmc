@@ -39,6 +39,7 @@ source::source(string dev_name) {
   NInputDevices=1;
   InputDeviceCommand.push_back("SpectrumName");
   InputDeviceDescription.push_back("Spectrum input device name");
+  rng = NULL;
 
   SetDevice(dev_name, "source");
 }

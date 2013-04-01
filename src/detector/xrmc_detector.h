@@ -46,7 +46,7 @@ class detectorarray : public bodydevice
   int CastInputDevices(); // cast input device method
   // method for linking input device
   //int LinkInputDevice(string command, xrmc_device *dev_pt);
-  int Load(FILE *fp); // load detector parameters, position, orientation
+  int Load(istream &fs); // load detector parameters, position, orientation
   int Save(string file_name); // save the acquired, convoluted image in a file
   int SetDefault(); // set the default values for detector parameters
   int EventMulti(); // event multiplicity

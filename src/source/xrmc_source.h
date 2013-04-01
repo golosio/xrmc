@@ -67,7 +67,7 @@ class source : public basesource
   // Constructor
   source(std::string dev_name);
 
-  int Load(FILE *fp); // method for loading source parameters from file
+  int Load(istream &fs); // method for loading source parameters from file
   // method for casting input device to type spectrum
   int CastInputDevices();
   // method for linking input device

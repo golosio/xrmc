@@ -50,6 +50,7 @@ class photon
   // uk: direction; ui: polarization vector
   randmt_t *rng;
 
+  photon() {rng=NULL;} // constructor
 // move the photon in the direction uk by a distance step_length
   int MoveForward(double step_length); 
 

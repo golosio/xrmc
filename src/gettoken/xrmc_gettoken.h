@@ -26,15 +26,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace gettoken
 {
 /*---------------------------------------------------------------------------*/
-  int GetToken(FILE *fp, char *s); // read character array from file fp
+  bool GetToken(istream &fs, string &str); // read string from stream
 /*---------------------------------------------------------------------------*/
-  int GetIntToken(FILE *fp, int *i); // read integer value from file fp
+  bool GetIntToken(istream &fs, int *i); // read integer from stream
 /*---------------------------------------------------------------------------*/
-  int GetFloatToken(FILE *fp, float *f); // read float value from file fp
+  bool GetLongToken(istream &fs, long *l); // read long integer from stream
 /*---------------------------------------------------------------------------*/
-  int GetDoubleToken(FILE *fp, double *f); // read double value from file fp
-/*---------------------------------------------------------------------------*/
-  int GetLongToken(FILE *fp, long *li); // read long integer value from file fp
+  bool GetDoubleToken(istream &fs, double *d); // read double from stream
 /*---------------------------------------------------------------------------*/
 }
 

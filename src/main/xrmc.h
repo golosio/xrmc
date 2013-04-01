@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef XRMCH
 #define XRMCH
 
-#include <stdio.h>
 #include <string>
+#include <fstream>
 #include "xrmc_device.h"
 
 using namespace std;
@@ -44,11 +44,11 @@ class xrmc
  private:
   xrmc_device_map DeviceMap; // map of devices used by the simulation
 
-  int LoadDevice(FILE *fp); //method for loading a (new or existing) device
+  int LoadDevice(istream &fs); //method for loading a (new or existing) device
   int LinkDevices(); // method for linking all previously defined devices
-  int RunDevice(FILE *fp); // launch the run method on a device
-  int SaveDevice(FILE *fp); // launching the save method on a device
-  int LoadParams(FILE *fp); // load the main simulation parameters
+  int RunDevice(istream &fs); // launch the run method on a device
+  int SaveDevice(istream &fs); // launching the save method on a device
+  int LoadParams(istream &fs); // load the main simulation parameters
   int DeleteDevices(); // delete all previously defined devices
 
 };

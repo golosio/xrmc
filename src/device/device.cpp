@@ -115,13 +115,13 @@ int xrmc_device::RecursiveRunFree()
 //////////////////////////////////////////////////////////////////////
 // parse device file for input device commands
 //////////////////////////////////////////////////////////////////////
-bool xrmc_device::ParseInputDeviceCommand(FILE *fp, string comm_str)
+bool xrmc_device::ParseInputDeviceCommand(istream &fs, string comm)
 {
-  char s[MAXSTRLEN];
+  string s;
 
   for(int i=0; i<NInputDevices; i++) {
-    if (comm_str==InputDeviceCommand[i]) { // set the input device name
-      GetToken(fp, s);
+    if (comm==InputDeviceCommand[i]) { // set the input device name
+      GetToken(fs, s);
       InputDeviceName[i] = s;
       cout << InputDeviceDescription[i] << ": " << InputDeviceName[i] << "\n";
       return true;
