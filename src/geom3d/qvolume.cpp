@@ -124,5 +124,5 @@ qvolume& qvolume::operator= (const qvolume &QVolume) {
 	Quadr = new quadric*[NQuadr];
 
 	//cout << "Leaving qvolume assignment operator\n";
-
+	return *this;
 }
