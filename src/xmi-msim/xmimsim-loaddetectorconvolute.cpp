@@ -34,7 +34,8 @@ int detectorconvolute::Load(istream &fs) {
   matr3 R;
   double theta;
   string comm="";
-  char s[MAXSTRLEN];
+  //char s[MAXSTRLEN];
+  string s;
   cout << "XMI-MSIM detector convolution parameters\n";
 
   // get a command/variable name from input file
@@ -73,11 +74,11 @@ int detectorconvolute::Load(istream &fs) {
       GetDoubleToken(fs, &WindowThickness);
       cout << "Window thickness: " << WindowThickness << "\n";
     }
-    else if(comm=="SourceName") { // set the source input device name
+    /*else if(comm=="SourceName") { // set the source input device name
       GetToken(fs, s);
       InputDeviceName[0] = s;
       cout << "Source input device name: " << SourceName << "\n";
-    } 
+    }*/
     else if(comm=="NPixels") { // set the number of pixels (rows and columns)
       GetIntToken(fs, &NX);
       GetIntToken(fs, &NY);

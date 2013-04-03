@@ -1,6 +1,6 @@
 ; Detector array parameter file
 ;
-detectorconvolute ; Device type
+Newdevice detectorconvolute ; Device type
 Detector                   ; Device name
 SourceName Sample               ; Source input device name
 NPixels 1 1			; Pixel number (NX x NY)
