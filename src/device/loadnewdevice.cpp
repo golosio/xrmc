@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////
 // Methods of the class device
 //
+#include <config.h>
 #include <iostream>
 #include <fstream>
 #include <string>

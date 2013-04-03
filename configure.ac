@@ -1,10 +1,10 @@
-AC_INIT([xrmc],[6.3.3],[golosio@uniss.it])
+AC_INIT([xrmc],[6.3.4],[golosio@uniss.it])
 AC_PREREQ([2.60])
+AC_CONFIG_SRCDIR([src/main/xrmc_main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
-
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AC_CANONICAL_HOST
 
-AS_INIT
 
 
 LIB_CURRENT=0
@@ -27,20 +27,24 @@ LT_INIT()
 AC_PROG_LIBTOOL
 
 AC_PROG_CC
-AM_PROG_CC_C_O
-
+AC_CHECK_PROG(CC_FULL, [$CC], $CC, [none])
 #this next line may never be reached...
-if test -z $CC ; then
+if test x$CC_FULL = "xnone" ; then
         AC_MSG_ERROR([no C compiler was found on the system.])
 fi
+AM_PROG_CC_C_O
+
 
 AC_PROG_CXX
-AC_PROG_CXX_C_O
-
+AC_CHECK_PROG(CXX_FULL, [$CXX], $CXX, [none])
 #this next line may never be reached...
-if test -z $CXX ; then
+if test x$CXX_FULL = "xnone" ; then
         AC_MSG_ERROR([no C++ compiler was found on the system.])
 fi
+AC_PROG_CXX_C_O
+
+
+
 
 #look for openmp support in C++
 AC_LANG_PUSH(C++)
@@ -60,13 +64,21 @@ PKG_CHECK_MODULES([xraylib],libxrl >= 2.15.0)
 
 
 #determine if the xmi-msim should be built
-PKG_CHECK_MODULES(xmi_msim, libxmimsim >= 2.0, [XMIMSIM_FOUND=yes], [XMIMSIM_FOUND=no])
-PKG_CHECK_MODULES(gmodule, gmodule-2.0, [GMODULE_FOUND=yes],[GMODULE_FOUND=no])
+AC_ARG_ENABLE([xmi-msim], AS_HELP_STRING([--disable-xmi-msim],[build without XMI-MSIM support]), [enable_xmi_msim=$enableval], [enable_xmi_msim=check])
 
-if test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes ; then
-	AC_MSG_NOTICE([Building with XMI-MSIM support])
-	AC_DEFINE([HAVE_XMIMSIM], [], [XMI-MSIM support detected])
+if test x$enable_xmi_msim != "xno" ; then 
+	PKG_CHECK_MODULES(xmi_msim, libxmimsim >= 2.0, [XMIMSIM_FOUND=yes], [XMIMSIM_FOUND=no])
+	PKG_CHECK_MODULES(gmodule, gmodule-2.0, [GMODULE_FOUND=yes],[GMODULE_FOUND=no])
+
+	if test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes ; then
+		AC_MSG_NOTICE([Building with XMI-MSIM support])
+		AC_DEFINE([HAVE_XMIMSIM], [], [XMI-MSIM support detected])
+	fi
+else
+	XMIMSIM_FOUND=no
+	GMODULE_FOUND=no
 fi
+
 
 AM_CONDITIONAL(ENABLE_XMIMSIM,[test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes])
 
