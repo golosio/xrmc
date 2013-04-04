@@ -244,10 +244,14 @@ int detectorarray::Acquisition()
 	    }
 	  }
 	  // add the signal to the pixel bin
+#ifdef _OPENMP
 #pragma omp atomic
+#endif
 	  Image[mode_idx][ipix][bin] += signal;
 	}
+#ifdef _OPENMP
 #pragma omp atomic
+#endif
 	event_idx++;
 #ifdef _OPENMP
 	if (omp_get_thread_num() == 0)
@@ -262,7 +266,10 @@ int detectorarray::Acquisition()
     }
   }
 //end of big for loop
+#ifdef _OPENMP
 #undef Source
+#undef Photon
+#endif
 
 
   // generate uncertainty on pixel count using Poisson statistic
