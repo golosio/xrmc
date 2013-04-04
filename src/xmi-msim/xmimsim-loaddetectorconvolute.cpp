@@ -233,7 +233,24 @@ int detectorconvolute::Load(istream &fs) {
   return 0;
 }
 
-int detectorconvolute::Save(string file_name) {
+int detectorconvolute:::SaveData(string data_name, string file_name)
+  // Save detector array contents
+{
+
+  cout << "Saving data: " << data_name << "\n";
+  if (data_name!=SaveDataName[0] && data_name!=SaveDataName[1])
+    throw xrmc_exception
+      (string("Error: detectorconvolute device can only save data of type ")
+       + SaveDataName[0] + " or " + SaveDataName[1] + "\n");
+  else if (data_name==SaveDataName[0])
+    SaveUnconvoluted(file_name) ; 
+  else
+    SaveConvoluted(file_name) ; 
+
+  return 0;
+}
+
+int detectorconvolute::SaveConvoluted(string file_name) {
   	// Save detector array contents after convolution
   	FILE *fp;
 

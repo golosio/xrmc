@@ -202,10 +202,16 @@ int detectorarray::Load(istream &fs)
   return 0;
 }
 
-int detectorarray::Save(string file_name)
+int detectorarray::SaveData(string data_name, string file_name)
   // Save detector array contents
 {
   FILE *fp;
+
+  cout << "Saving data: " << data_name << "\n";
+  if (data_name!=SaveDataName[0])
+    throw xrmc_exception
+      (string("Error: detectorarray device can only save data of type ")
+       + SaveDataName[0] +"\n");
 
   cout << "Output File: " << file_name << "\n";
   if ((fp = fopen(file_name.c_str(),"wb")) == NULL)

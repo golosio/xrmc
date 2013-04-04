@@ -41,7 +41,8 @@ class detectorconvolute : public detectorarray
 
   int CastInputDevices(); // cast input device method
   int Load(istream &fs); // load detector parameters, position, orientation
-  int Save(string file_name); // save the acquired image in a file
+  int SaveData(string data_name, string file_name); // save the acquired (convoluted or unconvoluted) image in a file
+  int SaveConvoluted(string file_name); // save the acquired, convoluted image in a file
   int SaveUnconvoluted(string file_name); // save the acquired, unconvoluted image in a file
   int SetDefault(); // set the default values for detector parameters
   int Run(); // calculate detector convolution

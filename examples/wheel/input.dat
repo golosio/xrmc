@@ -2,8 +2,6 @@
 ; Files used by the simulation
 ;
 
-LoadParams params.dat		; Parameters of Monte Carlo simulation 
-
 Load source.dat			; Source position, orientation
 
 Load detector.dat		; Detector position, orientation, size file
@@ -18,8 +16,6 @@ Load geom3d.dat			; Qvolume file
 
 Load composition.dat		; Composition file
 
-;Link				; Link devices
-
 Run DetectorArray		; Run device
 
-Save DetectorArray image.dat	; Output file : transmission image
+Save DetectorArray Image image.dat	; Output file : transmission image

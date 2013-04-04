@@ -63,14 +63,7 @@ int xrmc::Run(string file_name)
       RunDevice(fs);
     }
     else if (command=="Save") { // launch the Save method on a device
-      SaveDevice(fs);
-    }
-    else if (command=="SaveUnconvoluted") {
-#ifdef HAVE_XMIMSIM
-      SaveUnconvolutedDevice(fs);
-#else
-      throw xrmc_exception("Command SaveUnconvoluted is not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
-#endif
+      SaveData(fs);
     }
     else if (command=="End")
       break;
@@ -127,24 +120,27 @@ int xrmc::RunDevice(istream &fs)
   return 0;
 }
 //////////////////////////////////////////////////////////////////////
-// SaveDevice method
-// fp is the main input file
+// SaveData method
+// fs is the main input file stream
 //////////////////////////////////////////////////////////////////////
-int xrmc::SaveDevice(istream &fs)
+int xrmc::SaveData(istream &fs)
 {
-  string dev_name, file_name;
+  string dev_name, data_name, file_name;
   xrmc_device *dev_pt;
 
-  GetToken(fs, dev_name); // device on which the Save method should be launched
+  GetToken(fs, dev_name); // device on which the SaveData method is launched
+  GetToken(fs, data_name); // name of the data to be saved
   GetToken(fs, file_name);
-  cout << "Save device: " << dev_name << " to file " << file_name << "\n";
+  cout << "Save from device: " << dev_name << " data name: " << data_name
+       << " to file " << file_name << "\n";
   xrmc_device_map::iterator it = DeviceMap.find(dev_name);
    // check that the device was defined in device map
   if (it==DeviceMap.end())
     throw xrmc_exception("Device not found in device map.\n");
 
   dev_pt = (*it).second;
-  dev_pt->Save(file_name); // launch the Save method on the device
+ // launch the SaveData method on the device
+  dev_pt->SaveData(data_name, file_name);
 
   return 0;
 }

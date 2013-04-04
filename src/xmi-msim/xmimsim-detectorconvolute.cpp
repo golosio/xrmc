@@ -57,7 +57,8 @@ detectorconvolute::~detectorconvolute() {
 //constructor
 detectorconvolute::detectorconvolute(string dev_name)
   : detectorarray(dev_name) {
-  SaveDataName.push_back("convolutedImage");
+  SaveDataName[0]="UnconvolutedImage";
+  SaveDataName.push_back("ConvolutedImage");
   NInputDevices = 2;
   InputDeviceCommand.push_back("CompositionName");
   InputDeviceDescription.push_back("Composition input device name");

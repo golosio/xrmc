@@ -47,7 +47,7 @@ class xrmc
   int LoadDevice(istream &fs); //method for loading a (new or existing) device
   int LinkDevices(); // method for linking all previously defined devices
   int RunDevice(istream &fs); // launch the run method on a device
-  int SaveDevice(istream &fs); // launching the save method on a device
+  int SaveData(istream &fs); // launching the save method on a device
   int LoadParams(istream &fs); // load the main simulation parameters
   int DeleteDevices(); // delete all previously defined devices
 

@@ -80,7 +80,7 @@ class xrmc_device
   virtual int Load(std::istream&) {return 0;} // load device from input file
   virtual int SetDefault() {return 0;} // set default values for device params
   // save device output to a file
-  virtual int Save(string) {return 0;}
+  virtual int SaveData(string, string) {return 0;}
   virtual int Begin() {LoopIdx = 0; return 0;} // start loop on events
   virtual int Next() {LoopIdx = 1; return 0;}  // next step of the loop
   virtual bool End() {return (LoopIdx==1);}    // end of the loop 

@@ -2,8 +2,6 @@
 ; Files used by the simulation
 ;
 
-LoadParams params.dat		; Parameters of Monte Carlo simulation 
-
 Load source_20deg.dat		; Source position, orientation
 
 Load detector_0deg.dat		; Detector position, orientation, size
@@ -18,10 +16,8 @@ Load geom3d.dat			; qvolume file
 
 Load composition.dat		; composition file
 
-Link 				;  Link devices
-
 Run DetectorArray		; Run device
 
-Save DetectorArray output.dat	; Output file : scattering image
+Save DetectorArray Image output.dat	; Output file : scattering image
 
 End

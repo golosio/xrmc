@@ -2,8 +2,6 @@
 ; Files used by the simulation
 ;
 
-LoadParams params.dat		; Parameters of Monte Carlo simulation 
-
 Load source.dat		; Source position, orientation
 
 Load spectrum.dat		; Energy Spectrum file
@@ -18,10 +16,10 @@ Load composition.dat		; composition file
 
 Load detector.dat		; Detector position, orientation, size
 
-Link 				;  Link devices
-
 Run Detector		; Run device
 
-Save Detector output.dat	; Output file : scattering image
+Save Detector UnconvolutedImage unconvoluted.dat ; save unconvoluted image
+
+Save Detector ConvolutedImage output.dat	; save convoluted image
 
 End
