@@ -18,6 +18,7 @@ endif
 clean-local:
 	rm -f xrmc.sh
 	rm -f output.dat
+	rm -f unconvoluted.dat
 if !ABS_SRC_BUILD_EQUAL
 	rm -f $(dist_xrmc_example_DATA)
 endif

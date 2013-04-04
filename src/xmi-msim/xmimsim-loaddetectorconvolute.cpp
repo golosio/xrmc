@@ -233,7 +233,7 @@ int detectorconvolute::Load(istream &fs) {
   return 0;
 }
 
-int detectorconvolute:::SaveData(string data_name, string file_name)
+int detectorconvolute::SaveData(string data_name, string file_name)
   // Save detector array contents
 {
 
@@ -279,7 +279,7 @@ int detectorconvolute::SaveConvoluted(string file_name) {
 }
 
 int detectorconvolute::SaveUnconvoluted(string file_name) {
-	detectorarray::Save(file_name);
+	detectorarray::SaveData("UnconvolutedImage",file_name);
 	return 0;
 }
 
