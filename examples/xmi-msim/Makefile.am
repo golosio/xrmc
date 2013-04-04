@@ -1,6 +1,6 @@
 xrmc_exampledir = $(datadir)/examples/xrmc/wheel
 
-dist_xrmc_example_DATA = composition.dat detector.dat geom3d.dat input.dat params.dat quadric.dat sample.dat source.dat spectrum.dat
+dist_xrmc_example_DATA = composition.dat detector.dat geom3d.dat input.dat quadric.dat sample.dat source.dat spectrum.dat
 
 if ENABLE_XMIMSIM
 check_SCRIPTS = xrmc.sh

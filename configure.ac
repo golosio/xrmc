@@ -1,4 +1,4 @@
-AC_INIT([xrmc],[6.3.4],[golosio@uniss.it])
+AC_INIT([xrmc],[6.4.1],[golosio@uniss.it])
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([src/main/xrmc_main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -109,6 +109,7 @@ AC_CONFIG_FILES([	Makefile
 			examples/star2/Makefile
 			examples/wheel/Makefile
 			examples/xmi-msim/Makefile
+			examples/fluor_layers/Makefile
 			])
 AC_CONFIG_HEADERS([config.h])
 

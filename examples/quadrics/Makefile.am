@@ -1,6 +1,6 @@
 xrmc_exampledir = $(datadir)/examples/xrmc/quadrics
 
-dist_xrmc_example_DATA = composition.dat detector.dat geom3d.dat input.dat params.dat quadric.dat sample.dat source.dat spectrum.dat
+dist_xrmc_example_DATA = composition.dat detector.dat geom3d.dat input.dat quadric.dat sample.dat source.dat spectrum.dat
 
 check_SCRIPTS = xrmc.sh
 
