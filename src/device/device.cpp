@@ -52,12 +52,18 @@ int xrmc_device::LinkInputDevices(xrmc_device_map *dev_map)
   // loop on input devices
   for (int id=0; id<NInputDevices; id++) {
     // check if the input device is defined
+    if (InputDeviceName[id]=="") {
+      throw xrmc_exception(InputDeviceDescription[id] + " undefined for device "
+			   + Name + "\n");
+    }
+
     xrmc_device_map::iterator it = dev_map->find(InputDeviceName[id]);
 
   // if not display error and exit
     if (it==dev_map->end())
-      throw xrmc_exception(string("Device ") + InputDeviceName[id]
-			 + " not found in device map\n");
+      throw xrmc_exception(string("Error linking ")
+			   + InputDeviceDescription[id] +
+			   " to device " + Name + "\n");
 
     // get device pointer from the device map
     InputDevice[id] = (*it).second;

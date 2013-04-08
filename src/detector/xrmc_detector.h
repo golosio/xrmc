@@ -46,9 +46,11 @@ class detectorarray : public bodydevice
   int CastInputDevices(); // cast input device method
   // method for linking input device
   //int LinkInputDevice(string command, xrmc_device *dev_pt);
-  int Load(istream &fs); // load detector parameters, position, orientation
+  int Load(std::istream &fs); // load detector parameters, position, orientation
  // save the acquired image in a file
-  int SaveData(string data_name, string file_name);
+  int SaveData(std::string data_name, std::string file_name);
+ // save the acquired image in a ascii file
+  int SaveAsciiData(std::string data_name, std::string file_name);
   int SetDefault(); // set the default values for detector parameters
   int EventMulti(); // event multiplicity
   int Run() {return Acquisition();} // run the acquisition
@@ -66,6 +68,7 @@ class detectorarray : public bodydevice
   int PoissonFlag; // flag to enable/disable Poisson statistic on counts
   int RoundFlag; // flag to enable/disable round pixel count to integer
   int HeaderFlag; // enable/disable writing header in output file
+  int AsciiFlag; //  // binary(0) or ascii(1) output file format
   int RunningFasterFlag; //columns(0) or rows(1) running faster
   int PixelType; // pixel content type:
                  // 0: fluence,      1: energy fluence,

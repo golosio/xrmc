@@ -130,6 +130,11 @@ int detectorarray::Load(istream &fs)
       GetIntToken(fs, &HeaderFlag);
       cout << "Use header in output file (0/1): " << HeaderFlag << "\n"; 
     }
+    else if(comm=="AsciiFlag") { // binary(0) or ascii(1) output file format
+      GetIntToken(fs, &AsciiFlag);
+      cout << "Binary(0) or ascii(1) output file format: " << AsciiFlag
+	   << "\n"; 
+    }
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
       GetIntToken(fs, &RunningFasterFlag);
       if (RunningFasterFlag==0) 
@@ -208,12 +213,17 @@ int detectorarray::SaveData(string data_name, string file_name)
   FILE *fp;
 
   cout << "Saving data: " << data_name << "\n";
+  if (Image==NULL)
+    throw xrmc_exception("Data cannot be saved before run.\n");
   if (data_name!=SaveDataName[0])
     throw xrmc_exception
       (string("Error: detectorarray device can only save data of type ")
        + SaveDataName[0] +"\n");
 
   cout << "Output File: " << file_name << "\n";
+
+  if (AsciiFlag!=0) return SaveAsciiData(data_name, file_name);
+
   if ((fp = fopen(file_name.c_str(),"wb")) == NULL)
     throw xrmc_exception("Output file cannot be open.\n");
 
@@ -233,6 +243,33 @@ int detectorarray::SaveData(string data_name, string file_name)
   fwrite(Image[0][0], sizeof(double), ModeNum*N*NBins, fp);
     
   fclose(fp);
+
+  return 0;
+}
+
+int detectorarray::SaveAsciiData(string data_name, string file_name)
+  // Save detector array contents
+{
+  ofstream ofs(file_name.c_str());
+  if (!ofs)
+    throw xrmc_exception("Output ascii file cannot be open.\n");
+
+  if (HeaderFlag==1) {
+    ofs << ModeNum << endl;
+    ofs << NX << endl;
+    ofs << NY << endl;
+    ofs << PixelSizeX << endl;
+    ofs << PixelSizeY << endl;
+    ofs << ExpTime << endl;
+    ofs << PixelType << endl;
+    ofs << NBins << endl;
+    ofs << Emin << endl;
+    ofs << Emax << endl;
+  }
+  for (int i=0; i<ModeNum*N*NBins; i++) {
+    ofs << *(Image[0][0]+i) << endl;
+  }
+  ofs.close();
 
   return 0;
 }
@@ -259,6 +296,7 @@ int detectorarray::SetDefault()
   PoissonFlag = 0; // Poisson statistic on pixel counts disabled
   RoundFlag = 0;   // Round pixel counts round to integer disabled
   HeaderFlag = 0; // header in output file disabled
+  AsciiFlag = 0; // Default output format is binary 
   RunningFasterFlag = 0; // columns running faster than rows in output file
   PixelType = 0; // Pixel content type = 0: fluence
   NBins = 1; // 1 energy bin
