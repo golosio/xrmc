@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_detectorconvolute.h
+
 noinst_LTLIBRARIES = libxrmc-xmimsim.la
 
 

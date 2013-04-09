@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_photon.h
+
 noinst_LTLIBRARIES = libphoton.la
 
 libphoton_la_SOURCES = photon.cpp xrmc_fluo_lines.h xrmc_photon.h

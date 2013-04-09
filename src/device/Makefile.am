@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_device.h
+
 noinst_LTLIBRARIES = libdevice.la
 
 libdevice_la_SOURCES = device.cpp loadnewdevice.cpp xrmc_device.h

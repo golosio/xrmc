@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_math.h
+
 noinst_LTLIBRARIES = libxrmcmath.la
 
 libxrmcmath_la_SOURCES = xrmc_math.h  xrmc_math.cpp

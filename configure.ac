@@ -73,6 +73,7 @@ if test x$enable_xmi_msim != "xno" ; then
 	if test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes ; then
 		AC_MSG_NOTICE([Building with XMI-MSIM support])
 		AC_DEFINE([HAVE_XMIMSIM], [], [XMI-MSIM support detected])
+		AC_SUBST(HAVE_XMIMSIM, " -DHAVE_XMIMSIM")
 	fi
 else
 	XMIMSIM_FOUND=no
@@ -110,6 +111,7 @@ AC_CONFIG_FILES([	Makefile
 			examples/wheel/Makefile
 			examples/xmi-msim/Makefile
 			examples/fluor_layers/Makefile
+			libxrmc.pc
 			])
 AC_CONFIG_HEADERS([config.h])
 
