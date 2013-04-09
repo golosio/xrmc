@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_source.h
+
 noinst_LTLIBRARIES = libsource.la
 
 libsource_la_SOURCES = loadsource.cpp source.cpp xrmc_source.h

@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc.h 
+
 bin_PROGRAMS = xrmc
 
 xrmc_SOURCES = loaddevice.cpp loadparams.cpp xrmc.cpp       xrmc.h         xrmc_main.cpp

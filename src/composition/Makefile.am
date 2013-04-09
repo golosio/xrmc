@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_composition.h
+
 noinst_LTLIBRARIES = libcomposition.la
 
 libcomposition_la_SOURCES = composition.cpp     loadcomposition.cpp xrmc_composition.h

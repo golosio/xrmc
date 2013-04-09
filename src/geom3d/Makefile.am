@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_geom3d.h 
+
 noinst_LTLIBRARIES = libgeom3d.la
 
 libgeom3d_la_SOURCES = geom3d.cpp      loadgeom3d.cpp  loadquadric.cpp quadric.cpp     qvolume.cpp     xrmc_geom3d.h

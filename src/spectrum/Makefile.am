@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_spectrum.h
+
 noinst_LTLIBRARIES = libspectrum.la
 
 libspectrum_la_SOURCES = loadspectrum.cpp spectrum.cpp xrmc_spectrum.h

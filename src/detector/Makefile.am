@@ -1,3 +1,6 @@
+xrmcincludedir = ${includedir}/xrmc
+xrmcinclude_HEADERS = xrmc_detector.h xrmc_loaddetector.h
+
 noinst_LTLIBRARIES = libdetector.la
 
 libdetector_la_SOURCES = detector.cpp        loaddetector.cpp    xrmc_detector.h     xrmc_loaddetector.h 
