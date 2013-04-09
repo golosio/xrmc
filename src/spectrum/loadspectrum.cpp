@@ -106,7 +106,8 @@ int spectrum::Load(istream &fs)
 	}
       }
     }
-    else if(comm=="ContinuousSpectrum") { // read continuous part of spectrum
+    else if(comm=="ContinuousSpectrum" || // read continuous part of spectrum
+	    comm=="ContinuousSpectrumFile") {
       GetIntToken(fs, &EneContinuousNum);
       cout << "Number of sampling points in the continuous spectrum: "
 	   << EneContinuousNum << "\n";
@@ -117,27 +118,18 @@ int spectrum::Load(istream &fs)
 	ContinuousEne = new double[EneContinuousNum];
 	ContSIntensity[0] = new double[EneContinuousNum];
 	ContSIntensity[1] = new double[EneContinuousNum];
-	GetToken(fs, spectrum_file); // continuous spectrum file name
-	cout << "Continuous spectrum file name: " << spectrum_file << "\n";
-	ifstream sp_fs(spectrum_file.c_str());
-	if (!sp_fs)
-	  throw xrmc_exception("Continuous spectrum file can not be opened.");
-	cout << "Continuos spectrum :\n";
-	for (i=0; i<EneContinuousNum; i++) {
-	  GetDoubleToken(sp_fs, &ContinuousEne[i]);
-	  GetDoubleToken(sp_fs, &ContSIntensity[0][i]);
-	  if (PolarizedFlag == 0) {
-	    cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\n";
-	    ContSIntensity[0][i] /= 2;
-	    ContSIntensity[1][i] = ContSIntensity[0][i];
-	  }
-	  else {
-	    GetDoubleToken(sp_fs, &ContSIntensity[1][i]);
-	    cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\t"
-		 << ContSIntensity[1][i] << "\n";
-	  }
+	if (comm=="ContinuousSpectrumFile") { // read from a file
+	  GetToken(fs, spectrum_file); // continuous spectrum file name
+	  cout << "Continuous spectrum file name: " << spectrum_file << "\n";
+	  ifstream sp_fs(spectrum_file.c_str());
+	  if (!sp_fs)
+	    throw xrmc_exception("Continuous spectrum file can not be opened.");
+	  LoadContinuousSpectrum(sp_fs);
+	  sp_fs.close();
 	}
-	sp_fs.close();
+	else { // read continuou spectrum inline
+	   LoadContinuousSpectrum(fs);
+	}
       }
     }
     else if(comm=="Resample") { // resample continuous part of spectrum
@@ -193,6 +185,27 @@ int spectrum::SetDefault()
   EneContinuousNum=0;
 
   ResampleFlag=0; // Do not Resample continuous spectrum
+
+  return 0;
+}
+
+int spectrum::LoadContinuousSpectrum(istream &sp_fs)
+{
+  cout << "Continuos spectrum :\n";
+  for (int i=0; i<EneContinuousNum; i++) {
+    GetDoubleToken(sp_fs, &ContinuousEne[i]);
+    GetDoubleToken(sp_fs, &ContSIntensity[0][i]);
+    if (PolarizedFlag == 0) {
+      cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\n";
+      ContSIntensity[0][i] /= 2;
+      ContSIntensity[1][i] = ContSIntensity[0][i];
+    }
+    else {
+      GetDoubleToken(sp_fs, &ContSIntensity[1][i]);
+      cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\t"
+	   << ContSIntensity[1][i] << "\n";
+    }
+  }
 
   return 0;
 }

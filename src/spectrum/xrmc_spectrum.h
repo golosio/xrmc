@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "xrmc_device.h"
 #include "randmt.h"
-using namespace std;
 
 // spectrum class definition, member variables and functions
 class spectrum : public xrmc_device
@@ -74,8 +73,9 @@ class spectrum : public xrmc_device
   randmt_t *rng;
 
   ~spectrum(); // destructor
-  spectrum(string dev_name); // constructor
-  int Load(istream &fs); // load spectrum parameters from file
+  spectrum(std::string dev_name); // constructor
+  int Load(std::istream &fs); // load spectrum parameters from file
+  int LoadContinuousSpectrum(std::istream &fs);
   int Begin(); // begin the event loop
   int Next();  // next step of the event loop  
   bool End(); // check if the end of the event loop is reached
@@ -100,7 +100,7 @@ class spectrum : public xrmc_device
   // interval of the continuous spectrum distribution
   int IntervalRandomEnergy(double *E, int interval_idx, int pol_idx);
 
-  spectrum *Clone(string dev_name);
+  spectrum *Clone(std::string dev_name);
 }; 
 
 #endif

@@ -8,8 +8,8 @@ LoopFlag 0              ; 0: extract random energies on the whole spectrum
 ContinuousPhotonNum 1	; Multiplicity of events for each interval in spectrum 
 LinePhotonNum 1		; Multiplicity of events for each line in the spectrum
 RandomEneFlag 1		; enable random energy on each interval (0/1)
-ContinuousSpectrum      ; continuous part of the spectrum
-1023                     ; Number of sampling points in the continuous spectrum
+ContinuousSpectrumFile  ; continuous part of the spectrum
+1023                    ; Number of sampling points in the continuous spectrum
 continuous_spectrum.dat ; Continuous spectrum file name
 
 End
