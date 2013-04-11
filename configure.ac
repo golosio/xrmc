@@ -116,6 +116,7 @@ AC_CONFIG_FILES([	Makefile
 			examples/xmi-msim/Makefile
 			examples/fluor_layers/Makefile
 			libxrmc.pc
+			xrmc.spec
 			])
 AC_CONFIG_HEADERS([config.h])
 
