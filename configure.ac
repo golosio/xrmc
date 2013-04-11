@@ -27,19 +27,23 @@ LT_INIT()
 AC_PROG_LIBTOOL
 
 AC_PROG_CC
-AC_CHECK_PROG(CC_FULL, [$CC], $CC, [none])
-#this next line may never be reached...
-if test x$CC_FULL = "xnone" ; then
-        AC_MSG_ERROR([no C compiler was found on the system.])
+if test `AS_BASENAME([$CC])` = $CC ; then
+  AC_CHECK_PROG(CC_FULL, [$CC], $CC, [none])
+  #this next line may never be reached...
+  if test x$CC_FULL = "xnone" ; then
+          AC_MSG_ERROR([no C compiler was found on the system.])
+  fi
 fi
 AM_PROG_CC_C_O
 
 
 AC_PROG_CXX
-AC_CHECK_PROG(CXX_FULL, [$CXX], $CXX, [none])
-#this next line may never be reached...
-if test x$CXX_FULL = "xnone" ; then
-        AC_MSG_ERROR([no C++ compiler was found on the system.])
+if test `AS_BASENAME([$CXX])` = $CXX ; then
+  AC_CHECK_PROG(CXX_FULL, [$CXX], $CXX, [none])
+  #this next line may never be reached...
+  if test x$CXX_FULL = "xnone" ; then
+          AC_MSG_ERROR([no C++ compiler was found on the system.])
+  fi
 fi
 AC_PROG_CXX_C_O
 
