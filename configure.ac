@@ -117,6 +117,8 @@ AC_CONFIG_FILES([	Makefile
 			examples/fluor_layers/Makefile
 			libxrmc.pc
 			xrmc.spec
+			nsis/Makefile
+			nsis/xrmc.nsi
 			])
 AC_CONFIG_HEADERS([config.h])
 
