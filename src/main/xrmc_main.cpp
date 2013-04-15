@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <iostream>
+#include <ctime>
 #include "xrmc.h"
 #include "xraylib.h"
 #include "xrmc_exception.h"

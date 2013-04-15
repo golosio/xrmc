@@ -37,7 +37,7 @@ int xrmc_device::SetDevice(string dev_name, string dev_type)
   Name = dev_name; // device name
   DeviceType = dev_type; // device type
   if (NInputDevices>0) {
-    InputDevice = vector<xrmc_device*>(NInputDevices,NULL);
+    InputDevice = vector<xrmc_device*>(NInputDevices,(xrmc_device *)NULL);
     InputDeviceName = vector<string>(NInputDevices,"");
   }
 

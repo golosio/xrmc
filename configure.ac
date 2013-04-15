@@ -18,7 +18,7 @@ AC_SUBST(LIB_AGE)
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_USE_SYSTEM_EXTENSIONS
-AM_PROG_AR
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 #libtool
 LT_PREREQ([2.0.0])
@@ -48,7 +48,13 @@ fi
 AC_PROG_CXX_C_O
 
 
-
+LDFLAGS_EXTRA=""
+case "$host" in
+	*mingw*)
+		LDFLAGS_EXTRA+="-no-undefined"
+		;;
+esac
+AC_SUBST(LDFLAGS_EXTRA)
 
 #look for openmp support in C++
 AC_LANG_PUSH(C++)
@@ -87,18 +93,18 @@ fi
 
 AM_CONDITIONAL(ENABLE_XMIMSIM,[test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes])
 
-AC_CONFIG_FILES([	Makefile 
+AC_CONFIG_FILES([	Makefile
 			src/Makefile
 			src/arrayNd/Makefile
 			src/composition/Makefile
 			src/detector/Makefile
-			src/device/Makefile 
+			src/device/Makefile
 			src/geom3d/Makefile
 			src/gettoken/Makefile
 			src/xrmc_algo/Makefile
 			src/photon/Makefile
 			src/source/Makefile
-			src/spectrum/Makefile 
+			src/spectrum/Makefile
 			src/xrmc_math/Makefile
 			src/exception/Makefile
 			src/sample/Makefile
@@ -118,8 +124,7 @@ AC_CONFIG_FILES([	Makefile
 			libxrmc.pc
 			xrmc.spec
 			nsis/Makefile
-			nsis/xrmc.nsi
-			])
+			nsis/xrmc.nsi])
 AC_CONFIG_HEADERS([config.h])
 
 
