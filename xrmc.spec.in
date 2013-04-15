@@ -1,0 +1,87 @@
+Name: xrmc 
+Version: @VERSION@
+Release: 	1%{?dist}
+Summary: A tool for the simulation of X-ray imaging and spectroscopy experiments 
+Group: 	Applications/Engineering and Scientific
+License: GPL
+Packager: Tom Schoonjans <Tom.Schoonjans@me.com>
+URL: http://github.com/golosio/xrmc
+Source: xrmc-%{version}.tar.gz
+BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRequires: gcc gcc-c++ xraylib-devel >= 2.15.0 xmimsim-devel >= 2.0 libstdc++-devel pkgconfig
+Requires: xraylib >= 2.15.0 libstdc++
+
+%description
+XRMC is a Monte Carlo program for accurate simulation of X-ray imaging and spectroscopy experiments in heterogeneous samples. The use of the Monte Carlo method makes the code suitable for the detailed simulation of complex experiments on generic samples. Variance reduction techniques are used for reducing considerably the computation time compared to general purpose Monte Carlo programs. The program is written in c++ and has been tested on Linux, Mac OS X and MS Windows platforms.
+
+
+%package devel
+Summary: A tool for the simulation of X-ray imaging and spectroscopy experiments: development package
+Requires: xraylib-devel >= 2.15.0 xmimsim-devel >= 2.0 libstdc++-devel xrmc == @VERSION@ xrmc-xmimsim == @VERSION@
+
+%description devel
+XRMC is a Monte Carlo program for accurate simulation of X-ray imaging and spectroscopy experiments in heterogeneous samples. The use of the Monte Carlo method makes the code suitable for the detailed simulation of complex experiments on generic samples. Variance reduction techniques are used for reducing considerably the computation time compared to general purpose Monte Carlo programs. The program is written in c++ and has been tested on Linux, Mac OS X and MS Windows platforms.
+
+This package contains the headers and static libraries, as well as a pkg-config file, allowing users to start their own development based on xrmc.
+
+%package xmimsim
+Summary: A tool for the simulation of X-ray imaging and spectroscopy experiments: XMI-MSIM plugin
+Requires: xrmc == @VERSION@ xmimsim >= 2.0
+
+%description xmimsim 
+XRMC is a Monte Carlo program for accurate simulation of X-ray imaging and spectroscopy experiments in heterogeneous samples. The use of the Monte Carlo method makes the code suitable for the detailed simulation of complex experiments on generic samples. Variance reduction techniques are used for reducing considerably the computation time compared to general purpose Monte Carlo programs. The program is written in c++ and has been tested on Linux, Mac OS X and MS Windows platforms.
+
+This package contains the xrmc-xmimsim plug-in, giving the user access to the capabilities of the XMI-MSIM detector convolution functions. 
+
+%prep
+%setup -q
+
+%build
+
+%configure --enable-xmi-msim 
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+
+make
+
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
+libtool --finish $RPM_BUILD_ROOT%{_libdir}
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/xrmc/*.la
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+/sbin/ldconfig
+
+%postun 
+/sbin/ldconfig
+
+%files
+%defattr(-,root,root)
+%{_libdir}/libxrmc.so.*
+%{_bindir}/xrmc
+%{_prefix}/share/doc/xrmc/xrmc_6.4.1_man.pdf
+%{_prefix}/share/examples/xrmc/*
+
+
+
+%files devel
+%defattr(-,root,root)
+%{_libdir}/pkgconfig/libxrmc.pc
+%{_includedir}/xrmc/*.h
+%{_libdir}/libxrmc.so
+%{_libdir}/libxrmc.a
+
+%files xmimsim
+%{_libdir}/xrmc/xrmc-xmimsim.so
+
+
+%changelog
+* Thu Apr 11 2013 Tom Schoonjans
+- First version of spec file

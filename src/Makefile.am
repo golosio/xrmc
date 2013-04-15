@@ -32,7 +32,12 @@ SUBLIBS = \
 lib_LTLIBRARIES = libxrmc.la
 libxrmc_la_SOURCES = 
 libxrmc_la_LIBADD = $(SUBLIBS) @xraylib_LIBS@ -lm
-libxrmc_la_LDFLAGS = -version-info @LIB_CURRENT@:@LIB_REVISION@:@LIB_AGE@ @OPENMP_CXXFLAGS@
+libxrmc_la_LDFLAGS = -version-info @LIB_CURRENT@:@LIB_REVISION@:@LIB_AGE@ @OPENMP_CXXFLAGS@ @LDFLAGS_EXTRA@ 
+libxrmc_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(libxrmc_la_LDFLAGS) $(LDFLAGS) -o $@
+
+CCLD = $(CXX)
 
 if ENABLE_XMIMSIM
 SUBDIRS += xmi-msim

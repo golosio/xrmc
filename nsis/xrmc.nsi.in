@@ -1,0 +1,625 @@
+;Copyright (C) 2010-2011 Tom Schoonjans and Laszlo Vincze
+
+;This program is free software: you can redistribute it and/or modify
+;it under the terms of the GNU General Public License as published by
+;the Free Software Foundation, either version 3 of the License, or
+;(at your option) any later version.
+
+;This program is distributed in the hope that it will be useful,
+;but WITHOUT ANY WARRANTY; without even the implied warranty of
+;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;GNU General Public License for more details.
+
+;You should have received a copy of the GNU General Public License
+;along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+!define PRODUCT_NAME "XRMC"
+!define VERSION @VERSION@ 
+!define PRODUCT_WEB_SITE "http://github.com/golosio/xrmc"
+!define PRODUCT_DIR_REGKEY "Software\${PRODUCT_NAME}"
+!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define PRODUCT_UNINST_ROOT_KEY "HKLM"
+!define MY_HOME "C:\msys\1.0\home\schoon\"
+!define MY_MINGW "C:\MinGW32\"
+!define XRAYLIB_VERSION "2.16.0"
+!define XRAYLIB_VERSION_MIN "2.15.0"
+
+!define XMI_MSIM_VERSION "2.0"
+!define XMI_MSIM_VERSION_MIN "2.0"
+
+
+
+
+SetCompressor /SOLID lzma
+!include "MUI2.nsh"
+!include "Library.nsh"
+!include "LogicLib.nsh"
+!include "${MY_HOME}github\xrmc\nsis\EnvVarUpdate.nsh"
+;!include "${MY_HOME}github\xmimsim\nsis\FileAssociation.nsh"
+;!include "${MY_HOME}github\xmimsim\nsis\EnumUsersReg.nsh"
+!include "Sections.nsh"
+!include "WordFunc.nsh"
+!include "FileFunc.nsh"
+
+!macro unix2dos outpath my_file
+	SetOutPath ${outpath}
+	${GetFileName} ${my_file} $R0
+	File ${my_file}
+	Push $R0
+	Push "temp.file" 
+	Call _unix2dos
+	Rename "temp.file" $R0
+!macroend
+
+Name ${PRODUCT_NAME}
+OutFile ${PRODUCT_NAME}-${VERSION}-win32.exe
+RequestExecutionLevel none
+
+InstallDir "$PROGRAMFILES\XRMC"
+InstallDirRegKey HKLM "Software\${PRODUCT_NAME}" "InstallationDirectory"
+
+ShowInstDetails show
+ShowUnInstDetails show
+
+
+
+SetOverwrite ifnewer
+CRCCheck on
+
+!define MUI_ABORTWARNING
+
+!define MUI_WELCOMEPAGE_TEXT "Thank you for downloading XRMC. This wizard will assist you in installing the required components to run the program"
+!define MUI_WELCOMEPAGE_TITLE_3LINES
+!insertmacro MUI_PAGE_WELCOME
+!define MUI_LICENSEPAGE_CHECKBOX
+!insertmacro MUI_PAGE_LICENSE "${MY_HOME}github\xrmc\nsis\License.rtf"
+!insertmacro MUI_PAGE_COMPONENTS
+
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!define MUI_FINISHPAGE_TEXT "Thank you for installing XRMC. Remember: the latest version of XMI-MSIM can be obtained from the development repository on github"
+!define MUI_FINISHPAGE_LINK "XRMC development link"
+!define MUI_FINISHPAGE_LINK_LOCATION ${PRODUCT_WEB_SITE} 
+!insertmacro MUI_PAGE_FINISH
+
+
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
+
+
+!insertmacro MUI_LANGUAGE "English"
+
+Section "XRMC core files" SecXRMC
+SectionIn RO
+SetAutoClose false
+SetShellVarContext all
+SetOutPath "$INSTDIR"
+
+
+SetOutPath "$INSTDIR\Bin"
+DetailPrint "Installing XRMC executable and dll"
+File "${MY_HOME}bin\xrmc.exe"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_HOME}bin\libxrmc-0.dll" "$INSTDIR\Bin\libxrmc-0.dll" "$INSTDIR"
+
+DetailPrint "Installing OpenMP runtime libraries"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libgomp-1.dll" "$INSTDIR\Bin\libgomp-1.dll" "$INSTDIR"
+
+DetailPrint "Installing POSIX threads runtime libraries"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\pthreadGC2.dll" "$INSTDIR\Bin\pthreadGC2.dll" "$INSTDIR"
+
+SetOutPath "$INSTDIR\Sources"
+File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
+
+;examples
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\cylind_cell" "${MY_HOME}share\examples\xrmc\cylind_cell\spectrum.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\materials" "${MY_HOME}share\examples\xrmc\materials\spectrum.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\quadrics" "${MY_HOME}share\examples\xrmc\quadrics\spectrum.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star1" "${MY_HOME}share\examples\xrmc\star1\spectrum.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\star2" "${MY_HOME}share\examples\xrmc\star2\spectrum.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\wheel" "${MY_HOME}share\examples\xrmc\wheel\spectrum.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\README"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\continuous_spectrum.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\detector_0deg.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\detector_response.c"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\detector_routines.c"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\detector_routines.h"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\experimental.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\make.sh"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\oct_plot.m"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\source_20deg.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\spectrumAg40kV.dat"
+
+;documentation
+SetOutPath "$INSTDIR\Doc"
+File "${MY_HOME}share\doc\xrmc\xrmc_6.4.1_man.pdf"
+
+;registry modifications
+WriteRegStr HKLM "Software\${PRODUCT_NAME}" "InstallationDirectory" "$INSTDIR"
+WriteRegStr HKLM "Software\${PRODUCT_NAME}" "Vendor" "Bruno Golosio"
+WriteRegStr HKLM ${PRODUCT_UNINST_KEY} "DisplayName" "${PRODUCT_NAME} ${VERSION}"
+WriteRegStr HKLM ${PRODUCT_UNINST_KEY} "DisplayVersion" "${VERSION}"
+WriteRegStr HKLM ${PRODUCT_UNINST_KEY} "Publisher" "Bruno Golosio"
+WriteRegDWORD HKLM ${PRODUCT_UNINST_KEY} "NoModify" 1
+WriteRegDWORD HKLM ${PRODUCT_UNINST_KEY} "NoRepair" 1
+WriteRegStr HKLM ${PRODUCT_UNINST_KEY} "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
+WriteRegStr HKLM ${PRODUCT_UNINST_KEY} "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
+${EnvVarUpdate} $0 "PATH" "A" "HKLM" "$INSTDIR\Bin"
+
+
+
+WriteUninstaller "$INSTDIR\Uninstall.exe"
+SectionEnd
+
+
+
+Section "xraylib" SecXraylib
+SectionIn RO
+
+SetAutoClose false
+SetShellVarContext all
+DetailPrint "Checking xraylib presence..."
+ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib" "DisplayVersion"
+
+${If} $R0 == ""
+	MessageBox MB_OK "xraylib was not found on the system. It will now be downloaded and installed."
+	Goto xraylib
+${Endif}
+
+${VersionCompare} $R0 ${XRAYLIB_VERSION_MIN} $R1
+
+${If} $R1 == 0
+	DetailPrint "xraylib is already installed"
+	Goto xraylib_end 
+${ElseIf} $R1 == 1
+	DetailPrint "xraylib is already installed"
+	Goto xraylib_end 
+${ElseIf} $R1 == 2
+	MessageBox MB_OK "The version of xraylib that was found on this system is incompatible with this release of XRMC. The correct version of xraylib will now be downloaded and installed."
+	;quiet uninstall first
+	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib" "QuietUninstallString"
+	ExecWait '$R2'	
+	Goto xraylib
+${Else}
+	MessageBox MB_OK "Invalid value in VersionCompare. Aborting"
+	Abort "VersionCompare error"
+${Endif}
+
+xraylib:
+#NSISdl::download /TIMEOUT=30000 https://github.com/downloads/tschoonj/xraylib/xraylib-${XRAYLIB_VERSION}-win32.exe xraylib-${XRAYLIB_VERSION}-win32.exe
+inetc::get /NOCANCEL "http://lvserver.ugent.be/xraylib/xraylib-${XRAYLIB_VERSION}-win32.exe" "xraylib-${XRAYLIB_VERSION}-win32.exe"
+Pop $0
+${If} $0 == "OK"
+	Goto xraylib_install
+${Else}
+	#try to get it from S3
+	inetc::get /NOCANCEL "http://xraylib.s3.amazonaws.com/xraylib-${XRAYLIB_VERSION}-win32.exe" "xraylib-${XRAYLIB_VERSION}-win32.exe"
+	Pop $0
+	${If} $0 == "OK"
+		Goto xraylib_install
+	${Else}
+		MessageBox MB_OK "Error when downloading xraylib: $0. Aborting"
+		Abort "xraylib download failed: $0"
+	${Endif}
+${Endif}
+
+xraylib_install:
+DetailPrint "xraylib download has succeeded. Installing..."
+ExecWait '"xraylib-${XRAYLIB_VERSION}-win32.exe" /S'
+Delete "xraylib-${XRAYLIB_VERSION}-win32.exe"
+
+xraylib_end:
+
+SectionEnd
+
+Section /o "XRMC SDK" SecXRMCHeaders
+
+SetAutoClose false
+SetShellVarContext all
+
+
+
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\randmt.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_algo.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_arrayNd.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_composition.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_detector.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_device.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_exception.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_geom3d.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_gettoken.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_loaddetector.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_math.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_photon.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_sample.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_source.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_spectrum.h"
+
+SectionEnd
+Section /o "XMI-MSIM" SecXMI_MSIM
+
+SetAutoClose false
+SetShellVarContext all
+DetailPrint "Checking XMI-MSIM presence..."
+ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM" "DisplayVersion"
+
+${If} $R0 == ""
+	MessageBox MB_OK "XMI-MSIM was not found on the system. It will now be downloaded and installed."
+	Goto xmi_msim 
+${Endif}
+
+${VersionCompare} $R0 ${XMI_MSIM_VERSION_MIN} $R1
+
+${If} $R1 == 0
+	DetailPrint "XMI-MSIM is already installed"
+	Goto xmi_msim_end 
+${ElseIf} $R1 == 1
+	DetailPrint "XMI-MSIM is already installed"
+	Goto xmi_msim_end 
+${ElseIf} $R1 == 2
+	MessageBox MB_OK "The version of XMI-MSIM that was found on this system is incompatible with this release of XRMC. The correct version of xraylib will now be downloaded and installed."
+	;quiet uninstall first
+	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM" "QuietUninstallString"
+	ExecWait '$R2'	
+	Goto xmi_msim
+${Else}
+	MessageBox MB_OK "Invalid value in VersionCompare. Aborting"
+	Abort "VersionCompare error"
+${Endif}
+
+xmi_msim:
+#NSISdl::download /TIMEOUT=30000 https://github.com/downloads/tschoonj/xraylib/xraylib-${XRAYLIB_VERSION}-win32.exe xraylib-${XRAYLIB_VERSION}-win32.exe
+inetc::get /NOCANCEL "http://lvserver.ugent.be/xmi-msim/XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe" "XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe"
+Pop $0
+${If} $0 == "OK"
+	Goto xmi_msim_install
+${Else}
+	#try to get it from S3
+	inetc::get /NOCANCEL "http://xmi-msim.s3.amazonaws.com/XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe" "XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe"
+	Pop $0
+	${If} $0 == "OK"
+		Goto xmi_msim_install
+	${Else}
+		MessageBox MB_OK "Error when downloading XMI-MSIM: $0. Aborting"
+		Abort "XMI-MSIM download failed: $0"
+	${Endif}
+${Endif}
+
+xmi_msim_install:
+DetailPrint "XMI-MSIM download has succeeded. Installing... This will take several minutes"
+ExecWait '"XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe" /S'
+Delete "XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe"
+
+xmi_msim_end:
+
+
+DetailPrint "Installing XMI-MSIM Plug-in"
+SetOutPath "$INSTDIR\Plugins"
+File ${MY_HOME}lib\xrmc\xrmc-xmimsim.dll
+
+;modify path variable
+;first get installation location of XMI-MSIM
+ReadRegStr $R0 HKLM "Software\XMI-MSIM" "InstallationDirectory"
+${If} $R0 == ""
+	MessageBox MB_OK "Could not find XMI-MSIM InstallationDirectory value in registry"
+	Abort "Registry error" 
+${Endif}
+
+${EnvVarUpdate} $0 "PATH" "A" "HKLM" "$R0\Lib"
+${EnvVarUpdate} $0 "PATH" "A" "HKLM" "$R0\GTK2"
+${EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "A" "HKLM" "$INSTDIR\Plugins"
+
+;xrmc-xmi-msim example
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\spectrum.dat"
+
+
+!insertmacro SectionFlagIsSet ${SecXRMCHeaders} ${SF_SELECTED} with_header no_header
+
+with_header:
+SetOutPath "$INSTDIR\Include"
+File ${MY_HOME}include\xrmc\xrmc_detectorconvolute.h
+no_header:
+
+SectionEnd
+
+
+
+LangString DESC_SecXRMC ${LANG_ENGLISH} "The core files and examples of XRMC. Required"
+LangString DESC_SecXRMCHeaders ${LANG_ENGLISH} "Development kit of XRMC. Contains headers and library to link against"
+LangString DESC_SecXraylib ${LANG_ENGLISH} "xraylib is the source of the physical parameters that are used by XRMC. Required"
+LangString DESC_SecXMI_MSIM ${LANG_ENGLISH} "Activating his component will download and install XMI-MSIM and enable support for the detectorconvolute device in XRMC. Recommended for those interested in simulating ED-XRF spectrometers."
+
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+!insertmacro MUI_DESCRIPTION_TEXT ${SecXRMC} $(DESC_SecXRMC)
+!insertmacro MUI_DESCRIPTION_TEXT ${SecXRMCHeaders} $(DESC_SecXRMCHeaders)
+!insertmacro MUI_DESCRIPTION_TEXT ${SecXraylib} $(DESC_SecXraylib)
+!insertmacro MUI_DESCRIPTION_TEXT ${SecXMI_MSIM} $(DESC_SecXMI_MSIM)
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+
+
+Section "Uninstall"
+SetShellVarContext all
+SetAutoClose false
+
+
+DetailPrint "Uninstalling XRMC executable and dll"
+Delete "$INSTDIR\Bin\xrmc.exe"
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libxrmc-0.dll"
+
+DetailPrint "Uninstalling OpenMP runtime libraries"
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgomp-1.dll" 
+
+DetailPrint "Uninstalling POSIX threads runtime libraries"
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\pthreadGC2.dll" 
+
+
+RMDir "$INSTDIR\Bin"
+
+DetailPrint "Deleting development files"
+Delete "$INSTDIR\Include\randmt.h"
+Delete "$INSTDIR\Include\xrmc.h"
+Delete "$INSTDIR\Include\xrmc_algo.h"
+Delete "$INSTDIR\Include\xrmc_arrayNd.h"
+Delete "$INSTDIR\Include\xrmc_composition.h"
+Delete "$INSTDIR\Include\xrmc_detector.h"
+Delete "$INSTDIR\Include\xrmc_detectorconvolute.h"
+Delete "$INSTDIR\Include\xrmc_device.h"
+Delete "$INSTDIR\Include\xrmc_exception.h"
+Delete "$INSTDIR\Include\xrmc_geom3d.h"
+Delete "$INSTDIR\Include\xrmc_gettoken.h"
+Delete "$INSTDIR\Include\xrmc_loaddetector.h"
+Delete "$INSTDIR\Include\xrmc_math.h"
+Delete "$INSTDIR\Include\xrmc_photon.h"
+Delete "$INSTDIR\Include\xrmc_sample.h"
+Delete "$INSTDIR\Include\xrmc_source.h"
+Delete "$INSTDIR\Include\xrmc_spectrum.h"
+RmDir "$INSTDIR\Include"
+
+DetailPrint "Deleting plugins"
+Delete "$INSTDIR\Plugins\xrmc-xmimsim.dll"
+RmDir "$INSTDIR\Plugins"
+
+
+DetailPrint "Deleting Sources"
+Delete "$INSTDIR\Sources\xrmc-${VERSION}.tar.gz"
+RMDir "$INSTDIR\Sources"
+
+
+
+;clean registry
+DeleteRegKey HKLM "Software\${PRODUCT_NAME}"
+DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
+
+;clean environment variables
+ReadRegStr $R0 HKLM "Software\XMI-MSIM" "InstallationDirectory"
+${If} $R0 == ""
+	MessageBox MB_OK "Could not find XMI-MSIM InstallationDirectory value in registry"
+	Abort "Registry error" 
+${Endif}
+
+${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\Lib"
+${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\GTK2"
+${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\Bin"
+${un.EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "R" "HKLM" "$INSTDIR\Plugins"
+
+;delete examples
+Delete "$INSTDIR\Examples\xmi-msim\composition.dat"
+Delete "$INSTDIR\Examples\xmi-msim\detector.dat"
+Delete "$INSTDIR\Examples\xmi-msim\geom3d.dat"
+Delete "$INSTDIR\Examples\xmi-msim\input.dat"
+Delete "$INSTDIR\Examples\xmi-msim\quadric.dat"
+Delete "$INSTDIR\Examples\xmi-msim\sample.dat"
+Delete "$INSTDIR\Examples\xmi-msim\source.dat"
+Delete "$INSTDIR\Examples\xmi-msim\spectrum.dat"
+RmDir "$INSTDIR\Examples\xmi-msim"
+Delete "$INSTDIR\Examples\cylind_cell\composition.dat"
+Delete "$INSTDIR\Examples\cylind_cell\detector.dat"
+Delete "$INSTDIR\Examples\cylind_cell\geom3d.dat"
+Delete "$INSTDIR\Examples\cylind_cell\input.dat"
+Delete "$INSTDIR\Examples\cylind_cell\quadric.dat"
+Delete "$INSTDIR\Examples\cylind_cell\sample.dat"
+Delete "$INSTDIR\Examples\cylind_cell\source.dat"
+Delete "$INSTDIR\Examples\cylind_cell\spectrum.dat"
+RmDir "$INSTDIR\Examples\cylind_cell"
+Delete "$INSTDIR\Examples\materials\composition.dat"
+Delete "$INSTDIR\Examples\materials\detector.dat"
+Delete "$INSTDIR\Examples\materials\geom3d.dat"
+Delete "$INSTDIR\Examples\materials\input.dat"
+Delete "$INSTDIR\Examples\materials\quadric.dat"
+Delete "$INSTDIR\Examples\materials\sample.dat"
+Delete "$INSTDIR\Examples\materials\source.dat"
+Delete "$INSTDIR\Examples\materials\spectrum.dat"
+RmDir "$INSTDIR\Examples\materials"
+Delete "$INSTDIR\Examples\quadrics\composition.dat"
+Delete "$INSTDIR\Examples\quadrics\detector.dat"
+Delete "$INSTDIR\Examples\quadrics\geom3d.dat"
+Delete "$INSTDIR\Examples\quadrics\input.dat"
+Delete "$INSTDIR\Examples\quadrics\quadric.dat"
+Delete "$INSTDIR\Examples\quadrics\sample.dat"
+Delete "$INSTDIR\Examples\quadrics\source.dat"
+Delete "$INSTDIR\Examples\quadrics\spectrum.dat"
+RmDir "$INSTDIR\Examples\quadrics"
+Delete "$INSTDIR\Examples\star1\composition.dat"
+Delete "$INSTDIR\Examples\star1\detector.dat"
+Delete "$INSTDIR\Examples\star1\geom3d.dat"
+Delete "$INSTDIR\Examples\star1\input.dat"
+Delete "$INSTDIR\Examples\star1\quadric.dat"
+Delete "$INSTDIR\Examples\star1\sample.dat"
+Delete "$INSTDIR\Examples\star1\source.dat"
+Delete "$INSTDIR\Examples\star1\spectrum.dat"
+RmDir "$INSTDIR\Examples\star1"
+Delete "$INSTDIR\Examples\star2\composition.dat"
+Delete "$INSTDIR\Examples\star2\detector.dat"
+Delete "$INSTDIR\Examples\star2\geom3d.dat"
+Delete "$INSTDIR\Examples\star2\input.dat"
+Delete "$INSTDIR\Examples\star2\quadric.dat"
+Delete "$INSTDIR\Examples\star2\sample.dat"
+Delete "$INSTDIR\Examples\star2\source.dat"
+Delete "$INSTDIR\Examples\star2\spectrum.dat"
+RmDir "$INSTDIR\Examples\star2"
+Delete "$INSTDIR\Examples\wheel\composition.dat"
+Delete "$INSTDIR\Examples\wheel\detector.dat"
+Delete "$INSTDIR\Examples\wheel\geom3d.dat"
+Delete "$INSTDIR\Examples\wheel\input.dat"
+Delete "$INSTDIR\Examples\wheel\quadric.dat"
+Delete "$INSTDIR\Examples\wheel\sample.dat"
+Delete "$INSTDIR\Examples\wheel\source.dat"
+Delete "$INSTDIR\Examples\wheel\spectrum.dat"
+RmDir "$INSTDIR\Examples\wheel"
+Delete "$INSTDIR\Examples\fluor_layers\README"
+Delete "$INSTDIR\Examples\fluor_layers\composition.dat"
+Delete "$INSTDIR\Examples\fluor_layers\continuous_spectrum.dat"
+Delete "$INSTDIR\Examples\fluor_layers\detector_0deg.dat"
+Delete "$INSTDIR\Examples\fluor_layers\detector_response.c"
+Delete "$INSTDIR\Examples\fluor_layers\detector_routines.c"
+Delete "$INSTDIR\Examples\fluor_layers\detector_routines.h"
+Delete "$INSTDIR\Examples\fluor_layers\experimental.dat"
+Delete "$INSTDIR\Examples\fluor_layers\geom3d.dat"
+Delete "$INSTDIR\Examples\fluor_layers\input.dat"
+Delete "$INSTDIR\Examples\fluor_layers\make.sh"
+Delete "$INSTDIR\Examples\fluor_layers\oct_plot.m"
+Delete "$INSTDIR\Examples\fluor_layers\quadric.dat"
+Delete "$INSTDIR\Examples\fluor_layers\sample.dat"
+Delete "$INSTDIR\Examples\fluor_layers\source_20deg.dat"
+Delete "$INSTDIR\Examples\fluor_layers\spectrumAg40kV.dat"
+RmDir "$INSTDIR\Examples\fluor_layers"
+RmDir "$INSTDIR\Examples"
+
+;documentation
+Delete "$INSTDIR\Doc\xrmc_6.4.1_man.pdf"
+RmDir "$INSTDIR\Doc"
+
+Delete "$INSTDIR\Uninstall.exe"
+RMDir "$INSTDIR"
+SectionEnd
+
+Function .onInit
+ReadRegStr $R0 HKLM ${PRODUCT_UNINST_KEY} "UninstallString"
+StrCmp $R0 "" done
+MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the previous version or `Cancel` to cancel this upgrade." IDOK uninst
+Abort
+
+uninst:
+ClearErrors
+Exec $INSTDIR\Uninstall.exe
+
+
+done:
+
+
+FunctionEnd
+
+Function _unix2dos
+    ; strips all CRs
+    ;     ; and then converts all LFs into CRLFs
+    ;     ; (this is roughly equivalent to "cat file | dos2unix | unix2dos")
+    ;     ;
+    ;     ; usage:
+    ;     ;    Push "infile"
+    ;     ;    Push "outfile"
+    ;     ;    Call unix2dos
+    ;     ;
+    ;     ; beware that this function destroys $0 $1 $2
+          ClearErrors
+    
+          Pop $2
+          FileOpen $1 $2 w 
+
+          Pop $2
+          FileOpen $0 $2 r
+  
+          Push $2 ; save name for deleting
+    
+          IfErrors unix2dos_done
+   
+      ; $0 = file input (opened for reading)
+      ; $1 = file output (opened for writing)
+
+      unix2dos_loop:
+      ; read a byte (stored in $2)
+      FileReadByte $0 $2
+      IfErrors unix2dos_done ; EOL
+      ; skip CR
+      StrCmp $2 13 unix2dos_loop
+      ; if LF write an extra CR
+      StrCmp $2 10 unix2dos_cr unix2dos_write
+   
+      unix2dos_cr:
+       FileWriteByte $1 13
+    
+      unix2dos_write:
+      ; write byte
+      FileWriteByte $1 $2
+      ; read next byte
+      Goto unix2dos_loop
+ 
+      unix2dos_done:
+      ; close files
+      FileClose $0
+      FileClose $1
+    
+      ; delete original
+      Pop $0
+      Delete $0
+   
+FunctionEnd
+
+

@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <xraylib.h>
 #include <math.h>
+#include <glib/gstdio.h>
 
 G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 	//very simple function to check if the xrmc_xmimsim plugin works
