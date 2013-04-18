@@ -1,0 +1,5 @@
+usr/lib/pkgconfig
+usr/include
+usr/lib/libxrmc.so
+usr/lib/libxrmc.a
+usr/lib/libxrmc.la

@@ -1,0 +1,86 @@
+Source: xrmc
+Section: science
+Priority: extra
+Maintainer: Tom Schoonjans <Tom.Schoonjans@me.com>
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, g++ (>= 4.4.0), libxrl3-dev (>= 2.15.0), libxmimsim0-dev (>= 2.0)
+Standards-Version: 3.9.1
+Homepage: http://github.com/golosio/xrmc
+
+Package: xrmc 
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libxrmc0 (= ${binary:Version})
+Description: Simulate X-ray imaging and spectroscopy experiments -- executable
+ XRMC is a Monte Carlo program for accurate simulation of X-ray imaging
+ and spectroscopy experiments in heterogeneous samples. The use of the
+ Monte Carlo method makes the code suitable for the detailed simulation
+ of complex experiments on generic samples. Variance reduction techniques
+ are used for reducing considerably the computation time compared to
+ general purpose Monte Carlo programs. The program is written in c++
+ and has been tested on Linux, Mac OS X and MS Windows platforms.
+ .
+ This package contains the executables necessary to run the package
+ as well as the documentation and examples.
+
+Package: libxrmc0
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libxrl3 (>= 2.15.0)
+Description: Simulate X-ray imaging and spectroscopy experiments -- shared library
+ XRMC is a Monte Carlo program for accurate simulation of X-ray imaging
+ and spectroscopy experiments in heterogeneous samples. The use of the
+ Monte Carlo method makes the code suitable for the detailed simulation
+ of complex experiments on generic samples. Variance reduction techniques
+ are used for reducing considerably the computation time compared to
+ general purpose Monte Carlo programs. The program is written in c++
+ and has been tested on Linux, Mac OS X and MS Windows platforms.
+ .
+ This package contains the shared library.
+
+
+Package: libxrmc0-dev
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}, libxrl3-dev
+Description: Simulate X-ray imaging and spectroscopy experiments -- SDK
+ XRMC is a Monte Carlo program for accurate simulation of X-ray imaging
+ and spectroscopy experiments in heterogeneous samples. The use of the
+ Monte Carlo method makes the code suitable for the detailed simulation
+ of complex experiments on generic samples. Variance reduction techniques
+ are used for reducing considerably the computation time compared to
+ general purpose Monte Carlo programs. The program is written in c++
+ and has been tested on Linux, Mac OS X and MS Windows platforms.
+ .
+ This package contains the development components of xrmc: libraries and headers
+
+
+
+Package: libxrmc0-dbg
+Section: debug
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, xrmc (= ${binary:Version})
+Description: Simulate X-ray imaging and spectroscopy experiments -- debugging
+ XRMC is a Monte Carlo program for accurate simulation of X-ray imaging
+ and spectroscopy experiments in heterogeneous samples. The use of the
+ Monte Carlo method makes the code suitable for the detailed simulation
+ of complex experiments on generic samples. Variance reduction techniques
+ are used for reducing considerably the computation time compared to
+ general purpose Monte Carlo programs. The program is written in c++
+ and has been tested on Linux, Mac OS X and MS Windows platforms.
+ .
+ This package contains the debugging symbols of xrmc
+
+Package: xrmc-xmimsim
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libxrmc0 (= ${binary:Version}), libxmimsim0 (>= 2.0)
+Description: Simulate X-ray imaging and spectroscopy experiments -- XMI-MSIM plugin
+ XRMC is a Monte Carlo program for accurate simulation of X-ray imaging
+ and spectroscopy experiments in heterogeneous samples. The use of the
+ Monte Carlo method makes the code suitable for the detailed simulation
+ of complex experiments on generic samples. Variance reduction techniques
+ are used for reducing considerably the computation time compared to
+ general purpose Monte Carlo programs. The program is written in c++
+ and has been tested on Linux, Mac OS X and MS Windows platforms.
+ .
+ This package contains the XMI-MSIM plugin, giving access to the 
+ detectorconvolute device, which allows for the simulation of 
+ energy-dispersive X-ray fluorescence experiments. 
