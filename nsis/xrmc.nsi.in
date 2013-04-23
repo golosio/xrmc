@@ -79,7 +79,7 @@ CRCCheck on
 
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-!define MUI_FINISHPAGE_TEXT "Thank you for installing XRMC. Remember: the latest version of XMI-MSIM can be obtained from the development repository on github"
+!define MUI_FINISHPAGE_TEXT "Thank you for installing XRMC. Remember: the latest version of XRMC can be obtained from the development repository on github"
 !define MUI_FINISHPAGE_LINK "XRMC development link"
 !define MUI_FINISHPAGE_LINK_LOCATION ${PRODUCT_WEB_SITE} 
 !insertmacro MUI_PAGE_FINISH
@@ -109,6 +109,9 @@ DetailPrint "Installing OpenMP runtime libraries"
 
 DetailPrint "Installing POSIX threads runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\pthreadGC2.dll" "$INSTDIR\Bin\pthreadGC2.dll" "$INSTDIR"
+
+DetailPrint "Installing libstdc++ libraries"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libstdc++-6.dll" "$INSTDIR\Bin\libstdc++-6.dll" "$INSTDIR"
 
 SetOutPath "$INSTDIR\Sources"
 File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
@@ -205,6 +208,7 @@ SectionEnd
 Section "xraylib" SecXraylib
 SectionIn RO
 
+AddSize 42000
 SetAutoClose false
 SetShellVarContext all
 DetailPrint "Checking xraylib presence..."
@@ -254,8 +258,17 @@ ${Endif}
 
 xraylib_install:
 DetailPrint "xraylib download has succeeded. Installing..."
-ExecWait '"xraylib-${XRAYLIB_VERSION}-win32.exe" /S'
+ExecWait '"xraylib-${XRAYLIB_VERSION}-win32.exe" /S' $0
 Delete "xraylib-${XRAYLIB_VERSION}-win32.exe"
+${If} $0 == 0
+	Goto xraylib_end
+${Else}
+	DetailPrint "Error when installing xraylib: $0"
+	MessageBox MB_OK "Error when installing xraylib: $0. Aborting"
+	Abort "xraylib installation failed with error: $0"
+${Endif}
+
+
 
 xraylib_end:
 
@@ -287,6 +300,7 @@ SetShellVarContext all
 
 SectionEnd
 Section /o "XMI-MSIM" SecXMI_MSIM
+AddSize 1200000
 
 SetAutoClose false
 SetShellVarContext all
@@ -337,8 +351,15 @@ ${Endif}
 
 xmi_msim_install:
 DetailPrint "XMI-MSIM download has succeeded. Installing... This will take several minutes"
-ExecWait '"XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe" /S'
+ExecWait '"XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe" /S' $0
 Delete "XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe"
+${If} $0 == 0
+	Goto xmi_msim_end
+${Else}
+	DetailPrint "Error when installing XMI-MSIM: $0"
+	MessageBox MB_OK "Error when installing XMI-MSIM: $0. Aborting"
+	Abort "XMI-MSIM installation failed with error: $0"
+${Endif}
 
 xmi_msim_end:
 
@@ -410,6 +431,8 @@ DetailPrint "Uninstalling OpenMP runtime libraries"
 DetailPrint "Uninstalling POSIX threads runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\pthreadGC2.dll" 
 
+DetailPrint "Uninstalling libstdc++ runtime libraries"
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libstdc++-6.dll" 
 
 RMDir "$INSTDIR\Bin"
 
