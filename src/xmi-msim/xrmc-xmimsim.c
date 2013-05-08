@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <xraylib.h>
 #include <math.h>
 #include <glib/gstdio.h>
+#include <omp.h>
 
 G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 	//very simple function to check if the xrmc_xmimsim plugin works
@@ -68,6 +69,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 	options.use_sum_peaks = 0;
 	options.use_poisson = 0;
 	options.verbose = 1;
+	options.omp_num_threads = omp_get_max_threads();
 
 	if (xd->pulse_width > 0.0)
 		options.use_sum_peaks = 1;
