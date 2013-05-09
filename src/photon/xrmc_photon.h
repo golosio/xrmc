@@ -48,9 +48,9 @@ class photon
   vect3 x; // photon position
   vect3 ui, uj, uk; // photon local coord. system
   // uk: direction; ui: polarization vector
-  randmt_t *rng;
+  randmt_t *Rng;
 
-  photon() {rng=NULL;} // constructor
+  photon() {Rng=NULL;} // constructor
 // move the photon in the direction uk by a distance step_length
   int MoveForward(double step_length); 
 

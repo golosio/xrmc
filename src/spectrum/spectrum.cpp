@@ -61,7 +61,7 @@ spectrum::spectrum(string dev_name) {
     LineIntensity[0] = LineIntensity[1] = LineWeight[0] = 
     LineWeight[1] = LineCumul = NULL;
   EneContinuousNum = EneLineNum = 0;
-  rng = NULL;
+  Rng = NULL;
   SetDevice(dev_name, "spectrum");
 }
 
@@ -312,7 +312,7 @@ int spectrum::ExtractEnergy(double *weight, double *Energy, int *polarization)
                        // using the cumulative distribution approach
     *weight = 1;
     // decide if a discrete line or continuous spectrum will be used
-    R = (rng == NULL ? Rnd() : Rnd_r(rng))*(ContinuousIntensity + DiscreteIntensity);
+    R = Rnd_r(Rng)*(ContinuousIntensity + DiscreteIntensity);
     if (R <= ContinuousIntensity && EneContinuousNum>1)
       ContinuousRandomEnergy(Energy, polarization);
     else DiscreteRandomEnergy(Energy, polarization);
@@ -342,7 +342,7 @@ int spectrum::IntervalRandomEnergy(double *E, int interval_idx, int pol_idx)
   if (RandomEneFlag == 1) {
     double y1 = ContSIntensity[pol_idx][interval_idx]; //left side height
     double y2 = ContSIntensity[pol_idx][interval_idx+1]; // right side height
-    double R = (rng == NULL ? Rnd() : Rnd_r(rng));
+    double R = Rnd_r(Rng);
     if (y2 != y1) {
       // extract the energy value in the interval using a linear probability
       // distribution
@@ -393,7 +393,7 @@ int spectrum::DiscreteRandomEnergy(double *Energy, int *polarization)
   double R, E, E0;
 
   // generate a random number and locate it in the cumulative distribution
-  R = (rng == NULL ? Rnd() : Rnd_r(rng));
+  R = Rnd_r(Rng);
   Locate(R, LineCumul, 2*EneLineNum, &j);
   *polarization = j % 2; // polarization type depends on j being even or odd
   i = j / 2; // line index
@@ -402,7 +402,7 @@ int spectrum::DiscreteRandomEnergy(double *Energy, int *polarization)
     E0 = E;
     do {
       // if sigma !=0 generate the energy using a Gaussian distribution
-      E = E0 + LineSigma[i]*(rng == NULL ? GaussRnd() : GaussRnd_r(rng));
+      E = E0 + LineSigma[i]*GaussRnd_r(Rng);
     } while (E <= 0); // E must be positive
   }
   *Energy = E;
@@ -419,7 +419,7 @@ int spectrum::ContinuousRandomEnergy(double *Energy, int *polarization)
   double R;
 
   // generate a random number and locate it in the cumulative distribution
-  R = (rng == NULL ? Rnd() : Rnd_r(rng));
+  R = Rnd_r(Rng);
   Locate(R, IntervalCumul, 2*(EneContinuousNum-1), &j);
   *polarization = j % 2; // polarization type depends on j being even or odd
   i = j / 2; // interval index

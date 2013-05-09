@@ -39,6 +39,7 @@ class phase
   double LastMu; // linear absorption coefficient
   double LastDelta; // delta coefficient 
   static const double KD; // constant used for computing Delta
+  randmt_t *Rng;
 
   ~phase() { // destructor
     if (W!=NULL) delete[] W;
@@ -84,6 +85,7 @@ class composition : public xrmc_device
   int Mu(double E); // Evaluates the absorption coefficient of each phase
   int Delta(double E); // Evaluates the delta coefficient of each phase
   composition *Clone(string dev_name);
+  virtual int SetRng(randmt_t *rng);
 };
 
 #endif

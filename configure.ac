@@ -104,6 +104,7 @@ AC_CONFIG_FILES([	Makefile
 			src/xrmc_algo/Makefile
 			src/photon/Makefile
 			src/source/Makefile
+			src/beamsource/Makefile
 			src/spectrum/Makefile
 			src/xrmc_math/Makefile
 			src/exception/Makefile

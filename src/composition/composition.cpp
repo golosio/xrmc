@@ -105,7 +105,7 @@ int phase::AtomType(int *Zelem, double *mu_atom)
   if (Rho==0 || LastMu+Rho==LastMu) return -1;
 
   double mu_compound = LastMu / Rho; // absorption coefficient of the phase
-  double R = Rnd()*mu_compound; // random num. between 0 and mu_compound
+  double R = Rnd_r(Rng)*mu_compound; // random num. between 0 and mu_compound
 
   double sum = 0;
   int i = 0;
@@ -166,4 +166,15 @@ phase& phase::operator= (const phase &Phase) {
 	LastDelta = Phase.LastDelta;
 	
 	return *this;
+}
+
+int composition::SetRng(randmt_t *rng)
+{
+  Rng = rng;
+
+  for (int i=0; i<NPhases; i++) {
+    Ph[i].Rng = rng;
+  }
+
+  return 0;
 }

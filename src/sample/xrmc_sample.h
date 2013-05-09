@@ -53,7 +53,7 @@ class path
   double DeltaL; // sum of delta * steplength
   double *SumMuS; // cumulative sum of mu * steplength
   double *SumS; // cumulative sum of steplengths
-  randmt_t *rng;
+  randmt_t *Rng;
 
   ~path() { // destructor
     if(t!=NULL) delete[] t;
@@ -69,7 +69,7 @@ class path
     t = Step = Mu = Delta = SumMuS = SumS = NULL;
     iPh0 = iPh1 = NULL;
     NSteps = 0;
-    rng = NULL;
+    Rng = NULL;
   }
   // evaluate the absorption coefficient at each step of the intersection
   int StepMu(composition *comp);
@@ -93,7 +93,6 @@ class sample : public basesource
   int ScattOrderIdx; // scattering order index
   int PhotonIdx; // event index
   int WeightedStepLength; // flag for weighted steplength extraction method
-  randmt_t *rng;
   basesource *Source; // input source device
 
   ~sample(); // destructor
@@ -116,12 +115,20 @@ class sample : public basesource
   //evaluate absorption and delta coefficient at each step of the intersections
   int LinearMuDelta(vect3 x0, vect3 u);
 
+// weight the event with the survival probability
+  int PhotonSurvivalWeight(photon *Photon, double tmax);
+  // simulates the photon history up to the last interaction point
+  int PhotonHistory(photon *Photon, int &Z, int &interaction_type);
   // generate an event with a photon forced to end on the point x1
   int Out_Photon_x1(photon *Photon, vect3 x1);
   int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
+  // simulates an event up to the last interaction point
+  int Out_Photon(photon *Photon);
+  int Out_Photon(photon *Photon, int *ModeIdx);
 
   virtual int RunInit(); // sample run initialization method
-
+ // set the random number generator structure
+  virtual int SetRng(randmt_t *rng);
  private:
   basesource *Clone(string dev_name);
  private:

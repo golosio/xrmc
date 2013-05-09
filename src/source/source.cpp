@@ -39,11 +39,18 @@ source::source(string dev_name) {
   NInputDevices=1;
   InputDeviceCommand.push_back("SpectrumName");
   InputDeviceDescription.push_back("Spectrum input device name");
-  rng = NULL;
+  Rng = NULL;
 
   SetDevice(dev_name, "source");
 }
 
+int source::SetRng(randmt_t *rng)
+{
+  Rng = rng;
+  Spectrum->SetRng(rng);
+
+  return 0;
+}
 source *costhl_Source; // temporary object needed to define the following
                        // function costhl
 
@@ -152,12 +159,12 @@ int source::Out_Photon(photon *Photon)
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-    if (rng == NULL)
-      Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
-        + uk*Sigmaz*GaussRnd();
-    else
-      Photon->x += ui*Sigmax*GaussRnd_r(rng) + uj*Sigmay*GaussRnd_r(rng)
-        + uk*Sigmaz*GaussRnd_r(rng);
+    //DELETE if (Rng == NULL)
+    //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
+    //    + uk*Sigmaz*GaussRnd();
+    //else
+      Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
+        + uk*Sigmaz*GaussRnd_r(Rng);
   }
   // call source method for extracting photon initial direction
   PhotonDirection(Photon, pol);
@@ -176,24 +183,24 @@ int source::PhotonDirection(photon *Photon, int pol)
   if (Thy==0) {
     sin_phi = 0;
     cos_phi = 1;
-    double theta = (2.*(rng == NULL ? Rnd() : Rnd_r(rng))-1)*Thx;
+    double theta = (2.*Rnd_r(Rng)-1)*Thx;
     sin_theta=sin(theta);
     cos_theta=cos(theta);
   }
   else if (Thx==0) {
     sin_phi = 1;
     cos_phi = 0;
-    double theta = (2.*(rng == NULL ? Rnd() : Rnd_r(rng))-1)*Thy;
+    double theta = (2.*Rnd_r(Rng)-1)*Thy;
     sin_theta=sin(theta);
     cos_theta=cos(theta);
   }
   else {
-    phi = 2*PI*(rng == NULL ? Rnd() : Rnd_r(rng)); // random azimuthal angle phi (0,2*PI)
+    phi = 2*PI*Rnd_r(Rng); // random azimuthal angle phi (0,2*PI)
     cos_phi = cos(phi);
     sin_phi = sin(phi);
     cos_theta_lim = CosThL(phi); //maximum value of theta for this value of phi 
     Photon->w *= 2*PI*(1. - cos_theta_lim)/Omega;
-    cos_theta = 1. - (rng == NULL ? Rnd() : Rnd_r(rng))*(1. - cos_theta_lim); // cosine of polar angle theta
+    cos_theta = 1. - Rnd_r(Rng)*(1. - cos_theta_lim); // cosine of polar angle theta
     sin_theta = sqrt(1 - cos_theta*cos_theta); // sine of theta
   }
   x = sin_theta*cos_phi; // components of the photon direction
@@ -312,12 +319,12 @@ int source::Out_Photon_x1(photon *Photon, vect3 x1)
  
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-    if (rng == NULL)
-      Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
-        + uk*Sigmaz*GaussRnd();
-    else
-      Photon->x += ui*Sigmax*GaussRnd_r(rng) + uj*Sigmay*GaussRnd_r(rng)
-        + uk*Sigmaz*GaussRnd_r(rng);
+    //if (Rng == NULL)
+    //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
+    //    + uk*Sigmaz*GaussRnd();
+    //else
+      Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
+        + uk*Sigmaz*GaussRnd_r(Rng);
   }
   // ask spectrum device to extrace the photon energy and polarization
   Spectrum->ExtractEnergy(&w, &E, &pol);

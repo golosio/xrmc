@@ -56,7 +56,7 @@ sample::sample(string dev_name) {
 
   PhotonNum = NULL;
   Path = NULL;
-  rng = NULL;
+  Rng = NULL;
   SetDevice(dev_name, "sample");
 }
 
@@ -144,25 +144,6 @@ int sample::RunInit()
   return 0;
 }
 
-//////////////////////////////////////////////////////////////////////
-// sample cleaning after run method
-//////////////////////////////////////////////////////////////////////
-//int sample::RunFree()
-//{
-//  // deallocate arrays related to intersection steps
-//  delete[] Path->t;
-//  delete[] Path->Step;
-//  delete[] Path->iPh0;
-//  delete[] Path->iPh1;
-//  delete[] Path->Mu;
-//  delete[] Path->Delta;
-//  delete[] Path->SumMuS;
-//  delete[] Path->SumS;
-//  delete Path; // deallocate the path member variable
-
-//  return 0;
-//}
-
 // initialize loop on events
 int sample::Begin()
 {
@@ -224,6 +205,16 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx)
 {
   *ModeIdx = ScattOrderIdx; // set the scattering order
   return Out_Photon_x1(Photon, x1); // generate the event
+}
+
+//////////////////////////////////////////////////////////////////////
+// generate an event up to the last interaction position
+// and using ModeIdx orders of scattering
+//////////////////////////////////////////////////////////////////////
+int sample::Out_Photon(photon *Photon, int *ModeIdx)
+{
+  *ModeIdx = ScattOrderIdx; // set the scattering order
+  return Out_Photon(Photon); // generate the event
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -305,16 +296,17 @@ int sample::LinearMuDelta(vect3 x0, vect3 u)
 vect3 sample::RandomPoint()
 {
   vect3 v = Geom3D->X; // center of the sample region
-  if (rng == NULL) {
+  /*Delete
+  if (Rng == NULL) {
   	v.Elem[0] += (-1. + 2.*Rnd())*Geom3D->HW[0]; // uniform probability
   	v.Elem[1] += (-1. + 2.*Rnd())*Geom3D->HW[1]; // distribution
   	v.Elem[2] += (-1. + 2.*Rnd())*Geom3D->HW[2]; // in a parallelepiped
-  }
-  else {
-  	v.Elem[0] += (-1. + 2.*Rnd_r(rng))*Geom3D->HW[0]; // uniform probability
-  	v.Elem[1] += (-1. + 2.*Rnd_r(rng))*Geom3D->HW[1]; // distribution
-  	v.Elem[2] += (-1. + 2.*Rnd_r(rng))*Geom3D->HW[2]; // in a parallelepiped
-  }
+	} */
+  //else {
+  	v.Elem[0] += (-1. + 2.*Rnd_r(Rng))*Geom3D->HW[0]; // uniform probability
+  	v.Elem[1] += (-1. + 2.*Rnd_r(Rng))*Geom3D->HW[1]; // distribution
+  	v.Elem[2] += (-1. + 2.*Rnd_r(Rng))*Geom3D->HW[2]; // in a parallelepiped
+  //}
 
   return 0;
 }
@@ -378,10 +370,10 @@ double path::StepLength(int *step_idx, double *p_abs)
   *p_abs = 1. - exp(-sum_mu_s); // total absorption probability
   
   do {
-    if (rng == NULL)
-      R = Rnd(); // random number 0-1
-    else
-      R = Rnd_r(rng);
+    // DELETE if (Rng == NULL)
+    //R = Rnd(); // random number 0-1
+    //else
+      R = Rnd_r(Rng);
     logarg = 1 - R*(*p_abs); // use the inverse cumulative distribution
   } while (logarg<logargmin); // check for logarith underflow
   
@@ -407,7 +399,7 @@ double path::WeightedStepLength(int *step_idx, double *weight)
   double sum, step_length, l, MuS, w;
   int i, m;
 
-  m = (int)floor((rng == NULL ? Rnd() : Rnd_r(rng))*NSteps);  // choose a step at random
+  m = (int)floor(Rnd_r(Rng)*NSteps);  // choose a step at random
   if (m >= NSteps) m = NSteps - 1;
 
   sum = 0;
@@ -418,7 +410,7 @@ double path::WeightedStepLength(int *step_idx, double *weight)
   }
   MuS = Mu[m]*Step[m]; // mu * steplength on the step extracted
   w = exp(-sum)*NSteps;
-  l = (rng == NULL ? Rnd() : Rnd_r(rng))*Step[m]; // random position on last step
+  l = Rnd_r(Rng)*Step[m]; // random position on last step
   step_length += l; // total steplength up to the interaction position
   *weight = w*exp(-Mu[m]*l) * MuS; // weight of the event
   *step_idx = m;
@@ -426,6 +418,29 @@ double path::WeightedStepLength(int *step_idx, double *weight)
   return step_length;
 }
 
+
+//////////////////////////////////////////////////////////////////////
+// simulates the photon history up to the last interaction point
+//////////////////////////////////////////////////////////////////////
+int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type)
+{
+  Source->Out_Photon(Photon); // asks source to generate a photon
+  Comp->Mu(Photon->E); // absorption coefficients at photon energy
+  // loop on scattering interactions up to the scattering order
+  for (int is=1; is<=ScattOrderIdx; is++) {
+    // Evaluates the photon next interaction type and position
+    Photon->MonteCarloStep(this, &Z, &interaction_type);
+    if (Photon->w == 0) break;
+    if (is<ScattOrderIdx) { // check that it is not the last interaction
+      // update the photon direction, polarization and energy
+      Photon->Scatter(Z, interaction_type);
+      // update absorption coefficients using the new energy value
+      if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+    }   
+  }
+
+  return 0;
+}
 
 //////////////////////////////////////////////////////////////////////
 // generate an event with a photon forced to end on the point x1
@@ -449,20 +464,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
     Comp->Mu(Photon->E); // absorption coefficients at photon energy
   }
   else {
-    Source->Out_Photon(Photon); // at least one scattering process
-    Comp->Mu(Photon->E); // absorption coefficients at photon energy
-    // loop on scattering interactions up to the scattering order
-    for (int is=1; is<=ScattOrderIdx; is++) {
-      // Evaluates the photon next interaction type and position
-      Photon->MonteCarloStep(this, &Z, &interaction_type);
-      if (Photon->w == 0) break;
-      if (is<ScattOrderIdx) { // check that it is not the last interaction
-	// update the photon direction, polarization and energy
-	Photon->Scatter(Z, interaction_type);
-	// update absorption coefficients using the new energy value
-	if (interaction_type != COHERENT) Comp->Mu(Photon->E);
-      }   
-    }
+    PhotonHistory(Photon, Z, interaction_type);
     if (Photon->w != 0) {
       vr = x1 - Photon->x; //end position relative to last interaction position
       tmax = vr.Mod(); // maximum intersection distance
@@ -474,16 +476,61 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
       if (interaction_type != COHERENT) Comp->Mu(Photon->E);
     }
   }
+  Photon->uk = vr; // update the photon direction
+  // divide the event weight by the multiplicity
+  Photon->w /= PhotonNum[ScattOrderIdx];
+  // weight the event with the survival probability
+  PhotonSurvivalWeight(Photon, tmax);
 
-  // weight the event with the survival probability and divide by multiplicity
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// weight the event with the survival probability
+//////////////////////////////////////////////////////////////////////
+int sample::PhotonSurvivalWeight(photon *Photon, double tmax)
+{
   if (Photon->w>0) {
-    Photon->w *= exp(-LinearAbsorption(Photon->x, vr, tmax))
-      /PhotonNum[ScattOrderIdx];
+    Photon->w *= exp(-LinearAbsorption(Photon->x, Photon->uk, tmax));
   }
 
   return 0;
 }
 
+//////////////////////////////////////////////////////////////////////
+// generate an event up to the last interaction position
+//////////////////////////////////////////////////////////////////////
+int sample::Out_Photon(photon *Photon)
+{
+  int Z, interaction_type;
+
+  if (PhotonNum[ScattOrderIdx]==0) {
+    Photon->w = 0;
+    return 0;
+  }
+  if (ScattOrderIdx == 0) { // transmission
+    // ask the source to generate photon
+    Source->Out_Photon(Photon);
+    Comp->Mu(Photon->E); // absorption coefficients at photon energy
+  }
+  else {
+    PhotonHistory(Photon, Z, interaction_type);
+    if (Photon->w != 0) {
+      // update the photon direction, polarization and energy
+      Photon->Scatter(Z, interaction_type);
+      // update absorption coefficients using the new energy value
+      if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+    }
+  }
+  // divide the event weight by the multiplicity
+  Photon->w /= PhotonNum[ScattOrderIdx];
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Clone method
+//////////////////////////////////////////////////////////////////////
 basesource *sample::Clone(string dev_name) {
 	//cout << "Entering sample::Clone\n";	
 	sample *clone = new sample(dev_name);
@@ -529,4 +576,14 @@ path *path::Clone() {
 	clone->SumS = new double[MaxNSteps];
 
 	return clone;
+}
+
+int sample::SetRng(randmt_t *rng)
+{
+  Rng = rng;
+  Source->SetRng(rng);
+  Comp->SetRng(rng);
+  Path->Rng = rng;
+
+  return 0;
 }

@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_geom3d.h"
 #include "xrmc_sample.h"
 #include "xrmc_detector.h"
+#include "beamsource.h"
+#include "beamscreen.h"
 #ifdef HAVE_XMIMSIM
 #include "xrmc_detectorconvolute.h"
 #endif
@@ -74,6 +76,12 @@ int xrmc_device::LoadNewDevice(istream &dev_fs,  xrmc_device*& dev_pt)
   }
   else if (dev_type=="detectorarray") {
     dev_pt = new detectorarray(dev_name);
+  }
+  else if (dev_type=="beamsource") {
+    dev_pt = new beamsource(dev_name);
+  }
+  else if (dev_type=="beamscreen") {
+    dev_pt = new beamscreen(dev_name);
   }
   else if (dev_type=="detectorconvolute") {
 #ifdef HAVE_XMIMSIM

@@ -26,10 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define XRMCALGOH
 #include "randmt.h"
 
-#define Rnd() (rand_unif())
+				    //#define Rnd() (rand_unif())
 #define Rnd_r(x) (rand_unif_r(x))
 #define GaussRnd_r(x) (rand_normal_r(x))
-#define GaussRnd() (rand_normal())
+				    //#define GaussRnd() (rand_normal())
 
 namespace xrmc_algo
 {  
