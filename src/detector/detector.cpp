@@ -32,6 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_sample.h"
 #ifdef _OPENMP
 #include <omp.h>
+#define THREAD_MAXNUM omp_get_max_threads()
+#define THREAD_IDX omp_get_thread_num()
+#else
+#define THREAD_MAXNUM 1
+#define THREAD_IDX 0
 #endif
 
 using namespace std;
@@ -40,7 +45,7 @@ using namespace arrayNd;
 
 // destructor
 detectorarray::~detectorarray() {
-  if (PixelX!=NULL) delete[] PixelX;
+  //if (PixelX!=NULL) delete[] PixelX; // should becalled on base class
   if (Image!=NULL) arrayNd::free_double_array3d(Image);
 }
 
@@ -63,94 +68,13 @@ detectorarray::detectorarray(string dev_name) {
 //////////////////////////////////////////////////////////////////////
 int detectorarray::RunInit()
 {
-  double x, y;
+  Init();
 
-  OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
-
-  PixelSurf = PixelSizeX*PixelSizeY; // pixel surface
-  N = NX*NY; // number of pixels
-  if (PixelX!=NULL) delete[] PixelX;
-  PixelX = new vect3[N]; // array of pixel coordinates 
   ModeNum = Source->ModeNum(); // number of modes (scattering orders)
- 
   if (Image!=NULL) free_double_array3d(Image);
   Image = double_array3d(ModeNum, N, NBins); // allocate the image array
 
-  double x0 = -(PixelSizeX*NX)/2 + PixelSizeX/2; // starting (local) coordinates
-  double y0 = -(PixelSizeY*NY)/2 + PixelSizeY/2; // on the detector plane
-  int i = 0;
-
-  if (RunningFasterFlag==0) { // columns running faster than rows
-    for (int iy=0; iy<NY; iy++) { // loop on detector pixels
-      for (int ix=0; ix<NX; ix++) {
-	x = x0 + PixelSizeX*ix; // local x coordinate of the pixel
-	y = y0 + PixelSizeY*iy; // local y coordinate of the pixel
-	PixelX[i] = X + ui*x + uj*y; // 3d absolute coordinates of the pixel
-	i++; // increase pixel index
-      }
-    }
-  }
-  else { // rows running faster than columns
-    for (int ix=0; ix<NX; ix++) { // loop on detector pixels
-      for (int iy=0; iy<NY; iy++) {
-	x = x0 + PixelSizeX*ix; // local x coordinate of the pixel
-	y = y0 + PixelSizeY*iy; // local y coordinate of the pixel
-	PixelX[i] = X + ui*x + uj*y; // 3d absolute coordinates of the pixel
-	i++; // increase pixel index
-      }
-    }
-  }
-  
   return 0;
-}
-
-//////////////////////////////////////////////////////////////////////
-// Generates a random point on the pixel surface
-//////////////////////////////////////////////////////////////////////
-vect3 detectorarray::RandomPointOnPixel(int i)
-{
-  double x, y, rx, ry;
-  vect3 p;
-
-  if (RandomPixelFlag == 1) { // check if random position on pixel is enabled
-    do {
-      rx=2.*Rnd()-1; // random real numbers between -1 and 1
-      ry=2.*Rnd()-1;
-    } while (Shape==1 && (rx*rx+ry*ry>1)); // if shape is elliptical check that
-                                           // the point is inside the ellipse
-    x = PixelSizeX*rx/2; // x,y coordinates of the point on pixel surface
-    y = PixelSizeY*ry/2;
-  }
-  else {
-    x = 0;
-    y = 0;
-  }
-  p = PixelX[i] + ui*x + uj*y; // 3d absolute coordinates of the point
-
-  return p;
-}
-
-vect3 detectorarray::RandomPointOnPixel(int i, randmt_t *rng)
-{
-  double x, y, rx, ry;
-  vect3 p;
-
-  if (RandomPixelFlag == 1) { // check if random position on pixel is enabled
-    do {
-      rx=2.*Rnd_r(rng)-1; // random real numbers between -1 and 1
-      ry=2.*Rnd_r(rng)-1;
-    } while (Shape==1 && (rx*rx+ry*ry>1)); // if shape is elliptical check that
-                                           // the point is inside the ellipse
-    x = PixelSizeX*rx/2; // x,y coordinates of the point on pixel surface
-    y = PixelSizeY*ry/2;
-  }
-  else {
-    x = 0;
-    y = 0;
-  }
-  p = PixelX[i] + ui*x + uj*y; // 3d absolute coordinates of the point
-
-  return p;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -158,82 +82,108 @@ vect3 detectorarray::RandomPointOnPixel(int i, randmt_t *rng)
 //////////////////////////////////////////////////////////////////////
 int detectorarray::Acquisition()
 {
+  vect3 Rp, DRp;
+
+  Clear(); // clear the detector bin contents
+
+  //init_randmt_auto_r(Rng);
+  //Photon.Rng = Rng;
+
+  //initialize rngs
+  randmt_t **rngs;
+  rngs = new randmt_t*[THREAD_MAXNUM];
+  basesource **SourceClones = new basesource*[THREAD_MAXNUM];
+  photon *PhotonArray = new photon[THREAD_MAXNUM];
+
+  cout << "Maximum number of threads: "  << THREAD_MAXNUM << endl;
+  if (THREAD_MAXNUM==1) {
+    SourceClones[0] = Source;
+    rngs[0] = new_randmt();
+    if (Seeds.size()>0 && Seeds[0]!=0) init_randmt_r(rngs[0], Seeds[0]);
+    else init_randmt_auto_r(rngs[0]);
+    SourceClones[0]->SetRng(rngs[0]);
+    PhotonArray[0].Rng = rngs[0];
+  }
+  else {
+    for (int i=0; i<THREAD_MAXNUM; i++) {
+      SourceClones[i] = Source->Clone(InputDeviceName[0]);
+      rngs[i] = new_randmt();
+      if (rngs[i] == NULL)
+	throw xrmc_exception(string("Could not allocate new RNG\n"));
+      if (i<(int)Seeds.size() && Seeds[i]!=0) {
+	init_randmt_r(rngs[i], Seeds[i]);
+	cout << "\tThread " << i << " , seed " << Seeds[i] << endl;
+      } 
+      else init_randmt_auto_r(rngs[i]);
+      SourceClones[i]->SetRng(rngs[i]);
+      PhotonArray[i].Rng = rngs[i];
+    }
+  }
+  // Last photon not forced / forced to be detected
+  if(ForceDetectFlag==0) UnforcedAcquisition(SourceClones, PhotonArray);
+  else ForcedAcquisition(SourceClones, PhotonArray, rngs);
+    
+  // generate uncertainty on pixel count using Poisson statistic
+  if (PoissonFlag == 1) {
+    Poisson(rngs[0]);
+  }
+
+  //free rngs
+  for (int i=0; i<THREAD_MAXNUM; i++) {
+    free_randmt(rngs[i]);
+  }
+  delete [] rngs;
+  
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// run the forced acquisition
+//////////////////////////////////////////////////////////////////////
+int detectorarray::ForcedAcquisition(basesource **SourceClones,
+				     photon *PhotonArray, randmt_t **rngs)
+{
   int bin, mode_idx;
   vect3 Rp, DRp;
   double Pgeom, signal;
-  photon Photon;
   const int ProgrUpdate=100000;
-
-  Clear(); // clear the detector bin contents
-  int event_idx=0, event_tot=EventMulti();
+  int event_idx, event_tot=EventMulti();
   if (event_tot>ProgrUpdate) {
     printf("\nProgress 0 %%\r");
     fflush(stdout);
   }
 
-  Photon.rng = NULL;
-
 #ifdef _OPENMP
-  basesource **SourceClones = new basesource*[omp_get_max_threads()];
-  for (int i = 0 ; i < omp_get_max_threads() ; i++) {
-  	SourceClones[i] = Source->Clone(InputDeviceName[0]);
-  }
-
-  //initialize rngs
-  randmt_t **rngs;
-  photon *PhotonClones = new photon[omp_get_max_threads()];
-  rngs = new randmt_t*[omp_get_max_threads()];
-  for (int i = 0 ; i < omp_get_max_threads() ; i++) {
-  	rngs[i] = new_randmt();
-	if (rngs[i] == NULL)
-    		throw xrmc_exception(string("Could not allocate new RNG\n"));
-  	if (omp_get_max_threads() == 1)
-		init_randmt_r(rngs[i], 54123UL);
-	else
-		init_randmt_auto_r(rngs[i]);
-	dynamic_cast<sample*>(SourceClones[i])->rng = rngs[i];
-	dynamic_cast<sample*>(SourceClones[i])->Path->rng = rngs[i];
-	dynamic_cast<source*>(dynamic_cast<sample*>(SourceClones[i])->Source)->rng = rngs[i];
-	dynamic_cast<source*>(dynamic_cast<sample*>(SourceClones[i])->Source)->Spectrum->rng = rngs[i];
-	PhotonClones[i].rng = rngs[i];
-  }
-  //event_tot /= omp_get_max_threads();
-  omp_lock_t print_lock;
-  omp_init_lock(&print_lock);
-#endif
-
-#ifdef _OPENMP
-#define Source SourceClones[omp_get_thread_num()]
-#define Photon (PhotonClones[omp_get_thread_num()])
-#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, bin) schedule(guided) collapse(2)
+#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, bin) collapse(2)
 #endif
   for (int ipix=0; ipix<N; ipix++) { // loop on detector pixels
     for (int iph=0; iph<PhotonNum; iph++) { // loop on event multiplicity
       // loop on events generated by the source device
-      for (Source->Begin(); !Source->End(); Source->Next()) {
-#ifdef _OPENMP
-	Rp = RandomPointOnPixel(ipix, rngs[omp_get_thread_num()]); // extract random point on pixel
-#else
-	Rp = RandomPointOnPixel(ipix); // extract random point on pixel
-#endif
+      for (SourceClones[THREAD_IDX]->Begin(); !SourceClones[THREAD_IDX]->End();
+	   SourceClones[THREAD_IDX]->Next()) {
+	// extract random point on pixel
+	Rp = RandomPointOnPixel(ipix, rngs[THREAD_IDX]);
 	// get a photon from the source forcing it to terminate on the pixel
         // surface: 
-	Source->Out_Photon_x1(&Photon, Rp, &mode_idx);
-	if (Photon.w != 0) { // check that weight is not 0
-	  if (Shape==1) Photon.w *= PI/4; // if pixel is elliptical, correct
-	                                  // the weight
-	  DRp = Rp - Photon.x;
+	SourceClones[THREAD_IDX]->Out_Photon_x1(&PhotonArray[THREAD_IDX], Rp,
+						&mode_idx);
+	if (PhotonArray[THREAD_IDX].w != 0) { // check that weight is not 0
+	  // if pixel is elliptical, correct the weight
+	  if (Shape==1) PhotonArray[THREAD_IDX].w *= PI/4;
+	  
+	  DRp = Rp - PhotonArray[THREAD_IDX].x;
 	  Pgeom = dOmega(DRp);// evaluates the factor dOmega, related to
 	  // the probability that the last photon trajectory crosses the pixel
-	  signal = Photon.w*Pgeom*ExpTime/PhotonNum; // evaluate the signal
+	  signal = PhotonArray[THREAD_IDX].w*Pgeom*ExpTime/PhotonNum; // evaluate the signal
 	  // associated to the single event
+	  
 	  // Depending on pixel content type, multiply it by the energy
-	  if (PixelType == 1 || PixelType == 3) signal *= Photon.E;
+	  if (PixelType == 1 || PixelType == 3) signal *= PhotonArray[THREAD_IDX].E;
 	  bin = 0;
 	  // check if energy binning is used
 	  if ((PixelType==2 || PixelType==3) && NBins > 1) {
 	    // evaluate the energy bin
-	    bin = ((int)trunc((Photon.E-Emin)/(Emax-Emin)*NBins));
+	    bin = ((int)trunc((PhotonArray[THREAD_IDX].E-Emin)/(Emax-Emin)*NBins));
 	    if (bin >= NBins) { // check for saturation
 	      if (SaturateEmax == 1) bin = NBins - 1;
 	      else continue;
@@ -253,10 +203,8 @@ int detectorarray::Acquisition()
 #pragma omp atomic
 #endif
 	event_idx++;
-#ifdef _OPENMP
-	if (omp_get_thread_num() == 0)
-#endif
-	{
+	
+	if (THREAD_IDX==0) {
 	  if (event_idx%ProgrUpdate==0 && event_tot>ProgrUpdate) {
 	    printf("Progress %.3f %%\r", 100.*event_idx/event_tot);
 	    fflush(stdout);
@@ -265,58 +213,94 @@ int detectorarray::Acquisition()
       }
     }
   }
-//end of big for loop
-#ifdef _OPENMP
-#undef Source
-#undef Photon
-#endif
-
-
-  // generate uncertainty on pixel count using Poisson statistic
-  if (PoissonFlag == 1) {
-#ifdef _OPENMP
-	Poisson(rngs[0]);
-#else
-  	Poisson();
-#endif
-  }
+  //end of big for loop
   if (event_tot>ProgrUpdate) {
     printf("\rProgress 100.000 %%\n");
   }
 
-#ifdef _OPENMP
-  //free rngs
-  for (int i = 0 ; i < omp_get_max_threads() ; i++) {
-	free_randmt(rngs[i]);
-  }
-  delete [] rngs;
-
-#endif
   return 0;
 }
+
 //////////////////////////////////////////////////////////////////////
-// generate uncertainty on pixel count using Poisson statistic
+// run the unforced acquisition
 //////////////////////////////////////////////////////////////////////
-int detectorarray::Poisson()
+int detectorarray::UnforcedAcquisition(basesource **SourceClones,
+				       photon *PhotonArray)
 {
-  double signal, sigma;
-  // loop on modes (scattering orders)
-  for (int mode_idx=0; mode_idx<ModeNum; mode_idx++) {
-    for (int ipix=0; ipix<N; ipix++) { // loop on detector pixels
-      for (int ibin=0; ibin>NBins; ibin++) { // loop on energy bins
-	signal = Image[mode_idx][ipix][ibin];
-	sigma = sqrt(signal);          // approximate poisson deviation 
-	signal += sigma*GaussRnd(); // using a random Gaussian distribution
-	signal = signal>0 ? signal : 0; // threshold to 0
-	if (RoundFlag == 1) signal = round(signal); // round to integer
-	Image[mode_idx][ipix][ibin] = signal;
+  int bin, mode_idx;
+  vect3 Rp, DRp;
+  double signal;
+  const int ProgrUpdate=100000;
+  int event_idx, event_tot=EventMulti();
+  if (event_tot>ProgrUpdate) {
+    printf("\nProgress 0 %%\r");
+    fflush(stdout);
+  }
+
+#ifdef _OPENMP
+#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, signal, bin) collapse(1)
+#endif
+  for (int iph=0; iph<PhotonNum; iph++) { // loop on event multiplicity
+    // loop on events generated by the source device
+    for (SourceClones[THREAD_IDX]->Begin(); !SourceClones[THREAD_IDX]->End();
+	 SourceClones[THREAD_IDX]->Next()) {
+      SourceClones[THREAD_IDX]->Out_Photon(&PhotonArray[THREAD_IDX],
+					   &mode_idx);
+      int ix, iy;
+      double tx, ty, t;
+      if (PhotonArray[THREAD_IDX].w>0 && Intersect(PhotonArray[THREAD_IDX].x,
+	    PhotonArray[THREAD_IDX].uk, ix, iy, tx, ty, t)) {
+	SourceClones[THREAD_IDX]->PhotonSurvivalWeight
+	  (&PhotonArray[THREAD_IDX], t);
+	signal = PhotonArray[THREAD_IDX].w*ExpTime/PhotonNum;
+	// Depending on pixel content type, multiply it by the energy
+	if (PixelType == 1 || PixelType == 3)
+	  signal *= PhotonArray[THREAD_IDX].E;
+	bin = 0;
+	// check if energy binning is used
+	if ((PixelType==2 || PixelType==3) && NBins > 1) {
+	  // evaluate the energy bin
+	  bin=((int)trunc((PhotonArray[THREAD_IDX].E-Emin)/(Emax-Emin)*NBins));
+	  if (bin >= NBins) { // check for saturation
+	    if (SaturateEmax == 1) bin = NBins - 1;
+	    else continue;
+	  }
+	  if (bin <=0) {
+	    if (SaturateEmin == 1) bin = 0;
+	    else continue;
+	  }
+	}
+	// add the signal to the pixel bin
+
+#ifdef _OPENMP
+#pragma omp atomic
+#endif
+	Image[mode_idx][iy*NX+ix][bin] += signal;
+      }
+#ifdef _OPENMP
+#pragma omp atomic
+#endif
+      event_idx++;
+	
+      if (THREAD_IDX==0) {
+	if (event_idx%ProgrUpdate==0 && event_tot>ProgrUpdate) {
+	  printf("Progress %.3f %%\r", 100.*event_idx/event_tot);
+	  fflush(stdout);
+	}
       }
     }
   }
+  //end of big for loop
+  if (event_tot>ProgrUpdate) {
+    printf("\rProgress 100.000 %%\n");
+  }
 
   return 0;
 }
 
+//////////////////////////////////////////////////////////////////////
+// generate uncertainty on pixel count using Poisson statistic
+//////////////////////////////////////////////////////////////////////
 int detectorarray::Poisson(randmt_t *rng)
 {
   double signal, sigma;
@@ -355,7 +339,8 @@ int detectorarray::Clear()
 // event multiplicity
 int detectorarray::EventMulti()
 {
-  return N*PhotonNum*Source->EventMulti();
+  if(ForceDetectFlag==1) return N*PhotonNum*Source->EventMulti();
+  else return PhotonNum*Source->EventMulti();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -397,6 +382,7 @@ int detectorarray::LinkInputDevice(string command, xrmc_device *dev_pt)
 // evaluates the factor dOmega, related to
 // the probability that the last photon trajectory crosses the pixel
 //////////////////////////////////////////////////////////////////////
+ /* DELETE
 double detectorarray::dOmega(vect3 DRp)
 {
   double r = DRp.Mod();        // distance from interaction point to the
@@ -410,3 +396,5 @@ double detectorarray::dOmega(vect3 DRp)
 
   return dO;
 }
+*/
+

@@ -12,7 +12,8 @@ SUBDIRS = \
 	sample \
 	source \
 	spectrum \
-	xrmc_math
+	xrmc_math \
+	beamsource
 
 SUBLIBS = \
 	arrayNd/libarrayNd.la \
@@ -27,7 +28,8 @@ SUBLIBS = \
 	sample/libsample.la \
 	source/libsource.la \
 	spectrum/libspectrum.la \
-	xrmc_math/libxrmcmath.la
+	xrmc_math/libxrmcmath.la \
+	beamsource/libbeamsource.la
 
 lib_LTLIBRARIES = libxrmc.la
 libxrmc_la_SOURCES = 

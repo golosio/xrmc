@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include "xrmc_math.h"
 #include "xrmc_exception.h"
+#include "randmt.h"
 
 class xrmc_device;
 
@@ -92,8 +93,11 @@ class xrmc_device
   //			 "does not have input devices\n");
   //}
   virtual bool ParseInputDeviceCommand(std::istream &fs, std::string str);
+ // set the random number generator structure
+  virtual int SetRng(randmt_t *rng) {Rng = rng; return 0;}
  protected:
   int LoopIdx; // index of event loop
+  randmt_t *Rng; // random number generator structure
 };
 
 ///////////////////////////////////////////////

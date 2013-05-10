@@ -148,6 +148,13 @@ int detectorarray::Load(istream &fs)
       cout << "0: fluence, 1: energy fluence, 2: fluence(E), " 
 	"3: energy fluence(E)\n";
     }
+    else if(comm=="ForceDetectFlag") {     // photon not forced/forced 
+      GetIntToken(fs, &ForceDetectFlag); //   to be detected
+      if (ForceDetectFlag==0) 
+	cout << "Photon not forced to be detected\n"; 
+      else
+	cout << "Photon forced to be detected\n"; 
+    }
     else if(comm=="Emin") { // set the minimum bin energy
       GetDoubleToken(fs, &Emin);
       cout << "\tEmin: " << Emin << "\n"; 
@@ -169,6 +176,19 @@ int detectorarray::Load(istream &fs)
       GetIntToken(fs, &SaturateEmax);
       cout << "\tSaturate energies greater than Emax (0/1):"
 	   << SaturateEmax << "\n";
+    }
+    else if(comm=="Seeds") { // seeds for random number generation
+      cout << "\tSeeds for random number generation\n";
+      int NS;
+      long l;
+      GetIntToken(fs, &NS);
+      cout << "\tNumber of seeds: " << NS << "\n";
+      Seeds.clear();
+      for (int i=0; i<NS; i++) {
+	GetLongToken(fs, &l);
+	cout << "\tThread n. " << i << " , Seed: " << l << "\n";
+	Seeds.push_back(l);
+      }	
     }
     else if(comm=="Rotate") { // detector rotation
       cout << "Detector rotation :\n"; 
@@ -298,6 +318,7 @@ int detectorarray::SetDefault()
   HeaderFlag = 0; // header in output file disabled
   AsciiFlag = 0; // Default output format is binary 
   RunningFasterFlag = 0; // columns running faster than rows in output file
+  ForceDetectFlag = 1; //Photon forced to be detected 
   PixelType = 0; // Pixel content type = 0: fluence
   NBins = 1; // 1 energy bin
   Emin = 0; // minimum bin energy is 0 keV

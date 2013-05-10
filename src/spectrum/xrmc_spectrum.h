@@ -70,7 +70,6 @@ class spectrum : public xrmc_device
   int Resample(); // method for resampling the continuous spectrum
  public:
   double TotalIntensity;
-  randmt_t *rng;
 
   ~spectrum(); // destructor
   spectrum(std::string dev_name); // constructor
