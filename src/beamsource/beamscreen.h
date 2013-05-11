@@ -38,6 +38,8 @@ class beamscreen : public xrmc_screen
   int NBins; // Num. of energy bins
   double *Image; // image array
   double *CumulImage; // cumulative probability distribution
+  double *CumulEnergy; // cumulative probability distribution
+  double *SumEnergyImage; // probability distribution integrated over the energy
   double TotalIntensity; // total beam intensity
   
   ~beamscreen(); // destructor
@@ -49,6 +51,9 @@ class beamscreen : public xrmc_screen
 
   // Generates a random point and energy on the screen
   vect3 RandomPoint(double &E, int &pol, double &w, randmt_t *rng);
+  // Generates a random energy and polarization for a given trajectory
+  bool RandomEnergy(vect3 x0, vect3 u, double &E, int &pol, double &w,
+		    randmt_t *rng);
 
  protected:
   //double PixelSizeX, PixelSizeY, PixelSurf; // pixel size and surface (cm2) 
@@ -68,6 +73,10 @@ class beamscreen : public xrmc_screen
   int RandomPixel(int &iE, int &ix, int &iy, int &pol, randmt_t *rng);
   // evaluates the probability weigth for the trajectory x = x0 + u*t
   double WeightTrajectory(vect3 *x0, vect3 *u);
+  // evaluates interpolation weight factor
+  double InterpolWeight(int iE, int ix, int iy, int pol,
+			double rE, double rx, double ry, int ene_flag);
+
 };
 
 #endif

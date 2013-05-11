@@ -14,9 +14,9 @@ double Gauss(double x, double x0, double s)
 int main()
 {
   FILE *fp;
-  const int Nx=10, Ny=10, NE=200;
-  double dx=0.2, dy = 0.2, Emin=0.5, Emax=100;
-  double x0, y0, x, y, r, E, dE, Ec, Ec0=45, Ec1=55;
+  const int Nx=200, Ny=200, NE=200;
+  double dx=0.01, dy = 0.01, Emin=0.5, Emax=100;
+  double x0, y0, x, y, r, E, dE, Ec, Ec0=20, Ec1=70;
   int ix, iy, iE, i;
   double *Image;
   double sx, sy, sE;
@@ -24,7 +24,7 @@ int main()
   Image = (double*)malloc(Nx*Ny*NE*sizeof(double));
   sx=0.4;
   sy=0.2;
-  sE=40;
+  sE=4;
 
   y0=(-0.5*Ny + 0.5)*dy;
   x0=(-0.5*Nx + 0.5)*dx;

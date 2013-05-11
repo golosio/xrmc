@@ -12,7 +12,7 @@ X	0	15	0	; screen x, y, z
 uk	0	-1	0	; z direction (normal to the screen)
 ui	1	0	0	; x direction
 ExpTime 1			; Exposure time (sec)
-PhotonNum 200000		; Multiplicity of simulated events per pixel
+PhotonNum 2000000		; Multiplicity of simulated events per pixel
 RandomPixelFlag 1		; Enable random point on pixels (0/1)
 PoissonFlag 0			; Enable Poisson statistic on pix. counts (0/1)
 RoundFlag 0			; Round pixel counts to integer (0/1)

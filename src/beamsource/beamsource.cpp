@@ -99,9 +99,8 @@ int beamsource::Out_Photon(photon *Photon)
   // define local photon axis directions based on direction and polarization
   SetPhotonAxes(Photon, pol);
 
-  double x = Photon->uk.Elem[0]*115;
-  double y = Photon->uk.Elem[2]*115;
-
+  //double x = Photon->uk.Elem[0]*115;
+  //double y = Photon->uk.Elem[2]*115;
   //cout << "STORE " << x << " " << y << " " << Photon->E << " " << w << endl;
 
   return 0;
@@ -163,28 +162,27 @@ int beamsource::Out_Photon_x1(photon *Photon, vect3 x1)
 
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-    //if (Rng == NULL)
-    //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
-    //    + uk*Sigmaz*GaussRnd();
-    //else
       Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
         + uk*Sigmaz*GaussRnd_r(Rng);
   }
-  // ask spectrum device to extrace the photon energy and polarization
-  //Spectrum->ExtractEnergy(&w, &E, &pol);
-  E=10;
-  w=1;
-  pol=0;
-  Photon->E = E;
-  Photon->uk = x1 - Photon->x; // photon direction
-  Photon->uk.Normalize();
+  vect3 vr = x1 - Photon->x; //relative position
+  vr.Normalize(); // normalized direction
+  Photon->uk = vr; // update the photon direction
 
-  // multiply the event weight by the total beam intensity
-  // and by the probability that it has the direction uk per unit solid angle
-  Photon->w = w*BeamScreen->TotalIntensity*POmega(Photon->uk);
-
-  // define local photon axis directions based on direction and polarization
-  SetPhotonAxes(Photon, pol);
+  if (BeamScreen->RandomEnergy(Photon->x, vr, E, pol, w, Rng)) {
+    Photon->E = E;
+    // multiply the event weight by the total beam intensity and
+    // by the probability that it has the direction uk per unit solid angle
+    Photon->w = w*BeamScreen->TotalIntensity; //BeamScreen->dOmega(Photon->uk);
+    // define local photon axis based on direction and polarization
+    SetPhotonAxes(Photon, pol);
+  }
+  else {
+    Photon->w = 0;
+    Photon->E = 10; // test; remove
+    pol = 0;
+    SetPhotonAxes(Photon, pol);
+  }    
 
   return 0;
 }

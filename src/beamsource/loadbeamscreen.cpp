@@ -62,6 +62,14 @@ int beamscreen::Load(istream &fs)
 	delete[] CumulImage;
 	CumulImage = NULL;
       }
+      if (CumulEnergy!=NULL) {
+	delete[] CumulEnergy;
+	CumulEnergy = NULL;
+      }
+      if (SumEnergyImage!=NULL) {
+	delete[] SumEnergyImage;
+	SumEnergyImage = NULL;
+      }
     }
     else if(comm=="PixelSize") { // set the pixel size in x and y directions
       GetDoubleToken(fs, &PixelSizeX);
@@ -126,6 +134,14 @@ int beamscreen::Load(istream &fs)
 	delete[] CumulImage;
 	CumulImage = NULL;
       }
+      if (CumulEnergy!=NULL) {
+	delete[] CumulEnergy;
+	CumulEnergy = NULL;
+      }
+      if (SumEnergyImage!=NULL) {
+	delete[] SumEnergyImage;
+	SumEnergyImage = NULL;
+      }
     }
     else if(comm=="TotalIntensity") { // set the beam total intensity
       GetDoubleToken(fs, &TotalIntensity);
@@ -187,6 +203,12 @@ int beamscreen::LoadData(string file_name)
   if (CumulImage!=NULL) delete[] CumulImage;
   // allocate the cumulative image array
   CumulImage = new double [2*N*NBins];
+  if (CumulEnergy!=NULL) delete[] CumulEnergy;
+  // allocate the cumulative energy array
+  CumulEnergy = new double [2*N*NBins];
+  if (SumEnergyImage!=NULL) delete[] SumEnergyImage;
+  // allocate the probability distribution integrated over the energy
+  SumEnergyImage = new double [N];
 
   cout << "Input File: " << file_name << "\n";
   if ((fp = fopen(file_name.c_str(),"rb")) == NULL)
@@ -220,6 +242,24 @@ int beamscreen::LoadData(string file_name)
     Image[i] /= sum;
     CumulImage[i] /= sum;
   }
+  for (int iy=0; iy<NY; iy++) {
+    for (int ix=0; ix<NX; ix++) {
+      int i0 = NBins*(NX*iy + ix);
+      double sum=0;
+      for(int iE=0; iE<NBins; iE++) {
+	CumulEnergy[2*i0+iE] = sum;
+	sum += Image[i0+iE];
+      }
+      for(int iE=0; iE<NBins; iE++) {
+	CumulEnergy[2*i0+NBins+iE] = sum;
+	sum += Image[N*NBins+i0+iE];
+      }
+      SumEnergyImage[NX*iy + ix] = sum;
+      for(int iE=0; iE<2*NBins; iE++) {
+	CumulEnergy[2*i0+iE] /= sum;
+      }
+    }
+  }
 
   return 0;
 }
@@ -232,6 +272,7 @@ int beamscreen::SetDefault()
   NX = NY = 0; // number of rows and columns
   Image = NULL;
   CumulImage = NULL;
+  CumulEnergy = NULL;
   PixelSizeX = PixelSizeY = 1; // Pixel size (Sx x Sy) = 1x1 cm2
   X.Set(0, 50, 0); // Screen center position 
   // Screen orientation :
@@ -246,6 +287,7 @@ int beamscreen::SetDefault()
   Emin = 0; // minimum bin energy is 0 keV
   Emax = 100; // maximum bin energy is 100 keV
   TotalIntensity = 1; // beam total intensity 
+  dOmegaLim=2*PI; //Cut on solid angle from interaction point to a single pixel
 
   return 0;
 }
