@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <xraylib.h>
 #include <math.h>
 #include <glib/gstdio.h>
+#include <omp.h>
 
 G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 	//very simple function to check if the xrmc_xmimsim plugin works
@@ -68,6 +69,10 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 	options.use_sum_peaks = 0;
 	options.use_poisson = 0;
 	options.verbose = 1;
+#if XMI_MSIM_VERSION_MAJOR >= && XMI_MSIM_VERSION_MINOR >= 1
+	options.extra_verbose = 1;
+	options.omp_num_threads = omp_get_max_threads();
+#endif
 
 	if (xd->pulse_width > 0.0)
 		options.use_sum_peaks = 1;
@@ -124,7 +129,11 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 		g_fprintf(stdout,"Querying %s for escape peak ratios\n",xmimsim_hdf5_escape_ratios);
 
 	//check if escape ratios are already precalculated
+#if XMI_MSIM_VERSION_MAJOR >= && XMI_MSIM_VERSION_MINOR >= 1
+	if (xmi_find_escape_ratios_match(xmimsim_hdf5_escape_ratios , input, &escape_ratios_def, options) == 0)
+#else
 	if (xmi_find_escape_ratios_match(xmimsim_hdf5_escape_ratios , input, &escape_ratios_def) == 0)
+#endif
 		return 0;
 	if (escape_ratios_def == NULL) {
 		if (options.verbose)
