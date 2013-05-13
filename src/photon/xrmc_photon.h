@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FLUORESCENCE 0
 #define COHERENT 1
 #define INCOHERENT 2
-#define MAXNLINES 30
 
 class sample;
 
