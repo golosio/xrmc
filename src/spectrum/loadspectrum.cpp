@@ -133,26 +133,32 @@ int spectrum::Load(istream &fs)
       }
     }
     else if(comm=="Resample") { // resample continuous part of spectrum
-      cout << "Resample continuous spectrum\n";
-      ResampleFlag = 1;
-      if (EneContinuousNum<=1)
-	throw xrmc_exception("Number of of sampling points in the continuous "
+      GetIntToken(fs, &ResampleFlag);
+      if (ResampleFlag==0) {
+      	cout << "Resample continuous spectrum disabled\n";
+	continue;
+      }
+      else if (ResampleFlag==1) {
+      	if (EneContinuousNum<=1)
+	  throw xrmc_exception("Number of of sampling points in the continuous "
 			     "spectrum must be >1 for resampling.\n");
-      // if (RandomEneFlag != 1) { // check
-      cout << "Resample continuous spectrum\n";
-      GetDoubleToken(fs, &Emin);
-      cout << "Emin: " << Emin << "\n";
-      GetDoubleToken(fs, &Emax);
-      cout << "Emax: " << Emax << "\n";
-      GetIntToken(fs, &ResampleNum);
-      cout << "Number of resampling points: " << ResampleNum << "\n";
-      Resample();
+      	cout << "Resample continuous spectrum\n";
+        // if (RandomEneFlag != 1) { // check
+      	GetDoubleToken(fs, &Emin);
+        cout << "Emin: " << Emin << "\n";
+        GetDoubleToken(fs, &Emax);
+        cout << "Emax: " << Emax << "\n";
+        GetIntToken(fs, &ResampleNum);
+        cout << "Number of resampling points: " << ResampleNum << "\n";
+        Resample();
+      }
+      else throw xrmc_exception("Wrong value for Resample flag\n");
     }
     else if(comm=="End") {
       break;
     }
     else if(comm=="") {
-      cout << "Empy string\n";
+      cout << "Empty string\n";
     }
     else {
       throw xrmc_exception("syntax error in spectrum input file"); 
