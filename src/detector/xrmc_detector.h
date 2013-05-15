@@ -44,21 +44,21 @@ class detectorarray : public xrmc_screen
   int ModeNum; // Num. of modes (scattering orders)
   std::vector<unsigned long> Seeds;
 
-  ~detectorarray(); // destructor
+  virtual ~detectorarray(); // destructor
   detectorarray(std::string dev_name); // constructor
 
-  int CastInputDevices(); // cast input device method
+  virtual int CastInputDevices(); // cast input device method
   // method for linking input device
   //int LinkInputDevice(string command, xrmc_device *dev_pt);
-  int Load(std::istream &fs); // load detector parameters, position, orientation
+  virtual int Load(std::istream &fs); // load detector parameters, position, orientation
  // save the acquired image in a file
-  int SaveData(std::string data_name, std::string file_name);
+  virtual int SaveData(std::string data_name, std::string file_name);
  // save the acquired image in a ascii file
-  int SaveAsciiData(std::string data_name, std::string file_name);
-  int SetDefault(); // set the default values for detector parameters
-  int EventMulti(); // event multiplicity
-  int Run() {return Acquisition();} // run the acquisition
-  int Acquisition(); // run the acquisition
+  virtual int SaveAsciiData(std::string data_name, std::string file_name);
+  virtual int SetDefault(); // set the default values for detector parameters
+  virtual long long EventMulti(); // event multiplicity
+  virtual int Run() {return Acquisition();} // run the acquisition
+  virtual int Acquisition(); // run the acquisition
   int Clear(); // clear the detector pixel bin contents
 
  protected:
@@ -82,7 +82,7 @@ class detectorarray : public xrmc_screen
   int  SaturateEmax; // flag to saturate energies greater than Emin
   double Emin, Emax; // minimum and maximum bin energy
   
-  int RunInit(); // detectorarray initialization before run
+  virtual int RunInit(); // detectorarray initialization before run
   //vect3 RandomPointOnPixel(int i); // Generates a random point
   //vect3 RandomPointOnPixel(int i, randmt_t *rng);
                                    // on the pixel surface

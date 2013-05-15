@@ -40,6 +40,10 @@ using namespace xrmc_algo;
 beamscreen::~beamscreen() {
   if (Image!=NULL) delete[] Image;
   if (CumulImage!=NULL) delete[] CumulImage;
+  if (CumulEnergy!=NULL) delete[] CumulEnergy;
+  if (SumEnergyImage!=NULL) delete[] SumEnergyImage;
+  if (CumulXY!=NULL) delete[] CumulXY;
+  if (BinWeight!=NULL) delete[] BinWeight;
 }
 
 // constructor
@@ -50,6 +54,11 @@ beamscreen::beamscreen(string dev_name) {
   PixelX=NULL;
   Image=NULL;
   CumulImage=NULL;
+  CumulEnergy=NULL;
+  SumEnergyImage=NULL;
+  CumulXY=NULL;
+  BinWeight=NULL;
+
   NX = NY = N = NBins = 0;
   Shape = 0;
   RandomPixelFlag = 1;
@@ -63,6 +72,81 @@ beamscreen::beamscreen(string dev_name) {
 int beamscreen::RunInit()
 {
   Init();
+
+  if (Image==NULL || N*NBins<=0)
+    throw xrmc_exception("Beamscreen image must be loaded before run.\n");
+
+  if (CumulImage!=NULL) delete[] CumulImage;
+  if (CumulEnergy!=NULL) delete[] CumulEnergy;
+  if (SumEnergyImage!=NULL) delete[] SumEnergyImage;
+  if (CumulXY!=NULL) delete[] CumulXY;
+  if (BinWeight!=NULL) delete[] BinWeight;
+
+  // allocate the cumulative image array
+  CumulImage = new double [2*N*NBins];
+
+  double sum=0;
+  for(int i=0; i<2*N*NBins; i++) {
+    CumulImage[i] = sum;
+    double val = Image[i];
+    if (val<0)
+      throw xrmc_exception("Image bin contents must be nonnegative.\n");
+    sum += val;
+  }
+  for(int i=0; i<2*N*NBins; i++) {
+    Image[i] /= sum;
+    CumulImage[i] /= sum;
+  }
+
+  if (LoopFlag==0) { // no loop mode
+    // allocate the cumulative energy array
+    CumulEnergy = new double [2*N*NBins];
+    // allocate the probability distribution integrated over the energy
+    SumEnergyImage = new double [N];
+    
+    for (int iy=0; iy<NY; iy++) {
+      for (int ix=0; ix<NX; ix++) {
+	int i0 = NBins*(NX*iy + ix);
+	double sum=0;
+	for(int iE=0; iE<NBins; iE++) {
+	  CumulEnergy[2*i0+iE] = sum;
+	  sum += Image[i0+iE];
+	}
+	for(int iE=0; iE<NBins; iE++) {
+	  CumulEnergy[2*i0+NBins+iE] = sum;
+	  sum += Image[N*NBins+i0+iE];
+	}
+	SumEnergyImage[NX*iy + ix] = sum;
+	for(int iE=0; iE<2*NBins; iE++) {
+	  CumulEnergy[2*i0+iE] /= sum;
+	}
+      }
+    }
+  }
+  else { // loop mode
+    BinWeight = new double [2*NBins]; // allocates energy bin weight
+    CumulXY = new double [2*N*NBins]; // allocates cumulative function for x, y
+
+    for(int ipol=0; ipol<2; ipol++) {
+      for(int iE=0; iE<NBins; iE++) {
+	int i0 = N*(NBins*ipol + iE);
+	double sum=0; // initialize cumulative sum
+	for (int iy=0; iy<NY; iy++) {
+	  for (int ix=0; ix<NX; ix++) {
+	    CumulXY[i0 + NX*iy + ix] = sum;  // cumulative function for x, y
+	    int i = NBins*(N*ipol + NX*iy + ix) + iE;
+	    sum += Image[i];
+	  }
+	}
+	BinWeight[NBins*ipol+iE] = sum; // probab. weight associated to the bin
+	for (int iy=0; iy<NY; iy++) {
+	  for (int ix=0; ix<NX; ix++) {
+	    CumulXY[i0 + NX*iy + ix] /= sum; // normalize cumulative sum to 1
+	  }
+	}
+      }
+    }
+  }
 
   return 0;
 }
@@ -89,11 +173,14 @@ int beamscreen::RandomPixel(int &iE, int &ix, int &iy, int &pol, randmt_t *rng)
 // Generates a random point and energy on the screen
 vect3 beamscreen::RandomPoint(double &E, int &pol, double &w, randmt_t *rng)
 {
-  //const double rmax = 100;
-  int iE, ix, iy; //, iE1, ix1, iy1, ipol;
-  //int i000, i001, i010, i011, i100, i101, i110, i111;
-  //double c000, c001, c010, c011, c100, c101, c110, c111;
-  double rE, rx, ry; //, tE, tx, ty, uE, ux, uy;
+  if (LoopFlag==1) { // loop mode
+    pol = PolIdx;
+    return RandomXY(E, w, Rng);
+  }
+
+  // no loop mode
+  int iE, ix, iy;
+  double rE, rx, ry;
 
   RandomPixel(iE, ix, iy, pol, rng);
   rE = Rnd_r(rng) - 0.5;
@@ -206,16 +293,24 @@ bool beamscreen::RandomEnergy(vect3 x0, vect3 u, double &E, int &pol,
     cout << PixelSurf << endl;
   }
 
-  double w0 = SumEnergyImage[NX*iy+ix]/dOmega(u*t);
-  int i0 = NBins*(NX*iy + ix);
-  double *cumul_func = &CumulEnergy[2*i0];
-  double R = Rnd_r(rng);
-  int i;
-  Locate(R, cumul_func, 2*NBins, &i);
-  iE = i % NBins;
-  pol = i/NBins;
-  if (pol>1)
-    throw xrmc_exception("Error in cumulative energy array dimensions.\n");
+  double w0;
+  if (LoopFlag==1) { // loop mode
+    iE = EnergyIdx;
+    pol = PolIdx;
+    w0 = Image[N*NBins*pol + NX*NBins*iy + NBins*ix + iE]/dOmega(u*t);
+  }
+  else {
+    w0 = SumEnergyImage[NX*iy+ix]/dOmega(u*t);
+    int i0 = NBins*(NX*iy + ix);
+    double *cumul_func = &CumulEnergy[2*i0];
+    double R = Rnd_r(rng);
+    int i;
+    Locate(R, cumul_func, 2*NBins, &i);
+    iE = i % NBins;
+    pol = i/NBins;
+    if (pol>1)
+      throw xrmc_exception("Error in cumulative energy array dimensions.\n");
+  }
   double rE = Rnd_r(rng) - 0.5;
   double rx = tx - 0.5;
   double ry = ty - 0.5;
@@ -330,3 +425,168 @@ double beamscreen::InterpolWeight(int iE, int ix, int iy, int pol,
 
   return w;
 }
+
+// initialize loop on events
+int beamscreen::Begin()
+{
+  // check if flag for loop on all lines and on all intervals is enabled
+  if (LoopFlag==0) LoopIdx = 0; // if not, set loop index to zero
+  else { // if yes, initialize all nested loop indexes
+    PolIdx = PhotonIdx = EnergyIdx = 0;
+  }
+
+  return 0;
+}
+
+// next step of the event loop
+int beamscreen::Next()
+{
+  // check if flag for loop on all intervals is enabled
+  if (LoopFlag==0) LoopIdx = 1;  // if not, set loop index to 1
+  else { // if yes, update all nested loop indexes
+    PhotonIdx++; // increase index of events within the interval 
+    if (PhotonIdx == PhotonNum) { // check for last event
+      PhotonIdx = 0; // if yes, reset index to zero ...
+      EnergyIdx++; // go to the next energy bin
+      if (EnergyIdx == NBins) { // check if the last bin is reached
+	  // if yes reinitialize loop on intervals ...
+	PhotonIdx = EnergyIdx = 0;
+	PolIdx++; // with the other polarization type
+      }
+    }
+  }
+
+  return 0;
+}
+
+// check if the end of the event loop is reached
+bool beamscreen::End()
+{
+  if (LoopFlag==0) return (LoopIdx==1);
+  else return (PolIdx > 1); // end when all intervals have been
+                            // completed with both polarization types 
+}
+
+// event multiplicity
+long long beamscreen::EventMulti()
+{
+  if (LoopFlag==0) return 1;
+  else {
+    return 2*(NBins*PhotonNum);
+  }
+}
+
+// Generates a random pixel x, y for a given polarization and enrgy bin
+vect3 beamscreen::RandomXY(double &E, double &w, randmt_t *rng)
+{
+  int i0 = N*(NBins*PolIdx + EnergyIdx);
+  double *cumul_func = &CumulXY[i0];
+  double R = Rnd_r(rng);
+  int i;
+  Locate(R, cumul_func, N, &i);
+  int ix = i % NX;
+  int iy = i/NX;
+  if (iy>NY)
+    throw xrmc_exception("Error in cumulative x y array dimensions.\n");
+
+  double w0 = BinWeight[NBins*PolIdx+EnergyIdx];
+
+  double rE = Rnd_r(rng) - 0.5;
+  double rx = Rnd_r(rng) - 0.5;
+  double ry = Rnd_r(rng) - 0.5;
+
+  // evaluates interpolation weight factor
+  w = w0*InterpolWeight(EnergyIdx, ix, iy, PolIdx, rE, rx, ry, 0);
+  // central bin energy
+  E = Emin + (Emax - Emin)*(0.5 + EnergyIdx + rE)/NBins;
+
+  // local x, y coordinates of the pixel
+  double x = PixelSizeX*(-0.5*NX + 0.5 + ix + rx);
+  double y = PixelSizeY*(-0.5*NY + 0.5 + iy + ry);
+  vect3 r = X + ui*x + uj*y; // 3d absolute coordinates of the pixel
+
+  return r;
+}
+
+
+beamscreen *beamscreen::Clone(string dev_name) {
+  //cout << "Entering beamscreen::Clone\n";
+  beamscreen *clone = new beamscreen(dev_name);
+
+  /*
+  clone->PhotonNum = PhotonNum;
+  clone->PhotonIdx = PhotonIdx;
+  clone->PolIdx = PolIdx;
+  clone->EnergyIdx = EnergyIdx;
+  clone->NX = NX;
+  clone->NY = NY;
+  clone->N = N;
+  clone->NBins = NBins;
+  */
+
+  /* removed to avoid excessive ram usage
+  if (Image!=NULL) {
+    clone->Image = new double[2*N*NBins];
+    memcpy(clone->Image, Image, sizeof(double)*2*N*NBins);
+  }
+  if (CumulImage!=NULL) {
+    clone->CumulImage = new double[2*N*NBins];
+    memcpy(clone->CumulImage, CumulImage, sizeof(double)*2*N*NBins);
+  }
+  if (CumulEnergy!=NULL) {
+    clone->CumulEnergy = new double[2*N*NBins];
+    memcpy(clone->CumulEnergy, CumulEnergy, sizeof(double)*2*N*NBins);
+  }
+  if (SumEnergyImage!=NULL) {
+    clone->SumEnergyImage = new double[N];
+    memcpy(clone->SumEnergyImage, SumEnergyImage, sizeof(double)*N);
+  }
+  if (BinWeight!=NULL) {
+    clone->BinWeight = new double[2*NBins];
+    memcpy(clone->BinWeight, BinWeight, sizeof(double)*2*NBins);
+  }
+  if (CumulXY!=NULL) {
+    clone->CumulXY = new double[2*N*NBins];
+    memcpy(clone->CumulXY, CumulXY, sizeof(double)*2*N*NBins);
+  }
+  if (PixelX!=NULL) {
+    clone->PixelX = new vect3[N];
+    memcpy(clone->PixelX, PixelX, sizeof(vect3)*N);
+  }
+  */
+
+  /*
+  clone->Image = Image;
+  clone->CumulImage = CumulImage;
+  clone->CumulEnergy = CumulEnergy;
+  clone->SumEnergyImage = SumEnergyImage;
+  clone->BinWeight = BinWeight;
+  clone->CumulXY = CumulXY;
+  clone->PixelX = PixelX;
+
+  clone->TotalIntensity = TotalIntensity;
+  clone->PixelSizeX = PixelSizeX;
+  clone->PixelSizeY = PixelSizeY;
+  clone->PixelSurf = PixelSurf 
+  clone->dOmegaLim = dOmegaLim;
+  clone->Shape = Shape;
+  clone->RandomPixelFlag = RandomPixelFlag;
+  clone->RunningFasterFlag = RunningFasterFlag;
+
+  clone->PolarizedFlag = PolarizedFlag;
+  clone->LoopFlag = LoopFlag;
+  clone->EnergyBinFlag = EnergyBinFlag;
+  clone->InterpolFlag = InterpolFlag;
+  clone->Emin = Emin;
+  clone->Emax = Emax;
+  clone->X = X;
+  clone->ui = ui;
+  clone->uj = uj;
+  clone->uk = uk;
+  */
+
+  *clone = *this;
+
+  return clone;
+}
+

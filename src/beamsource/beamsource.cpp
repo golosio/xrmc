@@ -76,10 +76,12 @@ int beamsource::Out_Photon(photon *Photon)
 {
   double E, w;
   int pol;
+  vect3 r;
 
   // ask beamscreen device to extract photon endpoint, energy and polarization
-  vect3 r = BeamScreen->RandomPoint(E, pol, w, Rng);
- // multiply the event weight by the total beam intensity
+  r = BeamScreen->RandomPoint(E, pol, w, Rng);
+
+  // multiply the event weight by the total beam intensity
   Photon->w = w*BeamScreen->TotalIntensity;
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
@@ -187,6 +189,31 @@ int beamsource::Out_Photon_x1(photon *Photon, vect3 x1)
   return 0;
 }
 
+// initialize loop on events
+int beamsource::Begin()
+{
+  return BeamScreen->Begin(); // initialize spectrum loop on events
+}
+
+
+// next step of the event loop
+int beamsource::Next()
+{
+  return BeamScreen->Next(); // next step of the spectrum event loop  
+}
+
+// check if the end of the loop is reached
+bool beamsource::End()
+{
+  return BeamScreen->End(); // check if end of spectrum event loop is reached
+}
+
+// event multiplicity
+long long beamsource::EventMulti()
+{
+  return BeamScreen->EventMulti();
+}
+
 basesource *beamsource::Clone(string dev_name) {
 	//cout << "Entering beamsource::Clone\n";
 	beamsource *clone = new beamsource(dev_name);
@@ -199,7 +226,7 @@ basesource *beamsource::Clone(string dev_name) {
 	clone->ui = ui;
 	clone->uj = uj;
 	clone->uk = uk;
-	clone->BeamScreen = BeamScreen;
+	clone->BeamScreen = BeamScreen->Clone(InputDeviceName[0]);;
 
 	return dynamic_cast<basesource*>(clone);
 }

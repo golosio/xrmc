@@ -46,16 +46,20 @@ class beamsource : public basesource
   // Constructor
   beamsource(std::string dev_name);
 
-  int Load(istream &fs); // method for loading source parameters from file
+  virtual int Load(istream &fs); // loads source parameters from file
   // method for casting input device to type beamscreen
-  int CastInputDevices();
+  virtual int CastInputDevices();
   // method for linking input device
   //int LinkInputDevice(string command, xrmc_device *dev_pt);
-  int SetDefault(); // set default values for source parameters
-  int Out_Photon(photon *Photon); // generate an event
+  virtual int SetDefault(); // set default values for source parameters
+  virtual int Out_Photon(photon *Photon); // generate an event
   // generate an event with a photon directed toward the position x1
-  int Out_Photon_x1(photon *Photon, vect3 x1);
-  basesource *Clone(string dev_name);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1);
+  virtual int Begin(); // begin event loop method
+  virtual int Next(); // next event method
+  virtual bool End(); // check for end event loop method
+  virtual long long EventMulti(); // event multiplicity
+  virtual basesource *Clone(string dev_name);
   virtual int RunInit(); // source run initialization method
  // set the random number generator structure
   virtual int SetRng(randmt_t *rng);
@@ -66,7 +70,6 @@ class beamsource : public basesource
   int SetPhotonAxes(photon *Photon, int pol);
   // probability per unit solid angle that a photon has direction vr
   double POmega(vect3 vr);
-
 
 };
 

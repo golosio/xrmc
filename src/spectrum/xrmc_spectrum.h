@@ -71,16 +71,16 @@ class spectrum : public xrmc_device
  public:
   double TotalIntensity;
 
-  ~spectrum(); // destructor
+  virtual ~spectrum(); // destructor
   spectrum(std::string dev_name); // constructor
-  int Load(std::istream &fs); // load spectrum parameters from file
+  virtual int Load(std::istream &fs); // load spectrum parameters from file
   int LoadContinuousSpectrum(std::istream &fs);
-  int Begin(); // begin the event loop
-  int Next();  // next step of the event loop  
-  bool End(); // check if the end of the event loop is reached
-  int EventMulti(); // event multiplicity
-  int RunInit(); // initialize the spectrum before run
-  int SetDefault(); // set default values for spectrum parameters
+  virtual int Begin(); // begin the event loop
+  virtual int Next();  // next step of the event loop  
+  virtual bool End(); // check if the end of the event loop is reached
+  virtual long long EventMulti(); // event multiplicity
+  virtual int RunInit(); // initialize the spectrum before run
+  virtual int SetDefault(); // set default values for spectrum parameters
 
   // Generates a random energy value and polarization type
   int ExtractEnergy(double *weight, double *Energy, int *polarization);
@@ -99,7 +99,7 @@ class spectrum : public xrmc_device
   // interval of the continuous spectrum distribution
   int IntervalRandomEnergy(double *E, int interval_idx, int pol_idx);
 
-  spectrum *Clone(std::string dev_name);
+  virtual spectrum *Clone(std::string dev_name);
 }; 
 
 #endif

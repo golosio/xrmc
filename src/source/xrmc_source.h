@@ -69,22 +69,22 @@ class source : public basesource
   // Constructor
   source(std::string dev_name);
 
-  int Load(istream &fs); // method for loading source parameters from file
+  virtual int Load(istream &fs); // loads source parameters from file
   // method for casting input device to type spectrum
-  int CastInputDevices();
+  virtual int CastInputDevices();
   // method for linking input device
   //int LinkInputDevice(string command, xrmc_device *dev_pt);
-  int Begin(); // begin event loop method
-  int Next(); // next event method
-  bool End(); // check for end event loop method
-  int EventMulti(); // event multiplicity
-  int SetDefault(); // set default values for source parameters
-  int Out_Photon(photon *Photon); // generate an event
+  virtual int Begin(); // begin event loop method
+  virtual int Next(); // next event method
+  virtual bool End(); // check for end event loop method
+  virtual long long EventMulti(); // event multiplicity
+  virtual int SetDefault(); // set default values for source parameters
+  virtual int Out_Photon(photon *Photon); // generate an event
   // generate an event with a photon directed toward the position x1
-  int Out_Photon_x1(photon *Photon, vect3 x1);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1);
   // maximum value of polar angle theta for a specified value of phi
   double CosThL(double phi);
-  basesource *Clone(string dev_name);
+  virtual basesource *Clone(string dev_name);
   virtual int RunInit(); // source run initialization method
  // set the random number generator structure
   virtual int SetRng(randmt_t *rng);

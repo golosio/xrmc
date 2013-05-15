@@ -58,18 +58,6 @@ int beamscreen::Load(istream &fs)
 	delete[] Image;
 	Image = NULL;
       }
-      if (CumulImage!=NULL) {
-	delete[] CumulImage;
-	CumulImage = NULL;
-      }
-      if (CumulEnergy!=NULL) {
-	delete[] CumulEnergy;
-	CumulEnergy = NULL;
-      }
-      if (SumEnergyImage!=NULL) {
-	delete[] SumEnergyImage;
-	SumEnergyImage = NULL;
-      }
     }
     else if(comm=="PixelSize") { // set the pixel size in x and y directions
       GetDoubleToken(fs, &PixelSizeX);
@@ -130,18 +118,6 @@ int beamscreen::Load(istream &fs)
 	delete[] Image;
 	Image = NULL;
       }
-      if (CumulImage!=NULL) {
-	delete[] CumulImage;
-	CumulImage = NULL;
-      }
-      if (CumulEnergy!=NULL) {
-	delete[] CumulEnergy;
-	CumulEnergy = NULL;
-      }
-      if (SumEnergyImage!=NULL) {
-	delete[] SumEnergyImage;
-	SumEnergyImage = NULL;
-      }
     }
     else if(comm=="TotalIntensity") { // set the beam total intensity
       GetDoubleToken(fs, &TotalIntensity);
@@ -151,7 +127,22 @@ int beamscreen::Load(istream &fs)
     else if (comm=="ImageFile") { // read screen image from a file
       GetToken(fs, image_file); // image file name
       LoadData(image_file);
-    }	
+    }
+    else if(comm=="LoopFlag") { // flag for loop mode
+      GetIntToken(fs, &LoopFlag);
+      if (LoopFlag==0)
+	cout << "Extract random energies on the whole spectrum\n";
+      else if (LoopFlag==1)
+	cout << "Loop on all energy bins and polarization\n";
+      else throw xrmc_exception("Wrong loop flag.\n");
+    }
+    else if(comm=="PhotonNum") {
+      // Multiplicity of events for each energy bin 
+      GetIntToken(fs, &PhotonNum);
+      cout <<"Multiplicity of events: " 
+	   << PhotonNum << "\n";
+    }
+	
     else if(comm=="Rotate") { // screen rotation
       cout << "Screen rotation :\n"; 
       cout << "\tPoint on rotation axis x0:\t";
@@ -200,15 +191,6 @@ int beamscreen::LoadData(string file_name)
     throw xrmc_exception("Screen must be dimensioned before loading.\n");
   if (Image!=NULL) delete[] Image;
   Image = new double[2*N*NBins]; // allocate the image array
-  if (CumulImage!=NULL) delete[] CumulImage;
-  // allocate the cumulative image array
-  CumulImage = new double [2*N*NBins];
-  if (CumulEnergy!=NULL) delete[] CumulEnergy;
-  // allocate the cumulative energy array
-  CumulEnergy = new double [2*N*NBins];
-  if (SumEnergyImage!=NULL) delete[] SumEnergyImage;
-  // allocate the probability distribution integrated over the energy
-  SumEnergyImage = new double [N];
 
   cout << "Input File: " << file_name << "\n";
   if ((fp = fopen(file_name.c_str(),"rb")) == NULL)
@@ -232,7 +214,6 @@ int beamscreen::LoadData(string file_name)
 
   double sum=0;
   for(int i=0; i<2*N*NBins; i++) {
-    CumulImage[i] = sum;
     double val = Image[i];
     if (val<0)
       throw xrmc_exception("Image bin contents must be nonnegative.\n");
@@ -240,25 +221,6 @@ int beamscreen::LoadData(string file_name)
   }
   for(int i=0; i<2*N*NBins; i++) {
     Image[i] /= sum;
-    CumulImage[i] /= sum;
-  }
-  for (int iy=0; iy<NY; iy++) {
-    for (int ix=0; ix<NX; ix++) {
-      int i0 = NBins*(NX*iy + ix);
-      double sum=0;
-      for(int iE=0; iE<NBins; iE++) {
-	CumulEnergy[2*i0+iE] = sum;
-	sum += Image[i0+iE];
-      }
-      for(int iE=0; iE<NBins; iE++) {
-	CumulEnergy[2*i0+NBins+iE] = sum;
-	sum += Image[N*NBins+i0+iE];
-      }
-      SumEnergyImage[NX*iy + ix] = sum;
-      for(int iE=0; iE<2*NBins; iE++) {
-	CumulEnergy[2*i0+iE] /= sum;
-      }
-    }
   }
 
   return 0;
@@ -288,6 +250,8 @@ int beamscreen::SetDefault()
   Emax = 100; // maximum bin energy is 100 keV
   TotalIntensity = 1; // beam total intensity 
   dOmegaLim=2*PI; //Cut on solid angle from interaction point to a single pixel
+  LoopFlag = 0; // flag for loop mode
+  PhotonNum = 1; // Multiplicity of events
 
   return 0;
 }

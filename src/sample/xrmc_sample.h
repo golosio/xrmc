@@ -95,18 +95,18 @@ class sample : public basesource
   int WeightedStepLength; // flag for weighted steplength extraction method
   basesource *Source; // input source device
 
-  ~sample(); // destructor
+  virtual ~sample(); // destructor
   sample(std::string dev_name); // constructor
   // method for casting input devices
-  int CastInputDevices();
-  int Load(istream &fs); // load sample parameters from file
-  int SetDefault(); // set default values for sample parameters
-  int Begin(); // begin event loop
-  int Next();  // next step in event loop
-  bool End();  // check for end of event loop
-  int EventMulti(); // event multiplicity
-  int ModeNum(); // return the number of modes (scattering orders)
-  int Intersect(vect3 x0, vect3 u); // evaluate intersection of a trajectory
+  virtual int CastInputDevices();
+  virtual int Load(istream &fs); // load sample parameters from file
+  virtual int SetDefault(); // set default values for sample parameters
+  virtual int Begin(); // begin event loop
+  virtual int Next();  // next step in event loop
+  virtual bool End();  // check for end of event loop
+  virtual long long EventMulti(); // event multiplicity
+  virtual int ModeNum(); // return the number of modes (scattering orders)
+  virtual int Intersect(vect3 x0, vect3 u); // evaluate intersection of a trajectory
                                     // with sample objects
   //evaluate the absorption coefficient at each step of the intersections
   double LinearAbsorption(vect3 x0, vect3 u);
@@ -120,17 +120,17 @@ class sample : public basesource
   // simulates the photon history up to the last interaction point
   int PhotonHistory(photon *Photon, int &Z, int &interaction_type);
   // generate an event with a photon forced to end on the point x1
-  int Out_Photon_x1(photon *Photon, vect3 x1);
-  int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
   // simulates an event up to the last interaction point
-  int Out_Photon(photon *Photon);
-  int Out_Photon(photon *Photon, int *ModeIdx);
+  virtual int Out_Photon(photon *Photon);
+  virtual int Out_Photon(photon *Photon, int *ModeIdx);
 
   virtual int RunInit(); // sample run initialization method
  // set the random number generator structure
   virtual int SetRng(randmt_t *rng);
  private:
-  basesource *Clone(string dev_name);
+  virtual basesource *Clone(string dev_name);
  private:
   geom3d *Geom3D; // input geom3d device
 

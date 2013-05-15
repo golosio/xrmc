@@ -142,7 +142,7 @@ bool spectrum::End()
 }
 
 // event multiplicity
-int spectrum::EventMulti()
+long long spectrum::EventMulti()
 {
   if (LoopFlag==0) return 1;
   else {
