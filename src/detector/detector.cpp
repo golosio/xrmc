@@ -180,7 +180,16 @@ int detectorarray::ForcedAcquisition(basesource **SourceClones,
 	  // the probability that the last photon trajectory crosses the pixel
 	  signal = PhotonArray[THREAD_IDX].w*Pgeom*ExpTime/PhotonNum; // evaluate the signal
 	  // associated to the single event
-	  
+	  /*
+	  if(ipix==1274 || ipix==1275 || ipix==1224 || ipix==1225 ) {
+	    cout << "TH " << THREAD_IDX << endl;
+	    cout << SourceClones[THREAD_IDX]->Name << endl;
+	    cout << "d w " << PhotonArray[THREAD_IDX].w << endl;
+	    cout << "d pg " << Pgeom << endl;
+	    cout << "d s " << signal << endl;
+
+	  }
+	  */
 	  // Depending on pixel content type, multiply it by the energy
 	  if (PixelType == 1 || PixelType == 3) signal *= PhotonArray[THREAD_IDX].E;
 	  bin = 0;

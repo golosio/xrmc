@@ -15,50 +15,51 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
-//      beamsource.h             //
-//        02/05/2013             //
+//     anisotropicsource.h       //
+//        16/05/2013             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
-// beamsource class definition
+// anisotropicsource class definition
 //
-#ifndef BEAMSOURCEH
-#define BEAMSOURCEH
+#ifndef ANISOTROPICSOURCEH
+#define ANISOTROPICSOURCEH
 
 #include <string>
+#include "xrmc_spectrum.h"
 #include "xrmc_photon.h"
 #include "xrmc_device.h"
 #include "xrmc_math.h"
 #include "randmt.h"
 #include "xrmc_source.h"
-#include "beamscreen.h"
-
+#include "intensityscreen.h"
 
 //////////////////////////////////////////////////////////////////////
-// beamsource class definition
+// anisotropicsource class definition
 //////////////////////////////////////////////////////////////////////
-class beamsource : public basesource
+class anisotropicsource : public basesource
 {
  public:
   double Sigmax, Sigmay, Sigmaz; // source size in local coordinate system
   int SizeFlag;
-  beamscreen *BeamScreen; // input beamscreen device
+  spectrum *Spectrum; // input spectrum device
+  intensityscreen *IntensityScreen; // input intensityscreen device
 
   // Constructor
-  beamsource(std::string dev_name);
+  anisotropicsource(std::string dev_name);
 
   virtual int Load(istream &fs); // loads source parameters from file
-  // method for casting input device to type beamscreen
+  // method for casting input devices
   virtual int CastInputDevices();
-  // method for linking input device
+  // method for linking input devices
   //int LinkInputDevice(string command, xrmc_device *dev_pt);
-  virtual int SetDefault(); // set default values for source parameters
-  virtual int Out_Photon(photon *Photon); // generate an event
-  // generate an event with a photon directed toward the position x1
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1);
   virtual int Begin(); // begin event loop method
   virtual int Next(); // next event method
   virtual bool End(); // check for end event loop method
   virtual long long EventMulti(); // event multiplicity
+  virtual int SetDefault(); // set default values for source parameters
+  virtual int Out_Photon(photon *Photon); // generate an event
+  // generate an event with a photon directed toward the position x1
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1);
   virtual basesource *Clone(string dev_name);
   virtual int RunInit(); // source run initialization method
  // set the random number generator structure

@@ -15,11 +15,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
-//     beamsource.cpp            //
-//        02/05/2013             //
+//     anisotropicsource.cpp     //
+//        16/05/2013             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
-// Methods of the class beamsource
+// Methods of the class anisotropicsource
 //
 
 #include <cmath>
@@ -27,27 +27,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "xrmc_algo.h"
 #include "xrmc_math.h"
-#include "beamsource.h"
+#include "anisotropicsource.h"
 #include "xrmc_exception.h"
 
 using namespace std;
 using namespace xrmc_algo;
 
 // Constructor
-beamsource::beamsource(string dev_name) {
+anisotropicsource::anisotropicsource(string dev_name) {
   Runnable = false;
-  NInputDevices=1;
-  InputDeviceCommand.push_back("BeamScreenName");
-  InputDeviceDescription.push_back("beamscreen input device name");
+  NInputDevices=2;
+  InputDeviceCommand.push_back("SpectrumName");
+  InputDeviceDescription.push_back("Spectrum input device name");
+  InputDeviceCommand.push_back("IntensityScreenName");
+  InputDeviceDescription.push_back("intensityscreen input device name");
   Rng = NULL;
 
-  SetDevice(dev_name, "beamsource");
+  SetDevice(dev_name, "anisotropicsource");
 }
 
-//////////////////////////////////////////////////////////////////////
-// beamsource run initialization method
-//////////////////////////////////////////////////////////////////////
-int beamsource::RunInit()
+int anisotropicsource::SetRng(randmt_t *rng)
+{
+  Rng = rng;
+  Spectrum->SetRng(rng);
+  IntensityScreen->SetRng(rng);
+
+  return 0;
+}
+
+int anisotropicsource::RunInit()
 {
   
   OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
@@ -56,54 +64,81 @@ int beamsource::RunInit()
 }
 
 //////////////////////////////////////////////////////////////////////
-// method for casting input device to type beamscreen*
+// method for casting input devices
 /////////////////////////////////////////////////////////////////////
-int beamsource::CastInputDevices()
+int anisotropicsource::CastInputDevices()
 {
-  // cast InputDevice[0] to type beamscreen*
-  BeamScreen = dynamic_cast<beamscreen*>(InputDevice[0]);
-  if (BeamScreen==0)
+  // cast InputDevice[0] to type spectrum*
+  Spectrum = dynamic_cast<spectrum*>(InputDevice[0]);
+  if (Spectrum==0)
     throw xrmc_exception(string("Device ") + InputDeviceName[0]
-			 + " cannot be casted to type beamscreen\n");
+			 + " cannot be casted to type spectrum\n");
+
+  IntensityScreen = dynamic_cast<intensityscreen*>(InputDevice[1]);
+  if (IntensityScreen==0)
+    throw xrmc_exception(string("Device ") + InputDeviceName[1]
+			 + " cannot be casted to type intensityscreen\n");
 
   return 0;
+}
+
+
+// initialize loop on events
+int anisotropicsource::Begin()
+{
+  return Spectrum->Begin(); // initialize spectrum loop on events
+}
+
+
+// next step of the event loop
+int anisotropicsource::Next()
+{
+  return Spectrum->Next(); // next step of the spectrum event loop  
+}
+
+// check if the end of the loop is reached
+bool anisotropicsource::End()
+{
+  return Spectrum->End(); // check if end of spectrum event loop is reached
+}
+
+// event multiplicity
+long long anisotropicsource::EventMulti()
+{
+  return Spectrum->EventMulti();
 }
 
 //////////////////////////////////////////////////////////////////////
 // generate an event with a photon starting from the source
 //////////////////////////////////////////////////////////////////////
-int beamsource::Out_Photon(photon *Photon)
+int anisotropicsource::Out_Photon(photon *Photon)
 {
-  double E, w;
+  double E, w0, w1;
   int pol;
-  vect3 r;
 
-  // ask beamscreen device to extract photon endpoint, energy and polarization
-  r = BeamScreen->RandomPoint(E, pol, w, Rng);
+  // ask spectrum device to extrace the photon energy and polarization
+  Spectrum->ExtractEnergy(&w0, &E, &pol);
+ // multiply the event weight by the total beam intensity
 
-  // multiply the event weight by the total beam intensity
-  Photon->w = w*BeamScreen->TotalIntensity;
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-    //if (Rng == NULL)
+    //DELETE if (Rng == NULL)
     //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
     //    + uk*Sigmaz*GaussRnd();
     //else
       Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
         + uk*Sigmaz*GaussRnd_r(Rng);
   }
-
+  // ask intensityscreen device to extract photon endpoint
+  vect3 r = IntensityScreen->RandomPoint(w1, Rng);
   // evaluates photon direction
   Photon->uk = r - Photon->x; /////////////////////////////////////////////
   ///////////////////////// change to give also the possibility to use r - X
 
+  Photon->w = w0*w1*Spectrum->TotalIntensity;
   // define local photon axis directions based on direction and polarization
   SetPhotonAxes(Photon, pol);
-
-  //double x = Photon->uk.Elem[0]*115;
-  //double y = Photon->uk.Elem[2]*115;
-  //cout << "STORE " << x << " " << y << " " << Photon->E << " " << w << endl;
 
   return 0;
 }
@@ -111,7 +146,7 @@ int beamsource::Out_Photon(photon *Photon)
 //////////////////////////////////////////////////////////////////////
 // define local photon axis directions based on direction and polarization
 //////////////////////////////////////////////////////////////////////
-int beamsource::SetPhotonAxes(photon *Photon, int pol)
+int anisotropicsource::SetPhotonAxes(photon *Photon, int pol)
 {
   // polarization vector
   if (pol == 0) { // (local) x polarized
@@ -126,87 +161,62 @@ int beamsource::SetPhotonAxes(photon *Photon, int pol)
   return 0;
 }
 
+
 //////////////////////////////////////////////////////////////////////
 // Generate an event with a photon starting from the source
 // and forced to be directed toward the position x1
 //////////////////////////////////////////////////////////////////////
-int beamsource::Out_Photon_x1(photon *Photon, vect3 x1)
+int anisotropicsource::Out_Photon_x1(photon *Photon, vect3 x1)
 {
-  double E, w;
+  double E, w0, w1;
   int pol;
-
+ 
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-      Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
-        + uk*Sigmaz*GaussRnd_r(Rng);
+    Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
+      + uk*Sigmaz*GaussRnd_r(Rng);
   }
+  // ask spectrum device to extrace the photon energy and polarization
+  Spectrum->ExtractEnergy(&w0, &E, &pol);
+  Photon->E = E;
+
   vect3 vr = x1 - Photon->x; //relative position
   vr.Normalize(); // normalized direction
   Photon->uk = vr; // update the photon direction
 
-  if (BeamScreen->RandomEnergy(Photon->x, vr, E, pol, w, Rng)) {
-    Photon->E = E;
-    // multiply the event weight by the total beam intensity
-    Photon->w = w*BeamScreen->TotalIntensity; //BeamScreen->dOmega(Photon->uk);
-    // define local photon axis based on direction and polarization
-    SetPhotonAxes(Photon, pol);
-  }
-  else {
-    Photon->w = 0;
-    Photon->E = 10; // test; remove
-    pol = 0;
-    SetPhotonAxes(Photon, pol);
-  }    
+  IntensityScreen->DirectionWeight(Photon->x, vr, w1, Rng);
+
+  // multiply the event weight by the total beam intensity
+  Photon->w = w0*w1*Spectrum->TotalIntensity;
+  //if (sqrt(vr.Elem[0]*vr.Elem[0]+vr.Elem[2]*vr.Elem[2])<0.12/115) {
+  //cout << "w0 " << w0 << endl;
+  //cout << "w1 " << w1 << endl;
+  //cout << Spectrum->TotalIntensity << endl;
+    //}
+
+  // define local photon axis directions based on direction and polarization
+  SetPhotonAxes(Photon, pol);
 
   return 0;
 }
 
-// initialize loop on events
-int beamsource::Begin()
-{
-  return BeamScreen->Begin(); // initialize spectrum loop on events
-}
-
-
-// next step of the event loop
-int beamsource::Next()
-{
-  return BeamScreen->Next(); // next step of the spectrum event loop  
-}
-
-// check if the end of the loop is reached
-bool beamsource::End()
-{
-  return BeamScreen->End(); // check if end of spectrum event loop is reached
-}
-
-// event multiplicity
-long long beamsource::EventMulti()
-{
-  return BeamScreen->EventMulti();
-}
-
-basesource *beamsource::Clone(string dev_name) {
-	//cout << "Entering beamsource::Clone\n";
-	beamsource *clone = new beamsource(dev_name);
+basesource *anisotropicsource::Clone(string dev_name) {
+	//cout << "Entering anisotropicsource::Clone\n";
+	anisotropicsource *clone = new anisotropicsource(dev_name);
 	clone->Sigmax = Sigmax;
 	clone->Sigmay = Sigmay;
 	clone->Sigmaz = Sigmaz;
 	clone->SizeFlag = SizeFlag;
 	clone->InputDeviceName[0] = InputDeviceName[0];
+	clone->InputDeviceName[1] = InputDeviceName[1];
 	clone->X = X;
 	clone->ui = ui;
 	clone->uj = uj;
 	clone->uk = uk;
-	clone->BeamScreen = BeamScreen->Clone(InputDeviceName[0]);;
+
+	clone->Spectrum = Spectrum->Clone(InputDeviceName[0]);
+	clone->IntensityScreen = IntensityScreen->Clone(InputDeviceName[1]);;
 
 	return dynamic_cast<basesource*>(clone);
 }
 
-int beamsource::SetRng(randmt_t *rng)
-{
-  Rng = rng;
-  BeamScreen->SetRng(rng);
-
-  return 0;
-}

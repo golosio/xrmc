@@ -15,11 +15,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
-//     loadbeamscreen.cpp        //
-//        02/05/2013             //
+//  loadintensityscreen.cpp      //
+//        16/05/2013             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
-// Load beamscreen parameters, position, orientation and size
+// Load intensityscreen parameters, position, orientation and size
 //
 
 #include <iostream>
@@ -28,14 +28,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_gettoken.h"
 #include "xrmc_exception.h"
 #include "xrmc_math.h"
-#include "beamscreen.h"
+#include "intensityscreen.h"
 
 using namespace std;
 using namespace gettoken;
 
 //////////////////////////////////////////////////////////////////////
-int beamscreen::Load(istream &fs)
-  // Loads beamscreen parameters, position, orientation, size
+int intensityscreen::Load(istream &fs)
+  // Loads intensityscreen parameters, position, orientation, size
 {
   int i;
   vect3 x0, u;
@@ -43,7 +43,7 @@ int beamscreen::Load(istream &fs)
   double theta;
   string comm="", image_file;
 
-  cout << "Beam Screen parameters, position, orientation and size file\n";
+  cout << "intensityscreen parameters, position, orientation and size file\n";
 
  // get a command/variable name from input file
   while (GetToken(fs, comm)) {
@@ -90,57 +90,14 @@ int beamscreen::Load(istream &fs)
       cout << ui << endl;
       //cout << "\n";
     }	
-    else if(comm=="PolarizedFlag") { //  unpolarized/polarized beam flag (0/1)
-      GetIntToken(fs, &PolarizedFlag);
-      cout << "Unpolarized/polarized beam (0/1): " << PolarizedFlag << "\n"; 
-    }
-    else if(comm=="EnergyBinFlag") { //  energy binning flag (0/1)
-      GetIntToken(fs, &EnergyBinFlag);
-      cout << "Energy Binning (0/1): " << EnergyBinFlag << "\n"; 
-    }
     else if(comm=="InterpolFlag") { //  do not use / use interpolation (0/1)
       GetIntToken(fs, &InterpolFlag);
       cout << "Do not use / use interpolation inside pixels/bins (0/1): "
 	   << InterpolFlag << "\n"; 
     }
-    else if(comm=="Emin") { // set the minimum bin energy
-      GetDoubleToken(fs, &Emin);
-      cout << "\tEmin: " << Emin << "\n"; 
-    }	
-    else if(comm=="Emax") { // set the maximum bin energy
-      GetDoubleToken(fs, &Emax);
-      cout << "\tEmax: " << Emax << "\n"; 
-    }	
-    else if(comm=="NBins") { // set the number of energy bins
-      GetIntToken(fs, &NBins);
-      cout << "\tNBins: " << NBins << "\n"; 
-      if (Image!=NULL) {
-	delete[] Image;
-	Image = NULL;
-      }
-    }
-    else if(comm=="TotalIntensity") { // set the beam total intensity
-      GetDoubleToken(fs, &TotalIntensity);
-      cout << "\tTotalIntensity: " << TotalIntensity << "\n"; 
-    }	
-
     else if (comm=="ImageFile") { // read screen image from a file
       GetToken(fs, image_file); // image file name
       LoadData(image_file);
-    }
-    else if(comm=="LoopFlag") { // flag for loop mode
-      GetIntToken(fs, &LoopFlag);
-      if (LoopFlag==0)
-	cout << "Extract random energies on the whole spectrum\n";
-      else if (LoopFlag==1)
-	cout << "Loop on all energy bins and polarization\n";
-      else throw xrmc_exception("Wrong loop flag.\n");
-    }
-    else if(comm=="PhotonNum") {
-      // Multiplicity of events for each energy bin 
-      GetIntToken(fs, &PhotonNum);
-      cout <<"Multiplicity of events: " 
-	   << PhotonNum << "\n";
     }
 	
     else if(comm=="Rotate") { // screen rotation
@@ -173,68 +130,56 @@ int beamscreen::Load(istream &fs)
       cout << "Empy string\n";
     }
     else {
-      throw xrmc_exception("syntax error in beamscreen input file"); 
+      throw xrmc_exception("syntax error in intensityscreen input file"); 
     }
   }
 
   return 0;
 }
 
-int beamscreen::LoadData(string file_name)
+int intensityscreen::LoadData(string file_name)
   // Load screen array contents
 {
   FILE *fp;
 
-  cout << "Loading beam screen data\n";
+  cout << "Loading intensityscreen data\n";
 
-  if (N*NBins<=0)
+  if (N<=0)
     throw xrmc_exception("Screen must be dimensioned before loading.\n");
   if (Image!=NULL) delete[] Image;
-  Image = new double[2*N*NBins]; // allocate the image array
+  Image = new double[N]; // allocate the image array
 
   cout << "Input File: " << file_name << "\n";
   if ((fp = fopen(file_name.c_str(),"rb")) == NULL)
     throw xrmc_exception("Input file cannot be open.\n");
 
-  // check if beam is polarized
-  if (PolarizedFlag==1) {
-    if (fread(Image, sizeof(double), 2*N*NBins, fp)
-	!= (unsigned int)2*N*NBins)
-      throw xrmc_exception("Error reading input file.\n");
-  }
-  else { // if not build two polarization components with equal intensity
-    // x-polarized component
-    if (fread(Image, sizeof(double), N*NBins, fp) != (unsigned int)N*NBins)
-      throw xrmc_exception("Error reading input file.\n");
-    for(int i=0; i<N*NBins; i++) {
-      Image[N*NBins+i] = Image[i]; // y-polarized component
-    }
-  }
+  if (fread(Image, sizeof(double), N, fp) != (unsigned int)N)
+    throw xrmc_exception("Error reading input file.\n");
+
   fclose(fp);
 
   double sum=0;
-  for(int i=0; i<2*N*NBins; i++) {
+  for(int i=0; i<N; i++) {
     double val = Image[i];
     if (val<0)
       throw xrmc_exception("Image bin contents must be nonnegative.\n");
     sum += val;
   }
-  for(int i=0; i<2*N*NBins; i++) {
+  for(int i=0; i<N; i++) {
     Image[i] /= sum;
   }
-
+  
   return 0;
 }
 
 
 //////////////////////////////////////////////////////////////////////
-int beamscreen::SetDefault()
-// set default values for beamscreen parameters
+int intensityscreen::SetDefault()
+// set default values for intensityscreen parameters
 {
   NX = NY = 0; // number of rows and columns
   Image = NULL;
   CumulImage = NULL;
-  CumulEnergy = NULL;
   PixelSizeX = PixelSizeY = 1; // Pixel size (Sx x Sy) = 1x1 cm2
   X.Set(0, 50, 0); // Screen center position 
   // Screen orientation :
@@ -242,16 +187,8 @@ int beamscreen::SetDefault()
   ui.Set(1,0,0);// ui has the same direction as the x axis
   OrthoNormal(ui, uj, uk); // evaluates uj to form a orthonormal basis
 
-  PolarizedFlag = 0;  // unpolarized/polarized beam flag (0/1)
-  EnergyBinFlag = 1;  // energy binning flag (0/1)
   InterpolFlag = 1; // use interpolation inside pixels/bins (0/1)
-  NBins = 1; // 1 energy bin
-  Emin = 0; // minimum bin energy is 0 keV
-  Emax = 100; // maximum bin energy is 100 keV
-  TotalIntensity = 1; // beam total intensity 
   dOmegaLim=2*PI; //Cut on solid angle from interaction point to a single pixel
-  LoopFlag = 0; // flag for loop mode
-  PhotonNum = 1; // Multiplicity of events
 
   return 0;
 }
