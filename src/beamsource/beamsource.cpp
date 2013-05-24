@@ -56,11 +56,11 @@ int beamsource::RunInit()
 }
 
 //////////////////////////////////////////////////////////////////////
-// method for casting input device to type spectrum
+// method for casting input device to type beamscreen*
 /////////////////////////////////////////////////////////////////////
 int beamsource::CastInputDevices()
 {
-  // cast InputDevice[0] to type spectrum*
+  // cast InputDevice[0] to type beamscreen*
   BeamScreen = dynamic_cast<beamscreen*>(InputDevice[0]);
   if (BeamScreen==0)
     throw xrmc_exception(string("Device ") + InputDeviceName[0]
@@ -76,10 +76,12 @@ int beamsource::Out_Photon(photon *Photon)
 {
   double E, w;
   int pol;
+  vect3 r;
 
   // ask beamscreen device to extract photon endpoint, energy and polarization
-  vect3 r = BeamScreen->RandomPoint(E, pol, w, Rng);
- // multiply the event weight by the total beam intensity
+  r = BeamScreen->RandomPoint(E, pol, w, Rng);
+
+  // multiply the event weight by the total beam intensity
   Photon->w = w*BeamScreen->TotalIntensity;
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
@@ -99,9 +101,8 @@ int beamsource::Out_Photon(photon *Photon)
   // define local photon axis directions based on direction and polarization
   SetPhotonAxes(Photon, pol);
 
-  double x = Photon->uk.Elem[0]*115;
-  double y = Photon->uk.Elem[2]*115;
-
+  //double x = Photon->uk.Elem[0]*115;
+  //double y = Photon->uk.Elem[2]*115;
   //cout << "STORE " << x << " " << y << " " << Photon->E << " " << w << endl;
 
   return 0;
@@ -126,33 +127,6 @@ int beamsource::SetPhotonAxes(photon *Photon, int pol)
 }
 
 //////////////////////////////////////////////////////////////////////
-// probability that a photon produced by the source has the direction
-// of point_r per unit solid angle (uniform distribution)
-//////////////////////////////////////////////////////////////////////
-double beamsource::POmega(vect3 point_r)
-{
-  /*
-  double x, y, z, r;
-  double cos_th, cos_th_l;
-
-  if (Omega==0) return 0;
-  r = point_r.Mod(); // vector module
-  if (r==0) return 0;
-  // vector components in the local source coordinate system
-  x = point_r*ui;
-  y = point_r*uj;
-  z = point_r*uk;
-  cos_th_l = CosThLxy(x, y); // maximum value of theta
-  cos_th = z / r;            // actual value of theta
- // check that theta < maximum 
-  if (cos_th < cos_th_l) return 0; // if not, weight is zero
-  else return 1./Omega; // otherwise weight is 1 / Omega (uniform distribution)
-  */
-  return 1;
-}
-
-
-//////////////////////////////////////////////////////////////////////
 // Generate an event with a photon starting from the source
 // and forced to be directed toward the position x1
 //////////////////////////////////////////////////////////////////////
@@ -163,30 +137,53 @@ int beamsource::Out_Photon_x1(photon *Photon, vect3 x1)
 
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-    //if (Rng == NULL)
-    //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
-    //    + uk*Sigmaz*GaussRnd();
-    //else
       Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
         + uk*Sigmaz*GaussRnd_r(Rng);
   }
-  // ask spectrum device to extrace the photon energy and polarization
-  //Spectrum->ExtractEnergy(&w, &E, &pol);
-  E=10;
-  w=1;
-  pol=0;
-  Photon->E = E;
-  Photon->uk = x1 - Photon->x; // photon direction
-  Photon->uk.Normalize();
+  vect3 vr = x1 - Photon->x; //relative position
+  vr.Normalize(); // normalized direction
+  Photon->uk = vr; // update the photon direction
 
-  // multiply the event weight by the total beam intensity
-  // and by the probability that it has the direction uk per unit solid angle
-  Photon->w = w*BeamScreen->TotalIntensity*POmega(Photon->uk);
-
-  // define local photon axis directions based on direction and polarization
-  SetPhotonAxes(Photon, pol);
+  if (BeamScreen->RandomEnergy(Photon->x, vr, E, pol, w, Rng)) {
+    Photon->E = E;
+    // multiply the event weight by the total beam intensity
+    Photon->w = w*BeamScreen->TotalIntensity; //BeamScreen->dOmega(Photon->uk);
+    // define local photon axis based on direction and polarization
+    SetPhotonAxes(Photon, pol);
+  }
+  else {
+    Photon->w = 0;
+    Photon->E = 10; // test; remove
+    pol = 0;
+    SetPhotonAxes(Photon, pol);
+  }    
 
   return 0;
+}
+
+// initialize loop on events
+int beamsource::Begin()
+{
+  return BeamScreen->Begin(); // initialize spectrum loop on events
+}
+
+
+// next step of the event loop
+int beamsource::Next()
+{
+  return BeamScreen->Next(); // next step of the spectrum event loop  
+}
+
+// check if the end of the loop is reached
+bool beamsource::End()
+{
+  return BeamScreen->End(); // check if end of spectrum event loop is reached
+}
+
+// event multiplicity
+long long beamsource::EventMulti()
+{
+  return BeamScreen->EventMulti();
 }
 
 basesource *beamsource::Clone(string dev_name) {
@@ -201,7 +198,7 @@ basesource *beamsource::Clone(string dev_name) {
 	clone->ui = ui;
 	clone->uj = uj;
 	clone->uk = uk;
-	clone->BeamScreen = BeamScreen;
+	clone->BeamScreen = BeamScreen->Clone(InputDeviceName[0]);;
 
 	return dynamic_cast<basesource*>(clone);
 }

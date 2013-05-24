@@ -139,7 +139,7 @@ bool source::End()
 }
 
 // event multiplicity
-int source::EventMulti()
+long long source::EventMulti()
 {
   return Spectrum->EventMulti();
 }

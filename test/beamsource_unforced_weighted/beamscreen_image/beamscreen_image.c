@@ -16,7 +16,7 @@ int main()
   FILE *fp;
   const int Nx=10, Ny=10, NE=200;
   double dx=0.2, dy = 0.2, Emin=0.5, Emax=100;
-  double x0, y0, x, y, r, E, dE, Ec, Ec0=20, Ec1=70;
+  double x0, y0, x, y, r, E, dE, Ec, Ec0=45, Ec1=55;
   int ix, iy, iE, i;
   double *Image;
   double sx, sy, sE;
@@ -24,7 +24,7 @@ int main()
   Image = (double*)malloc(Nx*Ny*NE*sizeof(double));
   sx=0.4;
   sy=0.2;
-  sE=4;
+  sE=40;
 
   y0=(-0.5*Ny + 0.5)*dy;
   x0=(-0.5*Nx + 0.5)*dx;

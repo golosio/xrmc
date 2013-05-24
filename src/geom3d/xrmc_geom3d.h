@@ -125,20 +125,20 @@ class geom3d : public xrmc_device
   int MaxNQVol; // maximum number of 3d objects in the geometric description
   qvolume *QVol; // array of 3d objects
 
-  ~geom3d(); // destructor  
+  virtual ~geom3d(); // destructor  
   geom3d(std::string dev_name); // constructor
-  int Load(istream &fs); // method for loading the geometric description
-  int ImportDevice(xrmc_device_map *dev_map); // import device method
+  virtual int Load(istream &fs); // method for loading the geometric description
+  //virtual int ImportDevice(xrmc_device_map *dev_map); // import device method
   // method for casting input devices
-  int CastInputDevices();
-  int RunInit(); // geometry initialization before run method
-  int SetDefault(); // set default values for geometric description
+  virtual int CastInputDevices();
+  virtual int RunInit(); // geometry initialization before run method
+  virtual int SetDefault(); // set default values for geometric description
 
   // method for finding the intersections of a straight line
   //  with all quadrics and all 3d objects
   int Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1, \
 		int *n_inters);
-  geom3d *Clone(string dev_name);
+  virtual geom3d *Clone(string dev_name);
  private:
   std::string **QVolMap; // map of the quadrics delimiting the objects 
 };

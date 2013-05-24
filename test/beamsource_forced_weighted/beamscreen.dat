@@ -1,0 +1,20 @@
+; beamscreen array parameter file
+;
+Newdevice beamscreen		; Device type
+BeamScreen			; Device name
+NPixels 10 10			; Pixel number (NX x NY)
+PixelSize 0.6 0.6		; Pixel Size (cm)
+X	0	15	0	; screen x, y, z
+				; Screen orientation :
+uk	0	-1	0	; z direction (normal to the screen)
+ui	1	0	0	; x direction
+PolarizedFlag 0			; unpolarized/polarized beam flag (0/1)
+EnergyBinFlag 1			; energy binning flag (0/1)
+Emin 0.5			; Emin
+Emax 100			; Emax
+NBins 200			; NBins
+ImageFile beamscreen_image/beamscreen_image.dat
+;Rotate 0 0 0 1 0 0 -20		; rotation around axis x, u, angle theta
+;Rotate 0 0 0 0 0 1 -30		; rotation around axis x, u, angle theta
+
+End

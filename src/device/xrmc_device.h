@@ -86,7 +86,7 @@ class xrmc_device
   virtual int Next() {LoopIdx = 1; return 0;}  // next step of the loop
   virtual bool End() {return (LoopIdx==1);}    // end of the loop 
   virtual int Run() {return 0;} // generic virtual run method
-  virtual int EventMulti() {return 1;} // event multiplicity
+  virtual long long EventMulti() {return 1;} // event multiplicity
   //virtual int LinkInputDevice(string command, xrmc_device *dev_pt)
   //{
   //  throw xrmc_exception(string("Device of type ") + DeviceType + 

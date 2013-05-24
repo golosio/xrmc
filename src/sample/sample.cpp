@@ -181,7 +181,7 @@ bool sample::End()
 }
 
 // event multiplicity
-int sample::EventMulti()
+long long sample::EventMulti()
 {
   int em = 0;
   for (int is=0; is<ScattOrderNum; is++) {
