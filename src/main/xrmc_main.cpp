@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
   try {
     Banner();
     XRayInit(); // xraylib libraries initialization
+    SetErrorMessages(0);
     ReadArg(argc, argv); // check command line arguments
     cout << argv[argc-1] << "\n";
     

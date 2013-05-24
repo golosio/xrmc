@@ -31,10 +31,13 @@ offset = loc
 FOR Z = 1, 94 DO BEGIN
 	NLines_counter = 0
 	NLines_names = []
-	FOR xrf_line = KL1_LINE,L3Q1_LINE,-1 DO BEGIN
+	FOR xrf_line = KL1_LINE,M5P5_LINE,-1 DO BEGIN
 		IF (xrf_line EQ L1L2_LINE OR xrf_line EQ L1L3_LINE OR xrf_line EQ L2L3_LINE $
-		OR xrf_line EQ KO_LINE OR xrf_line EQ KP_LINE) THEN CONTINUE
-		IF (RadRate(Z, xrf_line) GT 0.0 AND LineEnergy(Z, xrf_line)) THEN BEGIN
+		OR xrf_line EQ KO_LINE OR xrf_line EQ KP_LINE OR xrf_line EQ M1M2_LINE $
+		OR xrf_line EQ M1M3_LINE OR xrf_line EQ M1M4_LINE OR xrf_line EQ M1M5_LINE $
+		OR xrf_line EQ M2M3_LINE OR xrf_line EQ M2M4_LINE OR xrf_line EQ M2M5_LINE $
+		OR xrf_line EQ M3M4_LINE OR xrf_line EQ M3M5_LINE OR xrf_line EQ M4M5_LINE) THEN CONTINUE
+		IF (RadRate(Z, xrf_line) GT 0.0 AND LineEnergy(Z, xrf_line) GT 0.0) THEN BEGIN
 			NLines_counter++
 			NLines_names = [NLines_names, SCOPE_VARNAME(COMMON='xraylib', offset+(KL1_LINE-xrf_line))]
 		ENDIF
