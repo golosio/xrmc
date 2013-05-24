@@ -41,6 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "intensityscreen.h"
 #ifdef HAVE_XMIMSIM
 #include "xrmc_detectorconvolute.h"
+#include "xrmc_spectrum_ebel.h" 
 #endif
 
 using namespace std;
@@ -94,6 +95,13 @@ int xrmc_device::LoadNewDevice(istream &dev_fs,  xrmc_device*& dev_pt)
   else if (dev_type=="detectorconvolute") {
 #ifdef HAVE_XMIMSIM
     dev_pt = new detectorconvolute(dev_name);
+#else
+    throw xrmc_exception(string("Device type ") + dev_type + " not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
+#endif
+  }
+  else if (dev_type=="spectrum_ebel") {
+#ifdef HAVE_XMIMSIM
+    dev_pt = new spectrum_ebel(dev_name);
 #else
     throw xrmc_exception(string("Device type ") + dev_type + " not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
 #endif

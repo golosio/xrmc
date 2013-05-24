@@ -197,7 +197,7 @@ int spectrum::SetDefault()
 
 int spectrum::LoadContinuousSpectrum(istream &sp_fs)
 {
-  cout << "Continuos spectrum :\n";
+  cout << "Continuous spectrum :\n";
   for (int i=0; i<EneContinuousNum; i++) {
     GetDoubleToken(sp_fs, &ContinuousEne[i]);
     GetDoubleToken(sp_fs, &ContSIntensity[0][i]);

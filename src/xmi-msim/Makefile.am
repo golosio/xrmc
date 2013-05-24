@@ -1,10 +1,19 @@
 xrmcincludedir = ${includedir}/xrmc
-xrmcinclude_HEADERS = xrmc_detectorconvolute.h
+xrmcinclude_HEADERS = xrmc_detectorconvolute.h \
+			xrmc_spectrum_ebel.h
+			xrmc_loadxmimsim.h
 
 noinst_LTLIBRARIES = libxrmc-xmimsim.la
 
 
-libxrmc_xmimsim_la_SOURCES = xmimsim-detectorconvolute.cpp xrmc_detectorconvolute.h xmimsim-loaddetectorconvolute.cpp 
+libxrmc_xmimsim_la_SOURCES = xmimsim-detectorconvolute.cpp \
+				xrmc_detectorconvolute.h \
+				xrmc_loadxmimsim.h \
+				xrmc_spectrum_ebel.h \
+				xmimsim-loaddetectorconvolute.cpp \
+				xmimsim-loadplugin.cpp \
+				xmimsim-loadspectrumebel.cpp \
+				xmimsim-spectrumebel.cpp
 libxrmc_xmimsim_la_CPPFLAGS = -I${srcdir}/../device \
 		@xmi_msim_CFLAGS@ \
 		@gmodule_CFLAGS@ \

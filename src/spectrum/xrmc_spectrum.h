@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // spectrum class definition, member variables and functions
 class spectrum : public xrmc_device
 {
- private:
+ protected:
   int PolarizedFlag; // flag for polarized(1) / unpolarized(0) beam
   int LoopFlag; // flag for loop on all lines and all intervals of the spectrum
   int RandomEneFlag; // flag for extracting random energies in the intervals

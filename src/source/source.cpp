@@ -29,6 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_math.h"
 #include "xrmc_source.h"
 #include "xrmc_exception.h"
+#ifdef HAVE_XMIMSIM
+#include "xrmc_spectrum_ebel.h"
+#endif
 
 using namespace std;
 using namespace xrmc_algo;
@@ -79,7 +82,15 @@ int source::RunInit()
     Omega = Integrate(one_min_costhl, 0, 2*PI); // evaluate the solid angle
   }
   cout << "Omega: " << Omega << "\n";
-  
+
+#ifdef HAVE_XMIMSIM
+  cout << "TypeId spectrum" << typeid(*Spectrum).name();
+  spectrum_ebel *ebel = dynamic_cast<spectrum_ebel*>(Spectrum); 
+  if (ebel != 0) {
+  	ebel->SolidAngle=Omega;
+  }
+#endif
+
   OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
   
   return 0;
