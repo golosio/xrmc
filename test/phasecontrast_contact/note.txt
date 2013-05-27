@@ -1,0 +1,5 @@
+- compare the values of the flat field (outside the cylynder) and in the middle of the cylinder for the phase contrast and for the absorption images.
+They should be the same.
+Note pixel size (sx, sy) and object detector distance z12 must satisfy
+ the inequality:
+z12 >> sx*sy/lambda

@@ -105,12 +105,14 @@ AC_CONFIG_FILES([	Makefile
 			src/photon/Makefile
 			src/source/Makefile
 			src/beamsource/Makefile
+			src/phasecontrast/Makefile
 			src/spectrum/Makefile
 			src/xrmc_math/Makefile
 			src/exception/Makefile
 			src/sample/Makefile
 			src/main/Makefile
 			src/randmt/Makefile
+			src/fft/Makefile
 			src/xmi-msim/Makefile
 			doc/Makefile
 			examples/Makefile

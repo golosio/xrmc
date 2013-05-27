@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_composition.h"
 #include "xrmc_device.h"
 #include "xrmc_source.h"
+#include "phcdevice.h"
 #include "randmt.h"
 
 using namespace std;
@@ -125,11 +126,14 @@ class sample : public basesource
   // simulates an event up to the last interaction point
   virtual int Out_Photon(photon *Photon);
   virtual int Out_Photon(photon *Photon, int *ModeIdx);
+  virtual int Out_Phase_Photon_x1(photon *Photon, vect3 x1);
+  virtual double GetPhC_E0();
+  virtual int PhCOn();
+  virtual int PhCOff();
 
   virtual int RunInit(); // sample run initialization method
  // set the random number generator structure
   virtual int SetRng(randmt_t *rng);
- private:
   virtual basesource *Clone(string dev_name);
  private:
   geom3d *Geom3D; // input geom3d device

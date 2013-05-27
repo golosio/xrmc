@@ -441,3 +441,11 @@ beamscreen *beamscreen::Clone(string dev_name) {
   return clone;
 }
 
+// get energy in phase contrast mode
+double beamscreen::GetPhC_E0()
+{
+  //return PhC_E0;
+    throw xrmc_exception("Phase contrast not yet defined for this device.\n");
+
+    return 0;
+}

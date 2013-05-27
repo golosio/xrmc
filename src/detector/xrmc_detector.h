@@ -59,7 +59,7 @@ class detectorarray : public xrmc_screen
   virtual long long EventMulti(); // event multiplicity
   virtual int Run() {return Acquisition();} // run the acquisition
   virtual int Acquisition(); // run the acquisition
-  int Clear(); // clear the detector pixel bin contents
+  virtual int Clear(); // clear the detector pixel bin contents
 
  protected:
   basesource *Source; // input device (typically the sample device)

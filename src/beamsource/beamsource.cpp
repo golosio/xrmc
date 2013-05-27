@@ -210,3 +210,25 @@ int beamsource::SetRng(randmt_t *rng)
 
   return 0;
 }
+
+int beamsource::PhCOn()
+{
+  PhCFlag=true;
+  BeamScreen->PhCOn();
+
+  return 0;
+}
+
+int beamsource::PhCOff()
+{
+  PhCFlag=false;
+  BeamScreen->PhCOff();
+  
+  return 0;
+}
+
+double beamsource::GetPhC_E0()
+{
+  return BeamScreen->GetPhC_E0();
+}
+

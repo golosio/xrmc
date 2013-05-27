@@ -220,3 +220,23 @@ basesource *anisotropicsource::Clone(string dev_name) {
 	return dynamic_cast<basesource*>(clone);
 }
 
+int anisotropicsource::PhCOn()
+{
+  PhCFlag=true;
+  Spectrum->PhCOn();
+
+  return 0;
+}
+
+int anisotropicsource::PhCOff()
+{
+  PhCFlag=false;
+  Spectrum->PhCOff();
+  
+  return 0;
+}
+
+double anisotropicsource::GetPhC_E0()
+{
+  return Spectrum->GetPhC_E0();
+}

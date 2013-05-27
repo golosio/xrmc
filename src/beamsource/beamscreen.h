@@ -29,9 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#include "xrmc_arrayNd.h"
 #include "xrmc_screen.h"
 #include "randmt.h"
+#include "phcdevice.h"
 
 //  beamscreen class definition, member variables and functions
-class beamscreen : public xrmc_screen
+class beamscreen : public xrmc_screen, public phcdevice
 {
  private:
   int PhotonNum; // num. of events to be extracted for each interval
@@ -64,6 +65,8 @@ class beamscreen : public xrmc_screen
   bool RandomEnergy(vect3 x0, vect3 u, double &E, int &pol, double &w,
 		    randmt_t *rng);
   vect3 RandomXY(double &E, double &w, randmt_t *rng);
+  virtual double GetPhC_E0();
+
   virtual int Begin(); // begin the event loop
   virtual int Next();  // next step of the event loop  
   virtual bool End(); // check if the end of the event loop is reached

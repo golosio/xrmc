@@ -260,7 +260,7 @@ int detectorarray::SaveData(string data_name, string file_name)
     fwrite(&Emax, sizeof(double), 1, fp);
   }
 
-  fwrite(Image[0][0], sizeof(double), ModeNum*N*NBins, fp);
+  fwrite(Image[0][0], sizeof(double), ModeNum*NX*NY*NBins, fp);
     
   fclose(fp);
 
@@ -286,7 +286,7 @@ int detectorarray::SaveAsciiData(string data_name, string file_name)
     ofs << Emin << endl;
     ofs << Emax << endl;
   }
-  for (int i=0; i<ModeNum*N*NBins; i++) {
+  for (int i=0; i<ModeNum*NX*NY*NBins; i++) {
     ofs << *(Image[0][0]+i) << endl;
   }
   ofs.close();

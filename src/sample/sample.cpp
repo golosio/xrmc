@@ -156,6 +156,7 @@ int sample::Begin()
 // next step of the event loop
 int sample::Next()
 {
+  if (PhCFlag) return Source->Next();
   // check if the loop is finished
   if (ScattOrderIdx >= ScattOrderNum) return 1;
 
@@ -176,6 +177,8 @@ int sample::Next()
 // check if the end of the loop is reached
 bool sample::End()
 {
+  if (PhCFlag) return Source->End();
+
   if (ScattOrderIdx >= ScattOrderNum) return true;
   else return false;
 }
@@ -183,6 +186,7 @@ bool sample::End()
 // event multiplicity
 long long sample::EventMulti()
 {
+  if (PhCFlag) return Source->EventMulti();
   int em = 0;
   for (int is=0; is<ScattOrderNum; is++) {
     em += PhotonNum[is];
@@ -586,4 +590,55 @@ int sample::SetRng(randmt_t *rng)
   Path->Rng = rng;
 
   return 0;
+}
+
+int sample::PhCOn()
+{
+  PhCFlag=true;
+  Source->PhCOn();
+
+  return 0;
+}
+
+int sample::PhCOff()
+{
+  PhCFlag=false;
+  Source->PhCOff();
+  
+  return 0;
+}
+
+int sample::Out_Phase_Photon_x1(photon *Photon, vect3 x1)
+{
+  //int Z, interaction_type;
+  vect3 vr;
+  //double tmax=0;
+
+  // ask the source to generate photon directed torward the point x1
+  Source->Out_Photon_x1(Photon, x1);
+
+  vr = x1 - Photon->x; // end position relative to photon starting position
+  //tmax = vr.Mod(); // maximum intersection distance
+  vr.Normalize(); // normalized direction
+  Comp->Mu(Photon->E); // absorption coefficients at photon energy
+  Comp->Delta(Photon->E); // delta coefficients at photon energy
+  Photon->uk = vr; // update the photon direction
+
+  LinearMuDelta(Source->X, vr); //MUST use point source
+  // in the future take care of tmax as in LinearAbsorption
+  //if (Path->NSteps==1110) {
+  //  cout << "E " << Photon->E << endl;
+  //  cout << Source->X << endl;
+  //  cout << vr << endl;
+  //  cout << "NS " << Path->NSteps << endl;
+  //  cout << Path->Step[0] << endl;
+  //  cout << Path->MuL << endl;
+  //}
+
+  return 0;
+}
+
+double sample::GetPhC_E0()
+{
+  return Source->GetPhC_E0();
 }
