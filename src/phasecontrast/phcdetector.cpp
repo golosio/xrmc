@@ -152,7 +152,13 @@ int phcdetector::PhCAcquisition(randmt_t **rngs)
   //int bin;
   //vect3 Rp, DRp;
   //double Pgeom, signal;
-  const int ProgrUpdate=100000;
+
+  Sample->PhCOn();
+  for (int i=0; i<THREAD_MAXNUM; i++) {
+    SampleClones[i]->PhCOn();
+  }
+
+  const int ProgrUpdate=1;
   long long event_idx=0, event_tot=EventMulti();
   if (event_tot>ProgrUpdate) {
     printf("\nProgress 0 %%\r");
@@ -165,12 +171,8 @@ int phcdetector::PhCAcquisition(randmt_t **rngs)
   //  }
   //}
   
-  Sample->PhCOn();
-  for (int i=0; i<THREAD_MAXNUM; i++) {
-    SampleClones[i]->PhCOn();
-  }
   
-  cout << "Sample->EventMulti() " << Sample->EventMulti() << endl;
+  //cout << "Sample->EventMulti() " << Sample->EventMulti() << endl;
 
   #ifdef _OPENMP
   #pragma omp parallel for default(shared) collapse(2)
@@ -208,12 +210,12 @@ int phcdetector::PhCAcquisition(randmt_t **rngs)
       #endif
       event_idx++;
 	
-      if (THREAD_IDX==0) {
-	if (event_idx%ProgrUpdate==0 && event_tot>ProgrUpdate) {
+      //if (THREAD_IDX==0) {
+      if (event_idx%ProgrUpdate==0 && event_tot>ProgrUpdate) {
 	  printf("Progress %.3f %%\r", 100.*event_idx/event_tot);
 	  fflush(stdout);
-	}
       }
+	//}
       
       
     }
@@ -295,7 +297,7 @@ int phcdetector::RunInit()
 // event multiplicity
 long long phcdetector::EventMulti()
 {
-  return N*PhotonNum*Sample->EventMulti();
+  return PhotonNum*Sample->EventMulti();
 }
 
 //////////////////////////////////////////////////////////////////////

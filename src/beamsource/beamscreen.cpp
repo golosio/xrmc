@@ -68,6 +68,7 @@ beamscreen::beamscreen(string dev_name) {
 int beamscreen::RunInit()
 {
   Init();
+  PhCFlag = false;
 
   if (Image==NULL || N*NBins<=0)
     throw xrmc_exception("Beamscreen image must be loaded before run.\n");

@@ -204,6 +204,7 @@ int spectrum::RunInit()
   int i;
   double intensity;
 
+  PhCFlag = false;
   if ((EneLineNum + EneContinuousNum) == 0)
     throw xrmc_exception("Number of discrete lines and number of sampling "
 			 "points in the continuous spectrum are both null.\n");

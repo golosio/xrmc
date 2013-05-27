@@ -216,13 +216,13 @@ int detectorarray::ForcedAcquisition(basesource **SourceClones,
 #pragma omp atomic
 #endif
 	event_idx++;
-	
-	if (THREAD_IDX==0) {
+      	
+	//if (THREAD_IDX==0) {
 	  if (event_idx%ProgrUpdate==0 && event_tot>ProgrUpdate) {
 	    printf("Progress %.3f %%\r", 100.*event_idx/event_tot);
 	    fflush(stdout);
 	  }
-	}
+	  //}
       }
     }
   }

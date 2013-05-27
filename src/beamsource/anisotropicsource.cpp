@@ -57,7 +57,7 @@ int anisotropicsource::SetRng(randmt_t *rng)
 
 int anisotropicsource::RunInit()
 {
-  
+  PhCFlag = false;
   OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
   
   return 0;

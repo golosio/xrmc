@@ -127,7 +127,9 @@ int sample::LinkInputDevice(string command, xrmc_device *dev_pt)
 int sample::RunInit()
 {
   int mns;
- 
+
+  PhCFlag = false; 
+
   if (Path!=NULL) delete Path;
   Path = new path; // allocate the path member variable
   mns = 2*(Geom3D->QArr->NQuadr+4)+2; // maximum number of intersections

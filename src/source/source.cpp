@@ -69,6 +69,7 @@ double one_min_costhl(double phi)
 //////////////////////////////////////////////////////////////////////
 int source::RunInit()
 {
+  PhCFlag = false;
   costhl_Source = this;
   Cos2Thx = cos(Thx)*cos(Thx);
   Sin2Thx = sin(Thx)*sin(Thx);
