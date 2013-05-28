@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio and Tom Schoonjans
+Copyright (C) 2013 Tom Schoonjans and Bruno Golosio
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ class detectorconvolute : public detectorarray
 {
  public:
   struct xmi_detector *xd;
-  double ***convolutedImage;
   struct xmi_layer *det_absorber;
   
   ~detectorconvolute(); //destructor
@@ -41,9 +40,6 @@ class detectorconvolute : public detectorarray
 
   int CastInputDevices(); // cast input device method
   int Load(istream &fs); // load detector parameters, position, orientation
-  int SaveData(string data_name, string file_name); // save the acquired (convoluted or unconvoluted) image in a file
-  int SaveConvoluted(string file_name); // save the acquired, convoluted image in a file
-  int SaveUnconvoluted(string file_name); // save the acquired, unconvoluted image in a file
   int SetDefault(); // set the default values for detector parameters
   int Run(); // calculate detector convolution
   int Clear(); // clear 

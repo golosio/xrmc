@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio and Tom Schoonjans
+Copyright (C) 2013 Tom Schoonjans and Bruno Golosio 
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,15 +50,15 @@ detectorconvolute::~detectorconvolute() {
   
   if (xd != NULL)
     free(xd);
-  if (convolutedImage != NULL)
-    free(convolutedImage);
+  //if (convolutedImage != NULL)
+  //  free(convolutedImage);
 }
 
 //constructor
 detectorconvolute::detectorconvolute(string dev_name)
   : detectorarray(dev_name) {
-  SaveDataName[0]="UnconvolutedImage";
-  SaveDataName.push_back("ConvolutedImage");
+  //SaveDataName[0]="UnconvolutedImage";
+  //SaveDataName.push_back("ConvolutedImage");
   NInputDevices = 2;
   InputDeviceCommand.push_back("CompositionName");
   InputDeviceDescription.push_back("Composition input device name");
@@ -124,9 +124,9 @@ detectorconvolute::detectorconvolute(string dev_name)
 }
 
 int detectorconvolute::RunInit() {
+        ConvolveFlag = 1;
         detectorarray::RunInit();
-        if (convolutedImage!=NULL) free_double_array3d(Image);
-	convolutedImage = double_array3d(ModeNum*NBins, NY, NX);	
+
 	xd->live_time = ExpTime;
 	xd->zero = 0.0;
 	xd->gain = Emax/NBins;

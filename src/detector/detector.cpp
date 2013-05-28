@@ -47,12 +47,15 @@ using namespace arrayNd;
 detectorarray::~detectorarray() {
   //if (PixelX!=NULL) delete[] PixelX; // should becalled on base class
   if (Image!=NULL) arrayNd::free_double_array3d(Image);
+  if (convolutedImage!=NULL) arrayNd::free_double_array3d(Image);
 }
 
 // constructor
 detectorarray::detectorarray(string dev_name) {
   Runnable = true;
   SaveDataName.push_back("Image");
+  SaveDataName.push_back("ConvolutedImage");
+
   NInputDevices = 1;
   InputDeviceCommand.push_back("SourceName");
   InputDeviceDescription.push_back("Source input device name");
@@ -73,6 +76,10 @@ int detectorarray::RunInit()
   ModeNum = Source->ModeNum(); // number of modes (scattering orders)
   if (Image!=NULL) free_double_array3d(Image);
   Image = double_array3d(ModeNum*NBins, NY, NX); // allocate the image array
+
+  if (convolutedImage!=NULL) free_double_array3d(convolutedImage);
+  if (ConvolveFlag!=0)
+    convolutedImage = double_array3d(ModeNum*NBins, NY, NX);	
 
   return 0;
 }
