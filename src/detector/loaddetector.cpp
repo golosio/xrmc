@@ -135,6 +135,7 @@ int detectorarray::Load(istream &fs)
       cout << "Binary(0) or ascii(1) output file format: " << AsciiFlag
 	   << "\n"; 
     }
+    /*
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
       GetIntToken(fs, &RunningFasterFlag);
       if (RunningFasterFlag==0) 
@@ -142,6 +143,7 @@ int detectorarray::Load(istream &fs)
       else
 	cout << "Rows running faster than columns in output file\n"; 
     }
+    */
     else if(comm=="PixelType") { // set the pixel content type
       GetIntToken(fs, &PixelType);
       cout << "Pixel content type: " << PixelType << "\n"; 
@@ -317,7 +319,7 @@ int detectorarray::SetDefault()
   RoundFlag = 0;   // Round pixel counts round to integer disabled
   HeaderFlag = 0; // header in output file disabled
   AsciiFlag = 0; // Default output format is binary 
-  RunningFasterFlag = 0; // columns running faster than rows in output file
+  //RunningFasterFlag = 0; // columns running faster than rows in output file
   ForceDetectFlag = 1; //Photon forced to be detected 
   PixelType = 0; // Pixel content type = 0: fluence
   NBins = 1; // 1 energy bin

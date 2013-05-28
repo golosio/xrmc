@@ -158,6 +158,7 @@ int detectorconvolute::Load(istream &fs) {
       GetIntToken(fs, &HeaderFlag);
       cout << "Use header in output file (0/1): " << HeaderFlag << "\n"; 
     }
+    /*
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
       GetIntToken(fs, &RunningFasterFlag);
       if (RunningFasterFlag==0) 
@@ -165,6 +166,7 @@ int detectorconvolute::Load(istream &fs) {
       else
 	cout << "Rows running faster than columns in output file\n"; 
     }
+    */
     else if(comm=="PixelType") { // set the pixel content type
       GetIntToken(fs, &PixelType);
       cout << "Pixel content type: " << PixelType << "\n"; 

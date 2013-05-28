@@ -50,7 +50,7 @@ intensityscreen::intensityscreen(string dev_name) {
   NX = NY = N = 0;
   Shape = 0;
   RandomPixelFlag = 1;
-  RunningFasterFlag = 0;
+  //RunningFasterFlag = 0;
   SetDevice(dev_name, "intensityscreen");
 }
 

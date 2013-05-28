@@ -21,13 +21,12 @@ RandomPixelFlag 1		; Enable random point on pixels (0/1)
 PoissonFlag 0			; Enable Poisson statistic on pix. counts (0/1)
 RoundFlag 0			; Round pixel counts to integer (0/1)
 HeaderFlag 0                    ; Use header in output file (0/1)
-RunningFasterFlag 0             ; Columns(0) or rows(1) running faster 
-PixelType 0			; Pixel content type:
+PixelType 2			; Pixel content type:
 				; 0: fluence,      1: energy fluence,
 				; 2: fluence(E),   3: energy fluence(E)
-;Emin 0				; Emin
-;Emax 100			; Emax
-;NBins 1000			; NBins
+Emin 10				; Emin
+Emax 28				; Emax
+NBins 18			; NBins
 ;SaturateEmin 0			; Saturate energies lower than Emin (0/1)
 ;SaturateEmax 0			; Saturate energies greater than Emax (0/1)
 Seeds 10      			; Seeds for random number generation

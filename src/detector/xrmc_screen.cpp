@@ -60,7 +60,7 @@ int xrmc_screen::Init()
   double y0 = -(PixelSizeY*NY)/2 + PixelSizeY/2; // on the detector plane
   int i = 0;
 
-  if (RunningFasterFlag==0) { // columns running faster than rows
+  //if (RunningFasterFlag==0) { // columns running faster than rows
     for (int iy=0; iy<NY; iy++) { // loop on detector pixels
       for (int ix=0; ix<NX; ix++) {
 	x = x0 + PixelSizeX*ix; // local x coordinate of the pixel
@@ -69,7 +69,8 @@ int xrmc_screen::Init()
 	i++; // increase pixel index
       }
     }
-  }
+    //}
+    /*
   else { // rows running faster than columns
     for (int ix=0; ix<NX; ix++) { // loop on detector pixels
       for (int iy=0; iy<NY; iy++) {
@@ -80,6 +81,7 @@ int xrmc_screen::Init()
       }
     }
   }
+    */
   
   return 0;
 }

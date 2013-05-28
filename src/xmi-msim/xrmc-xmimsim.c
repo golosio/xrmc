@@ -42,7 +42,7 @@ G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 }
 
 
-G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int N, int NBins) {
+G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX) {
 
 
 	struct xmi_main_options options;
@@ -56,8 +56,9 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 	gchar *hdf5_file=NULL;
 
 	g_fprintf(stdout,"ModeNum: %i\n", ModeNum);
-	g_fprintf(stdout,"N: %i\n", N);
 	g_fprintf(stdout,"NBins: %i\n", NBins);
+	g_fprintf(stdout,"NY: %i\n", NY);
+	g_fprintf(stdout,"NX: %i\n", NY);
 
 
 	options.use_M_lines = 1;
@@ -187,22 +188,25 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 	double *abscorrImage = (double *) malloc(sizeof(double)*NBins);
 
 	for (i = 0 ; i < ModeNum ; i++) {
-		for (j = 0 ; j < N ; j++) {
-			for (k = 0 ; k < NBins ; k++) 
-				abscorrImage[k] = Image[i][j][k] * blbs[k];
-			xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, NBins, options, escape_ratios_def);
-			memcpy(convolutedImage[i][j], channels_conv_temp, sizeof(double)*NBins);
-			xmi_deallocate(channels_conv_temp);
-		}
+	  for (iy = 0 ; iy < NY ; iy++) {
+	    for (ix = 0 ; ix < NX ; ix++) {
+	      for (k = 0 ; k < NBins ; k++) 
+		abscorrImage[k] = Image[i*NBins+k][iy][ix] * blbs[k];
+	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, NBins, options, escape_ratios_def);
+	      for (k = 0 ; k < NBins ; k++) 
+		convolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
+	      xmi_deallocate(channels_conv_temp);
+	    }
+	  }
 	}
 
 	free(abscorrImage);
 	free(blbs);
-
+	
 	//xmi_free_input_F(&inputFPtr);
 	//xmi_free_input(input);
 	if (xmi_end_random_acquisition() == 0) {
-		return 0;
+	  return 0;
 	}
 	return 1;
 }

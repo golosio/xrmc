@@ -58,7 +58,7 @@ beamscreen::beamscreen(string dev_name) {
   NX = NY = N = NBins = 0;
   Shape = 0;
   RandomPixelFlag = 1;
-  RunningFasterFlag = 0;
+  //RunningFasterFlag = 0;
   SetDevice(dev_name, "beamscreen");
 }
 

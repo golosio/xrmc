@@ -123,6 +123,7 @@ int phcdetector::Acquisition()
       PhotonArray[i].Rng = rngs[i];
     }
   }
+
   PhCAcquisition(rngs);
     
   // generate uncertainty on pixel count using Poisson statistic
@@ -254,15 +255,14 @@ int phcdetector::RunInit()
   // TMP: RESTORE THIS
   cout << "ImageNx " << ImageNx << endl;
   cout << "ImageNy " << ImageNy << endl;
-  Image = alloc_3d_double(ModeNum, ImageNx*ImageNy, NBins);
+  Image = alloc_3d_double(ModeNum*NBins, ImageNy, ImageNx);
   //Image = double_array3d(ModeNum, N, NBins);
-
   //if (PhaseImage!=NULL) free_double_array2d(PhaseImage);
   // allocate the phase image array
   //PhaseImage = double_array2d(N, NBins);
   if (ImageWeight!=NULL) free_3d_double(ImageWeight);
- // allocate the image weights array
-  ImageWeight = alloc_3d_double(THREAD_MAXNUM, N, NBins);
+  // allocate the image weights array
+  ImageWeight = alloc_3d_double(THREAD_MAXNUM*NBins, NY, NX);
   
   Rv2 = X - Sample->Source->X;
 
@@ -422,9 +422,11 @@ int phcdetector::SaveData(string data_name, string file_name)
 int phcdetector::Clear()
 {
   for (int mode_idx=0; mode_idx<ModeNum; mode_idx++) {
-    for (int ipix=0; ipix<ImageNx*ImageNy; ipix++) {
-      for (int ibin=0; ibin<NBins; ibin++) {
-	Image[mode_idx][ipix][ibin] = 0;
+    for (int iy=0; iy<ImageNy; iy++) {
+      for (int ix=0; ix<ImageNx; ix++) {
+	for (int ibin=0; ibin<NBins; ibin++) {
+	  Image[mode_idx*NBins+ibin][iy][ix] = 0;
+	}
       }
     }
   }
@@ -507,7 +509,7 @@ int phcdetector::CloneAcquisition(int ie, int thread_idx,
 	   //DRp = Rp - PhotonArray[thread_idx].x;
 	   //Pgeom = dOmega(DRp);// evaluates the factor dOmega
 	 }
-	 ImageWeight[thread_idx][ipix][bin] = PhotonArray[thread_idx].w;
+	 ImageWeight[thread_idx*NBins+bin][iy][ix] = PhotonArray[thread_idx].w;
 	 complex<double> tr = exp(-I*K0*deltaL)*exp(-muL/2);
 	 transm[iy][2*ix] = tr.real();
 	 transm[iy][2*ix+1] = tr.imag();
@@ -565,7 +567,7 @@ int phcdetector::CloneAcquisition(int ie, int thread_idx,
    
    for (int iy=0; iy<NY; iy++) {
      for (int ix=0; ix<NX; ix++) {
-       int ipix = NX*iy + ix;
+       //int ipix = NX*iy + ix;
        //int i1 = 2*ipix;
        // tr = complex<double>(propag[i1],propag[i1+1]);
        complex<double> tr=complex<double>(transm[iy][2*ix],transm[iy][2*ix+1])
@@ -579,8 +581,8 @@ int phcdetector::CloneAcquisition(int ie, int thread_idx,
 	#ifdef _OPENMP
 	#pragma omp atomic
 	#endif
-	 Image[0][ImageNx*iy1+ix1][bin] += signal
-	   *ImageWeight[thread_idx][ipix][bin];
+	 Image[bin][iy1][ix1] += signal
+	   *ImageWeight[thread_idx*NBins+bin][iy][ix];
        //Image[0][NX*iy+ix][bin] += signal;
      }
    }

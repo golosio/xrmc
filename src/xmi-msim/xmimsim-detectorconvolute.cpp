@@ -126,7 +126,7 @@ detectorconvolute::detectorconvolute(string dev_name)
 int detectorconvolute::RunInit() {
         detectorarray::RunInit();
         if (convolutedImage!=NULL) free_double_array3d(Image);
-	convolutedImage = double_array3d(ModeNum, N, NBins);	
+	convolutedImage = double_array3d(ModeNum*NBins, NY, NX);	
 	xd->live_time = ExpTime;
 	xd->zero = 0.0;
 	xd->gain = Emax/NBins;
@@ -174,15 +174,18 @@ int detectorconvolute::Clear()
   detectorarray::Clear();
 
   for (int mode_idx=0; mode_idx<ModeNum; mode_idx++) {
-    for (int ipix=0; ipix<N; ipix++) {
-      for (int ibin=0; ibin<NBins; ibin++) {
-	convolutedImage[mode_idx][ipix][ibin] = 0;
+    for (int iy=0; iy<NY; iy++) {
+      for (int ix=0; ix<NX; ix++) {
+	for (int ibin=0; ibin<NBins; ibin++) {
+	  convolutedImage[mode_idx*NBins+ibin][iy][ix] = 0;
+	}
       }
     }
   }
 
   return 0;
 }
+
 int detectorconvolute::CastInputDevices() {
 	detectorarray::CastInputDevices();
 	// cast it to type composition*
@@ -234,7 +237,7 @@ int detectorconvolute::Run() {
     		throw xrmc_exception("Symbol xmi_msim_detector_convolute from module xrmc-xmimsim is NULL\n");
     	}
 	
-	if (xmi_msim_detector_convolute(Image, convolutedImage, det_absorber, xd, ModeNum, N, NBins) == 0)
+	if (xmi_msim_detector_convolute(Image, convolutedImage, det_absorber, xd, ModeNum, NBins, NY, NX) == 0)
     		throw xrmc_exception("Error in xmi_msim_detector_convolute\n");
 
 
