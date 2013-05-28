@@ -245,7 +245,7 @@ int detectorarray::SaveData(string data_name, string file_name)
   else if (data_name==SaveDataName[0])
     SaveData(Image, file_name) ; 
   else
-    SaveData(convolutedImage, file_name) ; 
+    SaveData(ConvolutedImage, file_name) ; 
 
   return 0;
 }

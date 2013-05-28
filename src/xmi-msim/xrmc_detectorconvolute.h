@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 
 typedef int (*XmiCheckXrmcXmimsimPlugin) (void);
-typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***convolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX);
+typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***ConvolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX);
 
 
 class detectorconvolute : public detectorarray

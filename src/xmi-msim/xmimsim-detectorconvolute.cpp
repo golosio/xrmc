@@ -50,14 +50,14 @@ detectorconvolute::~detectorconvolute() {
   
   if (xd != NULL)
     free(xd);
-  //if (convolutedImage != NULL)
-  //  free(convolutedImage);
+  //if (ConvolutedImage != NULL)
+  //  free(ConvolutedImage);
 }
 
 //constructor
 detectorconvolute::detectorconvolute(string dev_name)
   : detectorarray(dev_name) {
-  //SaveDataName[0]="UnconvolutedImage";
+  //SaveDataName[0]="UnConvolutedImage";
   //SaveDataName.push_back("ConvolutedImage");
   NInputDevices = 2;
   InputDeviceCommand.push_back("CompositionName");
@@ -76,7 +76,7 @@ detectorconvolute::detectorconvolute(string dev_name)
   xd->max_convolution_energy = 0.0;
   xd->n_crystal_layers = 0;
   xd->crystal_layers = NULL;
-  convolutedImage = NULL;
+  ConvolutedImage = NULL;
   CrystalThickness = 0.0;
   WindowThickness = 0.0;
   det_absorber = NULL;
@@ -177,7 +177,7 @@ int detectorconvolute::Clear()
     for (int iy=0; iy<NY; iy++) {
       for (int ix=0; ix<NX; ix++) {
 	for (int ibin=0; ibin<NBins; ibin++) {
-	  convolutedImage[mode_idx*NBins+ibin][iy][ix] = 0;
+	  ConvolutedImage[mode_idx*NBins+ibin][iy][ix] = 0;
 	}
       }
     }
@@ -237,7 +237,7 @@ int detectorconvolute::Run() {
     		throw xrmc_exception("Symbol xmi_msim_detector_convolute from module xrmc-xmimsim is NULL\n");
     	}
 	
-	if (xmi_msim_detector_convolute(Image, convolutedImage, det_absorber, xd, ModeNum, NBins, NY, NX) == 0)
+	if (xmi_msim_detector_convolute(Image, ConvolutedImage, det_absorber, xd, ModeNum, NBins, NY, NX) == 0)
     		throw xrmc_exception("Error in xmi_msim_detector_convolute\n");
 
 

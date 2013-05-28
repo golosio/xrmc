@@ -47,7 +47,7 @@ using namespace arrayNd;
 detectorarray::~detectorarray() {
   //if (PixelX!=NULL) delete[] PixelX; // should becalled on base class
   if (Image!=NULL) arrayNd::free_double_array3d(Image);
-  if (convolutedImage!=NULL) arrayNd::free_double_array3d(Image);
+  if (ConvolutedImage!=NULL) arrayNd::free_double_array3d(ConvolutedImage);
 }
 
 // constructor
@@ -77,9 +77,9 @@ int detectorarray::RunInit()
   if (Image!=NULL) free_double_array3d(Image);
   Image = double_array3d(ModeNum*NBins, NY, NX); // allocate the image array
 
-  if (convolutedImage!=NULL) free_double_array3d(convolutedImage);
+  if (ConvolutedImage!=NULL) free_double_array3d(ConvolutedImage);
   if (ConvolveFlag!=0)
-    convolutedImage = double_array3d(ModeNum*NBins, NY, NX);	
+    ConvolutedImage = double_array3d(ModeNum*NBins, NY, NX);	
 
   return 0;
 }
@@ -143,6 +143,8 @@ int detectorarray::Acquisition()
 
   delete [] SourceClones;
   delete [] PhotonArray;
+
+  if (ConvolveFlag!=0) Convolve();
 
   return 0;
 }
@@ -426,4 +428,23 @@ double detectorarray::dOmega(vect3 DRp)
   return dO;
 }
 */
+
+//////////////////////////////////////////////////////////////////////
+// convolve the image
+//////////////////////////////////////////////////////////////////////
+int detectorarray::Convolve()
+{
+  for (int mode_idx=0; mode_idx<ModeNum; mode_idx++) {
+    for (int iy=0; iy<NY; iy++) { // loop on detector pixels
+      for (int ix=0; ix<NX; ix++) { // loop on detector pixels
+	for (int ibin=0; ibin<NBins; ibin++) {
+	  ConvolutedImage[mode_idx*NBins+ibin][iy][ix] =
+	    -Image[mode_idx*NBins+ibin][iy][ix];
+	}
+      }
+    }
+  }
+
+  return 0;
+}
 

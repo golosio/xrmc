@@ -38,7 +38,7 @@ class detectorarray : public xrmc_screen
  public:
   //int NX, NY, N; // number of rows (NY), column (NX) and pixels (NX x NY)
   double ***Image; // Acquired image array
-  double ***convolutedImage; // convoluted image array
+  double ***ConvolutedImage; // convoluted image array
   double ExpTime; // exposure time
   int PhotonNum; // Multiplicity of simulated events per detector pixel
   int NBins; // Num. of energy bins
@@ -99,7 +99,7 @@ class detectorarray : public xrmc_screen
   int ForcedAcquisition(basesource **SourceClones, photon *PhotonArray,
 			randmt_t **rngs);
   int UnforcedAcquisition(basesource **SourceClones, photon *PhotonArray);
-
+  int Convolve();
 };
 
 #endif

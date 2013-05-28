@@ -42,7 +42,7 @@ G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 }
 
 
-G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX) {
+G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***ConvolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX) {
 
 
 	struct xmi_main_options options;
@@ -194,7 +194,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 		abscorrImage[k] = Image[i*NBins+k][iy][ix] * blbs[k];
 	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, NBins, options, escape_ratios_def);
 	      for (k = 0 ; k < NBins ; k++) 
-		convolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
+		ConvolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
 	      xmi_deallocate(channels_conv_temp);
 	    }
 	  }
