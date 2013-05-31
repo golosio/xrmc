@@ -156,11 +156,11 @@ phase& phase::operator= (const phase &Phase) {
 
 	NElem = Phase.NElem;
 	Rho = Phase.Rho;
-	Z = new int[NElem]; 
+	Z = (int *) malloc(sizeof(int)*NElem); 
 	memcpy(Z, Phase.Z, sizeof(int)*NElem);
-	W = new double[NElem]; 
+	W = (double *) malloc(sizeof(double)*NElem); 
 	memcpy(W, Phase.W, sizeof(double)*NElem);
-	MuAtom = new double[NElem];
+	MuAtom = (double *) malloc(sizeof(double)*NElem);
 	memcpy(MuAtom, Phase.MuAtom, sizeof(double)*NElem);
 	LastMu = Phase.LastMu;
 	LastDelta = Phase.LastDelta;

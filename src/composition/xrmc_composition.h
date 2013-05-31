@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef COMPOSITIONH
 #define COMPOSITIONH
 #include <string>
+#include <cstdlib>
 #include "xrmc_device.h"
 
 // phase class definition, member variables and functions
@@ -42,9 +43,9 @@ class phase
   randmt_t *Rng;
 
   ~phase() { // destructor
-    if (W!=NULL) delete[] W;
-    if (Z!=NULL) delete[] Z;
-    if (MuAtom!=NULL) delete[] MuAtom;
+    if (W!=NULL) free(W);
+    if (Z!=NULL) free(Z);
+    if (MuAtom!=NULL) free(MuAtom);
   }
   phase() { // constructor
     W = NULL;
