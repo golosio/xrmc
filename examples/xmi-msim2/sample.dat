@@ -1,0 +1,18 @@
+; Sample parameters file
+;
+;
+Newdevice sample      ; Device type
+Sample      ; Device name
+SourceName Source               ; Source input device name
+Geom3DName Geom3D               ; Geom3d input device name
+CompName Composition		; Composition input device name
+WeightedStepLength 0		; Weighted step length (0/1)
+FluorFlag 1                     ; Activate Fluorescence (0/1)
+ScattOrderNum 4			; Maximum scattering order
+0	      			; Multiplicity of simulated events for order 0
+500				; Multiplicity of simulated events for order 1
+500				; Multiplicity of simulated events for order 2
+500				; Multiplicity of simulated events for order 3
+500
+
+End

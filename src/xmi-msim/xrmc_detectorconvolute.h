@@ -22,10 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_device.h"
 #include "xrmc_composition.h"
 #include <xmi_msim.h>
-#include <gmodule.h>
 #include <stdlib.h>
 
-typedef int (*XmiCheckXrmcXmimsimPlugin) (void);
 typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***ConvolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX);
 
 
@@ -55,7 +53,6 @@ class detectorconvolute : public detectorarray
   string WindowPhaseName;
   double CrystalThickness;
   double WindowThickness;
-  GModule *xrmc_xmimsim;
   
 };
 #endif

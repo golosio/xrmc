@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // spectrum class definition, member variables and functions
 class spectrum : public xrmc_device, public phcdevice
 {
- private:
+ protected:
   int PolarizedFlag; // flag for polarized(1) / unpolarized(0) beam
   int LoopFlag; // flag for loop on all lines and all intervals of the spectrum
   int RandomEneFlag; // flag for extracting random energies in the intervals
@@ -71,6 +71,7 @@ class spectrum : public xrmc_device, public phcdevice
   int Resample(); // method for resampling the continuous spectrum
  public:
   double TotalIntensity;
+  int UnitSolidAngleFlag; // determines if the spectral intensity is expressed per sterad (1) or not (0)
   double PhC_E0; // Energy in phase contrast mode
   double PhC_w; // Event weight in phase contrast mode
   int PhC_pol; // polarization in phase contrast mode
