@@ -22,12 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Load sample phases composition and density
 //
 
+#include <sstream>
 #include <iostream>
 #include <string>
 #include "xrmc.h"
 #include "xrmc_composition.h"
 #include "xrmc_gettoken.h"
 #include "xrmc_exception.h"
+#include <xraylib.h>
 
 using namespace std;
 using namespace gettoken;
@@ -35,10 +37,12 @@ using namespace gettoken;
 int composition::Load(istream &fs)
 {
   /* Loads sample phases composition and density */
+  int n_comp;
   int n_elem;
   int z_elem;
   double w, rho;
-  string comm;
+  string comm, comp;
+  struct compoundData cd;
 
   cout << "Composition file\n";
 
@@ -61,21 +65,77 @@ int composition::Load(istream &fs)
       GetToken(fs, comm);
       if (comm != "NElem")
 	throw xrmc_exception("NElem variable initialization not found"); 
-      GetIntToken(fs, &n_elem); // read number of elements in the phase
-      Ph[NPhases].NElem = n_elem;
-      cout << "Num. of elements: " << Ph[NPhases].NElem << endl;
+      GetIntToken(fs, &n_comp); // read number of elements in the phase
+      //Ph[NPhases].NElem = n_elem;
+      cout << "Num. of compounds: " << n_comp << endl;
       cout << "\tZ\tweight fract.\n";
-      Ph[NPhases].W = new double[n_elem];  // initializes weight fraction,
-      Ph[NPhases].Z = new int[n_elem];     // atomic numbers and absorption
-      Ph[NPhases].MuAtom = new double[n_elem]; // coefficient arrays
+      //Ph[NPhases].W = new double[n_elem];  // initializes weight fraction,
+      //Ph[NPhases].Z = new int[n_elem];     // atomic numbers and absorption
+      //Ph[NPhases].MuAtom = new double[n_elem]; // coefficient arrays
       
-      for(int elem_idx=0; elem_idx<n_elem; elem_idx++) { //read element Z and w
-	GetIntToken(fs, &z_elem);
+      n_elem = 0;
+      int elem;
+      int elem_found;
+      int Z;
+      for(int comp_idx=0; comp_idx<n_comp; comp_idx++) { //read element Z and w
+	GetToken(fs, comp);
 	GetDoubleToken(fs, &w);
-	Ph[NPhases].Z[elem_idx] = z_elem;
-	Ph[NPhases].W[elem_idx] = w/100; // convert from percent to fraction
-	cout << "\t" << Ph[NPhases].Z[elem_idx] << "\t"
-	     << Ph[NPhases].W[elem_idx] << endl;
+	istringstream buffer(comp);
+	if ((buffer >> elem)) {
+		//classic mode: integer found
+		cout << "classic mode" << endl;
+		elem_found = 0;
+		for (Z = 0 ; Z < n_elem ; Z++) {
+			if (elem == Ph[NPhases].Z[Z]) {
+				elem_found = 1;
+				break;
+			}
+		}
+		if (elem_found) {
+			Ph[NPhases].Z[Z] = elem;
+			Ph[NPhases].W[Z] += w/100.0;
+		}
+		else {
+			Ph[NPhases].Z = (int*) realloc(Ph[NPhases].Z, sizeof(int)*++n_elem);
+			Ph[NPhases].W = (double *) realloc(Ph[NPhases].W, sizeof(double)*n_elem);
+			Ph[NPhases].Z[n_elem-1] = elem;
+			Ph[NPhases].W[n_elem-1] = w/100.0;
+		}
+	}
+	else {
+		//modern mode: chemical formula
+		cout << "modern mode" << endl;
+		if (CompoundParser(comp.c_str(), &cd) == 0){
+   			throw xrmc_exception("Cannot parse compound\n");
+		}
+		int Zcd;
+		for (Zcd = 0 ; Zcd < cd.nElements ; Zcd++) {
+			elem_found = 0;
+			for (Z = 0 ; Z < n_elem ; Z++) {
+				if (cd.Elements[Zcd] == Ph[NPhases].Z[Z]) {
+					elem_found = 1;
+					break;
+				}	
+			}
+			if (elem_found) {
+				Ph[NPhases].W[Z] += w/100.0;
+			}
+			else {
+				Ph[NPhases].Z = (int *) realloc(Ph[NPhases].Z, sizeof(int)*++n_elem);
+				Ph[NPhases].W = (double *) realloc(Ph[NPhases].W, sizeof(double)*n_elem);
+				Ph[NPhases].Z[n_elem-1] = cd.Elements[Zcd];
+				Ph[NPhases].W[n_elem-1] = w*cd.massFractions[Zcd]/100.0;
+			}
+		}
+		xrlFree(cd.Elements);
+		xrlFree(cd.massFractions);
+	}	
+	Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*n_elem);
+        Ph[NPhases].NElem = n_elem;
+      }
+      for (int elem_idx = 0 ; elem_idx < n_elem ; elem_idx++) {
+		cout << "\t" << Ph[NPhases].Z[elem_idx] << "\t"
+	     	<< Ph[NPhases].W[elem_idx] << endl;
       }
       GetToken(fs, comm);
       if (comm != "Rho")

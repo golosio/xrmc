@@ -29,6 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_math.h"
 #include "xrmc_source.h"
 #include "xrmc_exception.h"
+#ifdef HAVE_XMIMSIM
+#include "xrmc_spectrum_ebel.h"
+#endif
 
 using namespace std;
 using namespace xrmc_algo;
@@ -80,7 +83,7 @@ int source::RunInit()
     Omega = Integrate(one_min_costhl, 0, 2*PI); // evaluate the solid angle
   }
   cout << "Omega: " << Omega << "\n";
-  
+
   OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
   
   return 0;
@@ -157,6 +160,8 @@ int source::Out_Photon(photon *Photon)
   Spectrum->ExtractEnergy(&w, &E, &pol);
  // multiply the event weight by the total beam intensity
   Photon->w = w*Spectrum->TotalIntensity;
+  if (Spectrum->UnitSolidAngleFlag)
+  	Photon->w *= Omega;
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0 && !PhCFlag) {  // plus gaussian deviations

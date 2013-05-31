@@ -464,6 +464,7 @@ spectrum *spectrum::Clone(string dev_name) {
 	clone->RandomEneFlag = RandomEneFlag;
 	clone->ResampleFlag = ResampleFlag;
 	clone->EneContinuousNum = EneContinuousNum;
+	clone->UnitSolidAngleFlag = UnitSolidAngleFlag;
 	if (ResampleFlag && ContinuousEne) {
 		clone->ContinuousEne =new double[ResampleNum];
 		memcpy(clone->ContinuousEne, ContinuousEne, sizeof(double)*ResampleNum);

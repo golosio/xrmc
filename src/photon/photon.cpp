@@ -124,7 +124,7 @@ int photon::CSInteractions(int Z, double *cs_interaction, double *cs_tot)
   if (FluorFlag==1) { // check if fluorescence emission is activated
     for (i=0; i<NLines[Z]; i++) { // loop on possible fluorescence lines
       // cumulative sum of the line cross sections
-      cs_interaction[FLUORESCENCE] += CS_FluorLine(Z, Line[Z][i], E);
+      cs_interaction[FLUORESCENCE] += CS_FluorLine_Kissel(Z, Line[Z][i], E);
     }
   }
   // coherent and incoherent cross sections
@@ -199,7 +199,7 @@ int photon::SetFluorescenceEnergy(int Z)
   sum = 0;
   cs_line_sum[0] = 0;
   for (i_line=0; i_line<NLines[Z]; i_line++) { // loop on fluorescent lines
-    sum += CS_FluorLine(Z, Line[Z][i_line], E);
+    sum += CS_FluorLine_Kissel(Z, Line[Z][i_line], E);
     cs_line_sum[i_line+1] = sum; // cumulative sum of their cross sections
   }
   R = Rnd_r(Rng)*sum; // random number between 0 and total fluor. cross section
