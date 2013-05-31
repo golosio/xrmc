@@ -1,0 +1,32 @@
+; Spectrum file
+;
+Newdevice spectrum_ebel ; Device type
+Spectrum                ; Device name
+LoopFlag 1              ; 0: extract random energies on the whole spectrum
+                        ; 1: loop on all lines and sampling points
+ContinuousPhotonNum 1	; Multiplicity of events for each interval in spectrum 
+LinePhotonNum 1		; Multiplicity of events for each line in the spectrum
+RandomEneFlag 1		; enable random energy on each interval (0/1)
+
+TransmissionFlag 	0 ; not a transmission tube
+TubeVoltage		40.0 ; keV
+TubeCurrent		1 ; mA
+ElectronAngle		60 ; degrees
+XrayAngle		60 ; degrees
+IntervalWidth		0.1 ; keV
+AnodeMaterial		Rh ; rhodium tube
+;AnodeDensity		12.41 ; g/cm3 (not necessary when tube is not transmission type)
+;AnodeThickness 		0.001 ; cm (not necessary when tube is not transmission type)
+Resample 		0 ; no resampling required
+
+;window is optional
+WindowMaterial		Be
+WindowDensity		1.85 ; g/cm3
+WindowThickness	25E-4 ; cm
+
+;filter is optional
+FilterMaterial		He
+FilterDensity		00018 ; g/cm3
+FilterThickness	0.1 ; cm
+
+End

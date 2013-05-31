@@ -29,7 +29,8 @@ GModule *xrmc_xmimsim = NULL;
 int LoadXrmcXmimsimPlugin() {
 
   if (xrmc_xmimsim != NULL) {
-  	cout << "XRMC XMI-MSIM plugin alread loaded." << endl;
+  	cout << "XRMC XMI-MSIM plugin already loaded." << endl;
+	return 0;
   }
 
   //Initialize xrmc_xmimsim

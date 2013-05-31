@@ -71,6 +71,7 @@ int spectrum_ebel::RunInit() {
 	anode->thickness = AnodeThickness;
 
 	if (FilterDensity > 0.0 && FilterThickness > 0.0 && FilterMaterial > 0) {
+		cout << "Filter will be used for X-ray tube" << endl;
 		filter = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
 		filter->Z = (int *) malloc(sizeof(int));
 		filter->weight = (double *) malloc(sizeof(double));
@@ -82,6 +83,7 @@ int spectrum_ebel::RunInit() {
 	}
 	
 	if (WindowDensity > 0.0 && WindowThickness > 0.0 && WindowMaterial > 0) {
+		cout << "Window will be used for X-ray tube" << endl;
 		window = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
 		window->Z = (int *) malloc(sizeof(int));
 		window->weight = (double *) malloc(sizeof(double));
@@ -107,8 +109,8 @@ int spectrum_ebel::RunInit() {
         if (xmi_msim_tube_ebel(anode, window, filter, TubeVoltage,
                   TubeCurrent, ElectronAngle,
                   XrayAngle, IntervalWidth,
-                  SolidAngle, TransmissionFlag,
-                  &exc) == 0);	
+                  1.0, TransmissionFlag,
+                  &exc) == 0)
                 throw xrmc_exception("Error in xmi_msim_tube_ebel\n");
 
 	//copy everything to spectrum members
@@ -125,23 +127,30 @@ int spectrum_ebel::RunInit() {
 		LineIntensity[1][i] = exc->discrete[i].vertical_intensity;
 	}
 	
-	ContinuousEne = new double[exc->n_continuous+1];
-	ContSIntensity[0] =  new double[exc->n_continuous+1];
-	ContSIntensity[1] =  new double[exc->n_continuous+1];
-	EneContinuousNum = exc->n_continuous+1;
+	ContinuousEne = new double[exc->n_continuous];
+	ContSIntensity[0] =  new double[exc->n_continuous];
+	ContSIntensity[1] =  new double[exc->n_continuous];
+	EneContinuousNum = exc->n_continuous;
 	for (i = 0 ; i < exc->n_continuous ; i++) {
-		ContinuousEne[i] = exc->continuous[i].start_energy;
+		ContinuousEne[i] = exc->continuous[i].energy;
 		ContSIntensity[0][i] = exc->continuous[i].horizontal_intensity;
 		ContSIntensity[1][i] = exc->continuous[i].vertical_intensity;
 	}
-	ContinuousEne[EneContinuousNum-1] = exc->last_energy;
-	ContSIntensity[0][EneContinuousNum-1] =
-	ContSIntensity[1][EneContinuousNum-1] = 0.0;
+
+	for (i = 0 ; i < EneContinuousNum ; i++)
+		cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << endl;
+
+	for (i = 0 ; i < EneLineNum ; i++)
+		cout << LineEne[i] << "\t" << LineIntensity[0][i] << endl;
+
+
+
 
 	if (ResampleFlag)
 		Resample();	
 
 	spectrum::RunInit();
+
+
+
 }
-
-

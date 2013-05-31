@@ -50,7 +50,6 @@ class spectrum_ebel : public spectrum
   int FilterMaterial;
   double FilterDensity;
   double FilterThickness;
-  double SolidAngle;
   double ElectronAngle;
   double XrayAngle;
   double IntervalWidth;

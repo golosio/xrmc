@@ -1,0 +1,25 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+Load source.dat		; Source position, orientation
+
+Load spectrum_ebel.dat		; X-ray tube parameters according to Ebel model
+
+Load sample.dat			; Sample file
+
+Load quadric.dat		; quadric file
+
+Load geom3d.dat			; qvolume file
+
+Load composition.dat		; composition file
+
+Load detector.dat		; Detector position, orientation, size
+
+Run Detector		; Run device
+
+Save Detector UnconvolutedImage unconvoluted.dat ; save unconvoluted image
+
+Save Detector ConvolutedImage output.dat	; save convoluted image
+
+End

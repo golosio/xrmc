@@ -83,14 +83,6 @@ int source::RunInit()
   }
   cout << "Omega: " << Omega << "\n";
 
-#ifdef HAVE_XMIMSIM
-  cout << "TypeId spectrum" << typeid(*Spectrum).name();
-  spectrum_ebel *ebel = dynamic_cast<spectrum_ebel*>(Spectrum); 
-  if (ebel != 0) {
-  	ebel->SolidAngle=Omega;
-  }
-#endif
-
   OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
   
   return 0;
@@ -167,6 +159,8 @@ int source::Out_Photon(photon *Photon)
   Spectrum->ExtractEnergy(&w, &E, &pol);
  // multiply the event weight by the total beam intensity
   Photon->w = w*Spectrum->TotalIntensity;
+  if (Spectrum->UnitSolidAngleFlag)
+  	Photon->w *= Omega;
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations

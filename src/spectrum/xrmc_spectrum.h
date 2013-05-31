@@ -70,6 +70,7 @@ class spectrum : public xrmc_device
   int Resample(); // method for resampling the continuous spectrum
  public:
   double TotalIntensity;
+  int UnitSolidAngleFlag; // determines if the spectral intensity is expressed per sterad (1) or not (0)
 
   virtual ~spectrum(); // destructor
   spectrum(std::string dev_name); // constructor

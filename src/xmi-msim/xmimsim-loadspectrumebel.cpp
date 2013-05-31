@@ -119,6 +119,24 @@ int spectrum_ebel::Load(istream &fs)
 		throw xrmc_exception("WindowDensity must be a strictly positive real number\n");
 	else cout << "WindowDensity" << "\t" << WindowDensity << endl;
     }
+    else if (comm == "AnodeThickness") {
+  	GetDoubleToken(fs, &AnodeThickness);
+	if (AnodeThickness <= 0.0)
+		throw xrmc_exception("AnodeThickness must be a strictly positive real number\n");
+	else cout << "AnodeThickness" << "\t" << AnodeThickness << endl;
+    }
+    else if (comm == "FilterThickness") {
+  	GetDoubleToken(fs, &FilterThickness);
+	if (FilterThickness <= 0.0)
+		throw xrmc_exception("FilterThickness must be a strictly positive real number\n");
+	else cout << "FilterThickness" << "\t" << FilterThickness << endl;
+    }
+    else if (comm == "WindowThickness") {
+  	GetDoubleToken(fs, &WindowThickness);
+	if (WindowThickness <= 0.0)
+		throw xrmc_exception("WindowThickness must be a strictly positive real number\n");
+	else cout << "WindowThickness" << "\t" << WindowThickness << endl;
+    }
     else if(comm=="Resample") { // resample continuous part of spectrum
       	GetIntToken(fs, &ResampleFlag);
       	if (ResampleFlag==0) {
@@ -197,6 +215,8 @@ int spectrum_ebel::SetDefault()
 	IntervalWidth = 0.1;
 	TransmissionFlag = 0;
 	spectrum::SetDefault();
+
+	UnitSolidAngleFlag = 1;
 	return 0;
 }
 

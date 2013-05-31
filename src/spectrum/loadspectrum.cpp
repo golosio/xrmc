@@ -60,6 +60,14 @@ int spectrum::Load(istream &fs)
 	cout << "Loop on all lines and sampling points\n";
       else throw xrmc_exception("Wrong loop flag.\n");
     }
+    else if(comm=="UnitSolidAngleFlag") { // determines if the spectral intensity is expressed per sterad (1) or not (0)
+      GetIntToken(fs, &UnitSolidAngleFlag);
+      if (UnitSolidAngleFlag==0)
+	cout << "The spectral intensity is expressed in photons/sec\n";
+      else if (UnitSolidAngleFlag==1)
+	cout << "The spectral intensity is expressed in photons/sec/sterad\n";
+      else throw xrmc_exception("Wrong UnitSolidAngleFlag.\n");
+    }
     else if(comm=="ContinuousPhotonNum") {
       // Number of samples for each interval in the continuous spectrum 
       GetIntToken(fs, &ContinuousPhotonNum);
@@ -189,6 +197,7 @@ int spectrum::SetDefault()
 
   // Number of sampling points in the continuous spectrum
   EneContinuousNum=0;
+  UnitSolidAngleFlag = 0;
 
   ResampleFlag=0; // Do not Resample continuous spectrum
 

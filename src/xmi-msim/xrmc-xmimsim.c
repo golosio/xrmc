@@ -70,7 +70,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***convo
 	options.use_poisson = 0;
 	options.verbose = 1;
 #if XMI_MSIM_VERSION_MAJOR >= 2 && XMI_MSIM_VERSION_MINOR >= 1
-	options.extra_verbose = 1;
+	options.extra_verbose = 0;
 	options.omp_num_threads = omp_get_max_threads();
 #endif
 
@@ -217,11 +217,6 @@ int xmi_msim_tube_ebel(struct xmi_layer *tube_anode, struct xmi_layer *tube_wind
                   ) {
 	if (xmi_tube_ebel(tube_anode, tube_window, tube_filter, tube_voltage, tube_current, tube_angle_electron, tube_angle_xray, tube_delta_energy, tube_solid_angle, tube_transmission, ebel_spectrum) == 0) {
 		return 0;
-	}
-	int i;
-	for (i = 0 ; i < (*ebel_spectrum)->n_continuous ; i++) {
-		(*ebel_spectrum)->continuous[i].horizontal_intensity /= tube_delta_energy;
-		(*ebel_spectrum)->continuous[i].vertical_intensity /= tube_delta_energy;
 	}
 
 	return 1;

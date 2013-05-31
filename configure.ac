@@ -121,6 +121,7 @@ AC_CONFIG_FILES([	Makefile
 			examples/star2/Makefile
 			examples/wheel/Makefile
 			examples/xmi-msim/Makefile
+			examples/xmi-msim2/Makefile
 			examples/fluor_layers/Makefile
 			libxrmc.pc
 			xrmc.spec
