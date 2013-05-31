@@ -18,7 +18,7 @@ Load detector.dat		; Detector position, orientation, size
 
 Run Detector		; Run device
 
-Save Detector UnconvolutedImage unconvoluted.dat ; save unconvoluted image
+Save Detector Image unconvoluted.dat ; save unconvoluted image
 
 Save Detector ConvolutedImage output.dat	; save convoluted image
 

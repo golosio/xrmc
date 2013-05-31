@@ -69,13 +69,19 @@ spectrum::spectrum(string dev_name) {
 int spectrum::Begin()
 {
   // check if flag for loop on all lines and on all intervals is enabled
-  if (LoopFlag==0) LoopIdx = 0; // if not, set loop index to zero
+  // or if phase contrast mode is enabled
+  if (LoopFlag==0 && !PhCFlag) LoopIdx = 0; // if not, set loop index to zero
   else { // if yes, initialize all nested loop indexes
     PolIdx = ModeIdx = ContinuousPhotonIdx = IntervalIdx
       = LinePhotonIdx = LineIdx = 0;
     // check if continuous part of the spectrum is defined
     // if not, set mode index to 1 (discrete lines mode)
     if (ContinuousPhotonNum==0 || EneContinuousNum<2) ModeIdx = 1;
+  }
+  if (PhCFlag) {
+    PhCPreviousFlag=false;
+    ExtractEnergy(&PhC_w, &PhC_E0, &PhC_pol);
+    PhCPreviousFlag=true;
   }
 
   return 0;
@@ -85,7 +91,8 @@ int spectrum::Begin()
 int spectrum::Next()
 {
   // check if flag for loop on all lines and on all intervals is enabled
-  if (LoopFlag==0) LoopIdx = 1;  // if not, set loop index to 1
+  // or if phase contrast mode is enabled
+  if (LoopFlag==0 && !PhCFlag) LoopIdx = 1;  // if not, set loop index to 1
   else { // if yes, update all nested loop indexes
     if (ModeIdx == 0) { // continuous spectrum mode
       IntervalIdx++; // increase index of events within the interval 
@@ -130,13 +137,22 @@ int spectrum::Next()
     else return 1;
   }
 
+  if (PhCFlag) {
+    PhCPreviousFlag=false;
+    ExtractEnergy(&PhC_w, &PhC_E0, &PhC_pol);
+    PhCPreviousFlag=true;
+  }
+
   return 0;
 }
 
 // check if the end of the event loop is reached
 bool spectrum::End()
 {
-  if (LoopFlag==0) return (LoopIdx==1);
+  if (LoopFlag==0 && !PhCFlag) return (LoopIdx==1);
+ // otherwise end when all lines and intervals have been completed
+ // in phase contrast mode polarization is not used
+  else if (PhCFlag) return (PolIdx > 0);
   else return (PolIdx > 1); // end when all lines and intervals have been
                             // completed with both polarization types 
 }
@@ -144,11 +160,12 @@ bool spectrum::End()
 // event multiplicity
 long long spectrum::EventMulti()
 {
-  if (LoopFlag==0) return 1;
-  else {
-    return 2*(EneContinuousNum*ContinuousPhotonNum +
-	      EneLineNum*LinePhotonNum);
-  }
+  if (LoopFlag==0 && !PhCFlag) return 1;
+  int cont_mult = 0; // multiplicity of continuous spectrum 
+  if (ContinuousPhotonNum>0 && EneContinuousNum>1)
+    cont_mult = (EneContinuousNum-1)*ContinuousPhotonNum;
+  if (PhCFlag) return cont_mult + EneLineNum*LinePhotonNum;
+  else return 2*(cont_mult + EneLineNum*LinePhotonNum);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -187,6 +204,7 @@ int spectrum::RunInit()
   int i;
   double intensity;
 
+  PhCFlag = false;
   if ((EneLineNum + EneContinuousNum) == 0)
     throw xrmc_exception("Number of discrete lines and number of sampling "
 			 "points in the continuous spectrum are both null.\n");
@@ -306,10 +324,19 @@ int spectrum::RunInit()
 int spectrum::ExtractEnergy(double *weight, double *Energy, int *polarization)
 {
   double R;
- 
+  // check if phase contrast mode is enabled
+  // and if values for current step have already been extracted
+  if (PhCFlag && PhCPreviousFlag) { // use previously extractes values
+    *weight = PhC_w;
+    *Energy = PhC_E0;
+    *polarization = PhC_pol;
+
+    return 0;
+  }
   // check if flag for loop on all lines and all intervals is activated
-  if (LoopFlag == 0) { // if not, extract energy and polarization
-                       // using the cumulative distribution approach
+  // and if phase contrast mode is enabled
+  if (LoopFlag==0 && !PhCFlag) { // if not, extract energy and polarization
+                              // using the cumulative distribution approach
     *weight = 1;
     // decide if a discrete line or continuous spectrum will be used
     R = Rnd_r(Rng)*(ContinuousIntensity + DiscreteIntensity);
@@ -537,5 +564,11 @@ spectrum *spectrum::Clone(string dev_name) {
 	clone->TotalIntensity = TotalIntensity;
 
 	return clone;
+}
+
+// get energy in phase contrast mode
+double spectrum::GetPhC_E0()
+{
+  return PhC_E0;
 }
 

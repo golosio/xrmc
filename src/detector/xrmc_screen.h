@@ -48,7 +48,7 @@ class xrmc_screen : public bodydevice
   double PixelSizeX, PixelSizeY, PixelSurf; // pixel size and surface (cm2) 
   vect3 *PixelX; // pixel coordinates array
   int RandomPixelFlag; // flag to enable/disable random point on pixel
-  int RunningFasterFlag; //columns(0) or rows(1) running faster
+  //int RunningFasterFlag; //columns(0) or rows(1) running faster
   
   int Init(); // screen initialization
   //vect3 RandomPointOnPixel(int i); // Generates a random point

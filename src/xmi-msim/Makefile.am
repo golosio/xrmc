@@ -30,6 +30,7 @@ libxrmc_xmimsim_la_CPPFLAGS = -I${srcdir}/../device \
 		-I${srcdir}/../randmt \
 		-I${srcdir}/../detector \
 		-I${srcdir}/../composition \
+		-I${srcdir}/../phasecontrast \
 		-DXRMC_XMIMSIM_LIB=\"$(libdir)/xrmc\"
 
 

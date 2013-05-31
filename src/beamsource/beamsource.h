@@ -55,6 +55,9 @@ class beamsource : public basesource
   virtual int Out_Photon(photon *Photon); // generate an event
   // generate an event with a photon directed toward the position x1
   virtual int Out_Photon_x1(photon *Photon, vect3 x1);
+  virtual double GetPhC_E0();
+  virtual int PhCOn();
+  virtual int PhCOff();
   virtual int Begin(); // begin event loop method
   virtual int Next(); // next event method
   virtual bool End(); // check for end event loop method

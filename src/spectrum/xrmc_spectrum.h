@@ -26,10 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SpectrumH
 #include <string>
 #include "xrmc_device.h"
+#include "phcdevice.h"
 #include "randmt.h"
 
 // spectrum class definition, member variables and functions
-class spectrum : public xrmc_device
+class spectrum : public xrmc_device, public phcdevice
 {
  protected:
   int PolarizedFlag; // flag for polarized(1) / unpolarized(0) beam
@@ -71,7 +72,11 @@ class spectrum : public xrmc_device
  public:
   double TotalIntensity;
   int UnitSolidAngleFlag; // determines if the spectral intensity is expressed per sterad (1) or not (0)
-
+  double PhC_E0; // Energy in phase contrast mode
+  double PhC_w; // Event weight in phase contrast mode
+  int PhC_pol; // polarization in phase contrast mode
+  bool PhCPreviousFlag; // flag for energy and polarization already extracted
+                        // in previous step in phase contrast mode
   virtual ~spectrum(); // destructor
   spectrum(std::string dev_name); // constructor
   virtual int Load(std::istream &fs); // load spectrum parameters from file
@@ -82,6 +87,9 @@ class spectrum : public xrmc_device
   virtual long long EventMulti(); // event multiplicity
   virtual int RunInit(); // initialize the spectrum before run
   virtual int SetDefault(); // set default values for spectrum parameters
+
+  // Energy and polarization in phase contrast mode
+  virtual double GetPhC_E0();
 
   // Generates a random energy value and polarization type
   int ExtractEnergy(double *weight, double *Energy, int *polarization);

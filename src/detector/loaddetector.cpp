@@ -135,6 +135,11 @@ int detectorarray::Load(istream &fs)
       cout << "Binary(0) or ascii(1) output file format: " << AsciiFlag
 	   << "\n"; 
     }
+    else if(comm=="ConvolveFlag") {  // generates convoluted image (0/1)
+      GetIntToken(fs, &ConvolveFlag);
+      cout << "Generates convoluted image (0/1): " << ConvolveFlag << "\n"; 
+    }
+    /*
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
       GetIntToken(fs, &RunningFasterFlag);
       if (RunningFasterFlag==0) 
@@ -142,6 +147,7 @@ int detectorarray::Load(istream &fs)
       else
 	cout << "Rows running faster than columns in output file\n"; 
     }
+    */
     else if(comm=="PixelType") { // set the pixel content type
       GetIntToken(fs, &PixelType);
       cout << "Pixel content type: " << PixelType << "\n"; 
@@ -230,19 +236,31 @@ int detectorarray::Load(istream &fs)
 int detectorarray::SaveData(string data_name, string file_name)
   // Save detector array contents
 {
-  FILE *fp;
 
   cout << "Saving data: " << data_name << "\n";
-  if (Image==NULL)
-    throw xrmc_exception("Data cannot be saved before run.\n");
-  if (data_name!=SaveDataName[0])
+  if (data_name!=SaveDataName[0] && data_name!=SaveDataName[1])
     throw xrmc_exception
       (string("Error: detectorarray device can only save data of type ")
-       + SaveDataName[0] +"\n");
+       + SaveDataName[0] + " or " + SaveDataName[1] + "\n");  
+  else if (data_name==SaveDataName[0])
+    SaveData(Image, file_name) ; 
+  else
+    SaveData(ConvolutedImage, file_name) ; 
+
+  return 0;
+}
+
+int detectorarray::SaveData(double ***image, string file_name)
+  // Save detector array contents
+{
+  FILE *fp;
+
+  if (image==NULL)
+    throw xrmc_exception("Data array was not created.\n");
 
   cout << "Output File: " << file_name << "\n";
 
-  if (AsciiFlag!=0) return SaveAsciiData(data_name, file_name);
+  if (AsciiFlag!=0) return SaveAsciiData(image, file_name);
 
   if ((fp = fopen(file_name.c_str(),"wb")) == NULL)
     throw xrmc_exception("Output file cannot be open.\n");
@@ -260,14 +278,14 @@ int detectorarray::SaveData(string data_name, string file_name)
     fwrite(&Emax, sizeof(double), 1, fp);
   }
 
-  fwrite(Image[0][0], sizeof(double), ModeNum*N*NBins, fp);
+  fwrite(image[0][0], sizeof(double), ModeNum*NX*NY*NBins, fp);
     
   fclose(fp);
 
   return 0;
 }
 
-int detectorarray::SaveAsciiData(string data_name, string file_name)
+int detectorarray::SaveAsciiData(double ***image, string file_name)
   // Save detector array contents
 {
   ofstream ofs(file_name.c_str());
@@ -286,8 +304,8 @@ int detectorarray::SaveAsciiData(string data_name, string file_name)
     ofs << Emin << endl;
     ofs << Emax << endl;
   }
-  for (int i=0; i<ModeNum*N*NBins; i++) {
-    ofs << *(Image[0][0]+i) << endl;
+  for (int i=0; i<ModeNum*NX*NY*NBins; i++) {
+    ofs << *(image[0][0]+i) << endl;
   }
   ofs.close();
 
@@ -317,8 +335,9 @@ int detectorarray::SetDefault()
   RoundFlag = 0;   // Round pixel counts round to integer disabled
   HeaderFlag = 0; // header in output file disabled
   AsciiFlag = 0; // Default output format is binary 
-  RunningFasterFlag = 0; // columns running faster than rows in output file
+  //RunningFasterFlag = 0; // columns running faster than rows in output file
   ForceDetectFlag = 1; //Photon forced to be detected 
+  ConvolveFlag = 0; // do not generate convolved image
   PixelType = 0; // Pixel content type = 0: fluence
   NBins = 1; // 1 energy bin
   Emin = 0; // minimum bin energy is 0 keV

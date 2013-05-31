@@ -11,7 +11,7 @@ X  -2  0  0			; detector center coordinates x, y, z
 				; Detector orientation :
 uk  1  0  0			; z direction (normal to the screen)
 ui   0 -1  0			; x direction
-ExpTime 1      	   			; Exposure time (sec)
+ExpTime 1000   			; Exposure time (sec)
 PhotonNum 2			; Multiplicity of simulated events per pixel
 RandomPixelFlag 1		; Enable random point on pixels (0/1)
 PoissonFlag 0			; Enable poisson statistic on pix. counts (0/1)

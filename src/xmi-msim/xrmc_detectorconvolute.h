@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio and Tom Schoonjans
+Copyright (C) 2013 Tom Schoonjans and Bruno Golosio
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,14 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <xmi_msim.h>
 #include <stdlib.h>
 
-typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***convolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int N, int NBins);
+typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***ConvolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX);
 
 
 class detectorconvolute : public detectorarray
 {
  public:
   struct xmi_detector *xd;
-  double ***convolutedImage;
   struct xmi_layer *det_absorber;
   
   ~detectorconvolute(); //destructor
@@ -39,9 +38,6 @@ class detectorconvolute : public detectorarray
 
   int CastInputDevices(); // cast input device method
   int Load(istream &fs); // load detector parameters, position, orientation
-  int SaveData(string data_name, string file_name); // save the acquired (convoluted or unconvoluted) image in a file
-  int SaveConvoluted(string file_name); // save the acquired, convoluted image in a file
-  int SaveUnconvoluted(string file_name); // save the acquired, unconvoluted image in a file
   int SetDefault(); // set the default values for detector parameters
   int Run(); // calculate detector convolution
   int Clear(); // clear 

@@ -72,6 +72,7 @@ double one_min_costhl(double phi)
 //////////////////////////////////////////////////////////////////////
 int source::RunInit()
 {
+  PhCFlag = false;
   costhl_Source = this;
   Cos2Thx = cos(Thx)*cos(Thx);
   Sin2Thx = sin(Thx)*sin(Thx);
@@ -163,7 +164,7 @@ int source::Out_Photon(photon *Photon)
   	Photon->w *= Omega;
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
-  if (SizeFlag != 0) {  // plus gaussian deviations
+  if (SizeFlag != 0 && !PhCFlag) {  // plus gaussian deviations
     //DELETE if (Rng == NULL)
     //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
     //    + uk*Sigmaz*GaussRnd();
@@ -374,3 +375,23 @@ basesource *source::Clone(string dev_name) {
 	return dynamic_cast<basesource*>(clone);
 }
 
+int source::PhCOn()
+{
+  PhCFlag=true;
+  Spectrum->PhCOn();
+
+  return 0;
+}
+
+int source::PhCOff()
+{
+  PhCFlag=false;
+  Spectrum->PhCOff();
+  
+  return 0;
+}
+
+double source::GetPhC_E0()
+{
+  return Spectrum->GetPhC_E0();
+}

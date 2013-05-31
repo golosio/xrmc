@@ -30,9 +30,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_device.h"
 #include "xrmc_math.h"
 #include "randmt.h"
+#include "phcdevice.h"
 
 // generic (virtual) class for sources
-class basesource : public bodydevice
+class basesource : public bodydevice, public phcdevice
 {
  public:
   virtual ~basesource() {};
@@ -84,6 +85,9 @@ class source : public basesource
   virtual int Out_Photon_x1(photon *Photon, vect3 x1);
   // maximum value of polar angle theta for a specified value of phi
   double CosThL(double phi);
+  virtual double GetPhC_E0();
+  virtual int PhCOn();
+  virtual int PhCOff();
   virtual basesource *Clone(string dev_name);
   virtual int RunInit(); // source run initialization method
  // set the random number generator structure

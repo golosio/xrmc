@@ -58,7 +58,7 @@ beamscreen::beamscreen(string dev_name) {
   NX = NY = N = NBins = 0;
   Shape = 0;
   RandomPixelFlag = 1;
-  RunningFasterFlag = 0;
+  //RunningFasterFlag = 0;
   SetDevice(dev_name, "beamscreen");
 }
 
@@ -68,6 +68,7 @@ beamscreen::beamscreen(string dev_name) {
 int beamscreen::RunInit()
 {
   Init();
+  PhCFlag = false;
 
   if (Image==NULL || N*NBins<=0)
     throw xrmc_exception("Beamscreen image must be loaded before run.\n");
@@ -441,3 +442,11 @@ beamscreen *beamscreen::Clone(string dev_name) {
   return clone;
 }
 
+// get energy in phase contrast mode
+double beamscreen::GetPhC_E0()
+{
+  //return PhC_E0;
+    throw xrmc_exception("Phase contrast not yet defined for this device.\n");
+
+    return 0;
+}

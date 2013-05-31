@@ -1,0 +1,16 @@
+; Quadric array file
+;
+Newdevice quadricarray				; Device type
+QuadricArray				; Device name
+
+CylinderX CX1		; cylinder:
+0 0 0.005 0.005			; axis x0, y0, ellipt. section semiaxes Rx, Ry
+Plane P1		; upper base plane:
+10  0  0  1  0  0	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P2      		; lower base plane:
+-10  0  0  -1  0 0	; point x0, y0, z0, normal vect. ux, uy, uz
+
+; Rotation of all previous quadrics:
+;RotateAll 0 0 0 0 1 0 20 ; rotation axis x0, u, theta (20 deg around y)
+;RotateAll 0 0 0 1 0 0 30 ; rotation axis x0, u, theta (30 deg around x)
+End

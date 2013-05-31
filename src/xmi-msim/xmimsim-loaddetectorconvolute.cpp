@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio and Tom Schoonjans
+Copyright (C) 2013 Tom Schoonjans and Bruno Golosio 
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -158,6 +158,7 @@ int detectorconvolute::Load(istream &fs) {
       GetIntToken(fs, &HeaderFlag);
       cout << "Use header in output file (0/1): " << HeaderFlag << "\n"; 
     }
+    /*
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
       GetIntToken(fs, &RunningFasterFlag);
       if (RunningFasterFlag==0) 
@@ -165,6 +166,7 @@ int detectorconvolute::Load(istream &fs) {
       else
 	cout << "Rows running faster than columns in output file\n"; 
     }
+    */
     else if(comm=="PixelType") { // set the pixel content type
       GetIntToken(fs, &PixelType);
       cout << "Pixel content type: " << PixelType << "\n"; 
@@ -231,56 +233,6 @@ int detectorconvolute::Load(istream &fs) {
   }
   OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
   return 0;
-}
-
-int detectorconvolute::SaveData(string data_name, string file_name)
-  // Save detector array contents
-{
-
-  cout << "Saving data: " << data_name << "\n";
-  if (data_name!=SaveDataName[0] && data_name!=SaveDataName[1])
-    throw xrmc_exception
-      (string("Error: detectorconvolute device can only save data of type ")
-       + SaveDataName[0] + " or " + SaveDataName[1] + "\n");
-  else if (data_name==SaveDataName[0])
-    SaveUnconvoluted(file_name) ; 
-  else
-    SaveConvoluted(file_name) ; 
-
-  return 0;
-}
-
-int detectorconvolute::SaveConvoluted(string file_name) {
-  	// Save detector array contents after convolution
-  	FILE *fp;
-
-  	cout << "Output File: " << file_name << "\n";
-  	if ((fp = fopen(file_name.c_str(),"wb")) == NULL)
-    		throw xrmc_exception("Output file cannot be opened.\n");
-
-  	if (HeaderFlag==1) {
- 	   	fwrite(&ModeNum, sizeof(int), 1, fp);
-    		fwrite(&NX, sizeof(int), 1, fp);
-		fwrite(&NY, sizeof(int), 1, fp);
-		fwrite(&PixelSizeX, sizeof(double), 1, fp);
-		fwrite(&PixelSizeY, sizeof(double), 1, fp);
-		fwrite(&ExpTime, sizeof(double), 1, fp);
-		fwrite(&PixelType, sizeof(int), 1, fp);
-		fwrite(&NBins, sizeof(int), 1, fp);
-		fwrite(&Emin, sizeof(double), 1, fp);
-		fwrite(&Emax, sizeof(double), 1, fp);
-  	}
-
-	fwrite(convolutedImage[0][0], sizeof(double), ModeNum*N*NBins, fp);
-    
-	fclose(fp);
-
-	return 0;
-}
-
-int detectorconvolute::SaveUnconvoluted(string file_name) {
-	detectorarray::SaveData("UnconvolutedImage",file_name);
-	return 0;
 }
 
 int detectorconvolute::SetDefault() {

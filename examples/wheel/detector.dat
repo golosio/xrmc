@@ -17,7 +17,6 @@ RandomPixelFlag 1		; Enable random point on pixels (0/1)
 PoissonFlag 0			; Enable Poisson statistic on pix. counts (0/1)
 RoundFlag 0			; Round pixel counts to integer (0/1)
 HeaderFlag 0                    ; Use header in output file (0/1)
-RunningFasterFlag 1             ; Columns(0) or rows(1) running faster 
 PixelType 0			; Pixel content type:
 				; 0: fluence,      1: energy fluence,
 				; 2: fluence(E),   3: energy fluence(E)

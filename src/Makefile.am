@@ -13,7 +13,9 @@ SUBDIRS = \
 	source \
 	spectrum \
 	xrmc_math \
-	beamsource
+	beamsource \
+	phasecontrast \
+	fft
 
 SUBLIBS = \
 	arrayNd/libarrayNd.la \
@@ -29,8 +31,9 @@ SUBLIBS = \
 	source/libsource.la \
 	spectrum/libspectrum.la \
 	xrmc_math/libxrmcmath.la \
-	beamsource/libbeamsource.la
-
+	beamsource/libbeamsource.la \
+	phasecontrast/libphcdetector.la \
+	fft/libfft.la
 lib_LTLIBRARIES = libxrmc.la
 libxrmc_la_SOURCES = 
 libxrmc_la_LIBADD = $(SUBLIBS) @xraylib_LIBS@ -lm
