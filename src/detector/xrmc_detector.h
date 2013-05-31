@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "randmt.h"
 #include "xrmc_photon.h"
 #include <vector>
+#include "image_convolution.h"
 
 //  detectorarray class definition, member variables and functions
 class detectorarray : public xrmc_screen
@@ -43,6 +44,7 @@ class detectorarray : public xrmc_screen
   int PhotonNum; // Multiplicity of simulated events per detector pixel
   int NBins; // Num. of energy bins
   int ModeNum; // Num. of modes (scattering orders)
+  double Z12; // object-detector distance used for source size convolution
   std::vector<unsigned long> Seeds;
 
   virtual ~detectorarray(); // destructor
@@ -85,7 +87,16 @@ class detectorarray : public xrmc_screen
   int SaturateEmin; // flag to saturate energies lower than Emin
   int  SaturateEmax; // flag to saturate energies greater than Emin
   double Emin, Emax; // minimum and maximum bin energy
-  
+  int NBx, NBy; // size of border (in pixel) used for FFT in convolution
+  gauss_vect GaussPSFx, GaussPSFy; // sum-of-gaussians model of detector PSF 
+  std::vector<gauss_vect> GaussPSFxBin; // energy-dependent PSF (x component)
+  std::vector<gauss_vect> GaussPSFyBin; // energy-dependent PSF (y component)
+  gauss_vect GaussSourceX, GaussSourceY; // source size sum-of-gaussians model 
+  std::vector<gauss_vect> GaussSourceXBin; // energy-dependent source x size
+  std::vector<gauss_vect> GaussSourceYBin; // energy-dependent source y size
+  int EfficiencyFlag; // flag for using efficiency before image convolution
+  std::vector<double> Efficiency; //  energy-dependent efficiency
+
   virtual int RunInit(); // detectorarray initialization before run
   //vect3 RandomPointOnPixel(int i); // Generates a random point
   //vect3 RandomPointOnPixel(int i, randmt_t *rng);
@@ -100,6 +111,10 @@ class detectorarray : public xrmc_screen
 			randmt_t **rngs);
   int UnforcedAcquisition(basesource **SourceClones, photon *PhotonArray);
   int Convolve();
+  bool ParsePSFCommand(istream &fs, string comm);
+  int LoadPSFBin(int n, vector<gauss_vect> &PSF_bin, istream &psf_fs);
+  int LoadEfficiency(istream &eff_fs);
+
 };
 
 #endif

@@ -50,6 +50,7 @@ class basesource : public bodydevice, public phcdevice
     {*ModeIdx=0; return Out_Photon_x1(Photon, x1);}  
   // weight the event with the survival probability
   virtual int PhotonSurvivalWeight(photon *Photon, double tmax) {return 0;}
+  virtual vect3 SourceX()=0;
 
   virtual basesource *Clone(string) {return NULL;};
 };
@@ -92,6 +93,7 @@ class source : public basesource
   virtual int RunInit(); // source run initialization method
  // set the random number generator structure
   virtual int SetRng(randmt_t *rng);
+  virtual vect3 SourceX() {return X;}
  private:
   // extract the initial direction of a photon produced by the source
   int PhotonDirection(photon *Photon, int pol);

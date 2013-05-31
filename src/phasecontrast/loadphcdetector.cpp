@@ -51,6 +51,7 @@ int phcdetector::Load(istream &fs)
     //
     // check if it's a command for setting an input device name
     if (ParseInputDeviceCommand(fs, comm)) continue;
+    else if (ParsePSFCommand(fs, comm)) continue;
     else if(comm=="NPixels") { // set the number of pixels (rows and columns)
       GetIntToken(fs, &ImageNx);
       GetIntToken(fs, &ImageNy);
@@ -290,6 +291,7 @@ int phcdetector::SetDefault()
   Z12 = 100; // Distance between object plane and detector plane (cm)
   L1Coeff = 0.5; // Coefficient L1Coeff
   Sigma1Coeff = 0.3; // Coefficient Sigma1Coeff
+  NBx = NBy = 20; // size of borders (in pixels) used for FFT convolution
 
   return 0;
 }

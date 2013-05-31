@@ -540,16 +540,16 @@ int sample::Out_Photon(photon *Photon)
 basesource *sample::Clone(string dev_name) {
 	//cout << "Entering sample::Clone\n";	
 	sample *clone = new sample(dev_name);
+
+	*clone = *this;
+
 	clone->Path = Path->Clone();
-	clone->ScattOrderNum = ScattOrderNum;
 	clone->PhotonNum = new int[ScattOrderNum];
 	memcpy(clone->PhotonNum, PhotonNum, sizeof(int)*ScattOrderNum);  
-	clone->ScattOrderIdx = ScattOrderIdx;
-	clone->PhotonIdx = PhotonIdx;
-	clone->WeightedStepLength = WeightedStepLength;
 	//clone Source
 	clone->Source = Source->Clone(InputDeviceName[0]);
 	clone->Geom3D = Geom3D->Clone(InputDeviceName[1]);
+	clone->InputDeviceName[0] = InputDeviceName[0];
 	clone->InputDeviceName[1] = InputDeviceName[1];
 	clone->InputDeviceName[2] = InputDeviceName[2];
 	//Comp is to be fetched from geom3d if possible
@@ -558,19 +558,13 @@ basesource *sample::Clone(string dev_name) {
 	else
 		clone->Comp = Comp->Clone(InputDeviceName[2]);
 
-	clone->X = X;
-	clone->ui = ui;
-	clone->uk = uk;
-	clone->uj = uj;
-
-
-
 	return dynamic_cast<basesource*>(clone);
 }
 
 path *path::Clone() {
 	//cout << "Entering path::Clone\n";
 	path *clone = new path;
+
 	clone->MaxNSteps = MaxNSteps;
 	clone->t = new double[MaxNSteps];
 	clone->Step = new double[MaxNSteps];
@@ -610,16 +604,17 @@ int sample::PhCOff()
   return 0;
 }
 
-int sample::Out_Phase_Photon_x1(photon *Photon, vect3 x1)
+int sample::Out_Phase_Photon_x1(photon *Photon, vect3 x1, double &muL,
+				double &deltaL)
 {
   //int Z, interaction_type;
-  vect3 vr;
+
   //double tmax=0;
 
   // ask the source to generate photon directed torward the point x1
   Source->Out_Photon_x1(Photon, x1);
 
-  vr = x1 - Photon->x; // end position relative to photon starting position
+  vect3 vr = x1 - Photon->x; // end position relative to photon start. position
   //tmax = vr.Mod(); // maximum intersection distance
   vr.Normalize(); // normalized direction
   Comp->Mu(Photon->E); // absorption coefficients at photon energy
@@ -636,11 +631,21 @@ int sample::Out_Phase_Photon_x1(photon *Photon, vect3 x1)
   //  cout << Path->Step[0] << endl;
   //  cout << Path->MuL << endl;
   //}
-
+  muL = deltaL = 0;
+  if (Photon->w != 0) { //check that weight is not 0
+    muL = Path->MuL;
+    deltaL = Path->DeltaL;
+  }
+  
   return 0;
 }
 
 double sample::GetPhC_E0()
 {
   return Source->GetPhC_E0();
+}
+
+vect3 sample::SourceX()
+{
+  return Source->X;
 }

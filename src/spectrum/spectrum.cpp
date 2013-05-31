@@ -80,7 +80,12 @@ int spectrum::Begin()
   }
   if (PhCFlag) {
     PhCPreviousFlag=false;
-    ExtractEnergy(&PhC_w, &PhC_E0, &PhC_pol);
+    PolIdx=1; // the weight is the sum of the two polarization component
+    ExtractEnergy(&PhC_w, &PhC_E0, &PhC_pol); // y-polarized component
+    double w1;
+    PolIdx=0;
+    ExtractEnergy(&w1, &PhC_E0, &PhC_pol); // x-polarized component
+    PhC_w += w1; // sum the two weights
     PhCPreviousFlag=true;
   }
 
@@ -138,9 +143,16 @@ int spectrum::Next()
   }
 
   if (PhCFlag) {
+    int tmp_pol = PolIdx;
     PhCPreviousFlag=false;
-    ExtractEnergy(&PhC_w, &PhC_E0, &PhC_pol);
+    PolIdx=1; // the weight is the sum of the two polarization component
+    ExtractEnergy(&PhC_w, &PhC_E0, &PhC_pol); // y-polarized component
+    double w1;
+    PolIdx=0;
+    ExtractEnergy(&w1, &PhC_E0, &PhC_pol); // x-polarized component
+    PhC_w += w1; // sum the two weights
     PhCPreviousFlag=true;
+    PolIdx = tmp_pol;
   }
 
   return 0;
@@ -329,7 +341,7 @@ int spectrum::ExtractEnergy(double *weight, double *Energy, int *polarization)
   if (PhCFlag && PhCPreviousFlag) { // use previously extractes values
     *weight = PhC_w;
     *Energy = PhC_E0;
-    *polarization = PhC_pol;
+    *polarization = PhC_pol; // not used
 
     return 0;
   }
@@ -369,13 +381,16 @@ int spectrum::IntervalRandomEnergy(double *E, int interval_idx, int pol_idx)
   if (RandomEneFlag == 1) {
     double y1 = ContSIntensity[pol_idx][interval_idx]; //left side height
     double y2 = ContSIntensity[pol_idx][interval_idx+1]; // right side height
-    double R = Rnd_r(Rng);
-    if (y2 != y1) {
-      // extract the energy value in the interval using a linear probability
-      // distribution
-      double x = (sqrt(y1*y1*(1-R) + y2*y2*R) - y1);
-      if ((x + y2 - y1) != x) R = x / (y2 - y1);
-    }
+    double R;
+    do {
+      R = Rnd_r(Rng);
+      if (y2 != y1) {
+	// extract the energy value in the interval using a linear probability
+	// distribution
+	double x = (sqrt(y1*y1*(1-R) + y2*y2*R) - y1);
+	if ((x + y2 - y1) != x) R = x / (y2 - y1);
+      }
+    } while (R>1 || R<0);
     *E = ContinuousEne[interval_idx]*(1.-R) + ContinuousEne[interval_idx+1]*R;
   }
   // otherwise return the middle energy of the interval
@@ -456,118 +471,114 @@ int spectrum::ContinuousRandomEnergy(double *Energy, int *polarization)
   return 0;
 }
 
-spectrum *spectrum::Clone(string dev_name) {
-	//cout << "Entering spectrum::Clone\n";
-	spectrum *clone = new spectrum(dev_name);
-	clone->PolarizedFlag = PolarizedFlag;
-	clone->LoopFlag = LoopFlag;
-	clone->RandomEneFlag = RandomEneFlag;
-	clone->ResampleFlag = ResampleFlag;
-	clone->EneContinuousNum = EneContinuousNum;
-	if (ResampleFlag && ContinuousEne) {
-		clone->ContinuousEne =new double[ResampleNum];
-		memcpy(clone->ContinuousEne, ContinuousEne, sizeof(double)*ResampleNum);
-	}
-	else if (ContinuousEne) {
-		clone->ContinuousEne =new double[EneContinuousNum];
-		memcpy(clone->ContinuousEne, ContinuousEne, sizeof(double)*EneContinuousNum);
-	}
-	else {
-		clone->ContinuousEne = NULL;
-	}
-	
-	if (ResampleFlag && ContSIntensity[0]) {
-		clone->ContSIntensity[0] =new double[ResampleNum];
-		memcpy(clone->ContSIntensity[0], ContSIntensity[0], sizeof(double)*ResampleNum);
-	}
-	else if (ContSIntensity[0]) {
-		clone->ContSIntensity[0] =new double[EneContinuousNum];
-		memcpy(clone->ContSIntensity[0], ContSIntensity[0], sizeof(double)*EneContinuousNum);
-	}
-	else {
-		clone->ContSIntensity[0] = NULL;
-	}
-	if (ResampleFlag && ContSIntensity[1]) {
-		clone->ContSIntensity[1] =new double[ResampleNum];
-		memcpy(clone->ContSIntensity[1], ContSIntensity[1], sizeof(double)*ResampleNum);
-	}
-	else if (ContSIntensity[1]) {
-		clone->ContSIntensity[1] =new double[EneContinuousNum];
-		memcpy(clone->ContSIntensity[1], ContSIntensity[1], sizeof(double)*EneContinuousNum);
-	}
-	else {
-		clone->ContSIntensity[1] = NULL;
-	}
-
-	clone->ContinuousEnergyRange = ContinuousEnergyRange;
-	clone->ContinuousIntensity = ContinuousIntensity;
-	clone->MaxIntensity = MaxIntensity;
-	if (EneContinuousNum > 1) {
-    		clone->IntervalIntensity[0] = new double[EneContinuousNum-1];
-    		clone->IntervalIntensity[1] = new double[EneContinuousNum-1];
-    		clone->IntervalWeight[0] = new double[EneContinuousNum-1];
-    		clone->IntervalWeight[1] = new double[EneContinuousNum-1];
-    		clone->IntervalCumul = new double[2*EneContinuousNum-1];
-		memcpy(clone->IntervalIntensity[0], IntervalIntensity[0], sizeof(double)*(EneContinuousNum-1));
-		memcpy(clone->IntervalIntensity[1], IntervalIntensity[1], sizeof(double)*(EneContinuousNum-1));
-		memcpy(clone->IntervalWeight[0], IntervalWeight[0], sizeof(double)*(EneContinuousNum-1));
-		memcpy(clone->IntervalWeight[1], IntervalWeight[1], sizeof(double)*(EneContinuousNum-1));
-		memcpy(clone->IntervalCumul, IntervalCumul, sizeof(double)*(2*EneContinuousNum-1));
-	}
-	else {
-    		clone->IntervalIntensity[0] = 
-    		clone->IntervalIntensity[1] = 
-    		clone->IntervalWeight[0] = 
-    		clone->IntervalWeight[1] = 
-    		clone->IntervalCumul = NULL; 
-	}
-
-	clone->EneLineNum = EneLineNum;
-  	if (EneLineNum > 0) {
-    		clone->LineWeight[0] = new double[EneLineNum];
-    		clone->LineWeight[1] = new double[EneLineNum];
-    		clone->LineCumul = new double[2*EneLineNum+1];
-		clone->LineEne = new double[EneLineNum];
-		clone->LineSigma = new double[EneLineNum];
-		clone->LineIntensity[0] = new double[EneLineNum];
-		clone->LineIntensity[1] = new double[EneLineNum];
-		memcpy(clone->LineWeight[0], LineWeight[0], sizeof(double)*EneLineNum);
-		memcpy(clone->LineWeight[1], LineWeight[1], sizeof(double)*EneLineNum);
-		memcpy(clone->LineCumul, LineCumul, sizeof(double)*(2*EneLineNum+1));
-		memcpy(clone->LineEne, LineEne, sizeof(double)*EneLineNum);
-		memcpy(clone->LineSigma, LineSigma, sizeof(double)*EneLineNum);
-		memcpy(clone->LineIntensity[0], LineIntensity[0], sizeof(double)*EneLineNum);
-		memcpy(clone->LineIntensity[1], LineIntensity[1], sizeof(double)*EneLineNum);
-  	}
-	else {
-    		clone->LineWeight[0] = 
-    		clone->LineWeight[1] = 
-    		clone->LineIntensity[0] = 
-    		clone->LineIntensity[1] = 
-    		clone->LineEne = 
-    		clone->LineSigma = 
-    		clone->LineCumul = NULL;
-	}
-	clone->DiscreteIntensity = DiscreteIntensity;
-	clone->ResampleNum = ResampleNum;
-	clone->Emin = Emin;
-	clone->Emax = Emax;
-	clone->ContinuousPhotonNum = ContinuousPhotonNum;
-	clone->ContinuousPhotonIdx = ContinuousPhotonIdx;
-	clone->LinePhotonNum = LinePhotonNum;
-	clone->LinePhotonIdx = LinePhotonIdx;
-	clone->PolIdx = PolIdx;
-	clone->ModeIdx = ModeIdx;
-	clone->IntervalIdx = IntervalIdx;
-	clone->LineIdx = LineIdx;
-	clone->TotalIntensity = TotalIntensity;
-
-	return clone;
-}
-
 // get energy in phase contrast mode
 double spectrum::GetPhC_E0()
 {
   return PhC_E0;
 }
 
+
+spectrum *spectrum::Clone(string dev_name) {
+	//cout << "Entering spectrum::Clone\n";
+	spectrum *clone = new spectrum(dev_name);
+
+	*clone = *this;
+
+	if (ResampleFlag && ContinuousEne) {
+		clone->ContinuousEne =new double[ResampleNum];
+		memcpy(clone->ContinuousEne, ContinuousEne,
+		       sizeof(double)*ResampleNum);
+	}
+	else if (ContinuousEne) {
+	  clone->ContinuousEne =new double[EneContinuousNum];
+	  memcpy(clone->ContinuousEne, ContinuousEne,
+		 sizeof(double)*EneContinuousNum);
+	}
+	else {
+	  clone->ContinuousEne = NULL;
+	}
+	
+	if (ResampleFlag && ContSIntensity[0]) {
+	  clone->ContSIntensity[0] =new double[ResampleNum];
+	  memcpy(clone->ContSIntensity[0], ContSIntensity[0],
+		 sizeof(double)*ResampleNum);
+	}
+	else if (ContSIntensity[0]) {
+	  clone->ContSIntensity[0] =new double[EneContinuousNum];
+	  memcpy(clone->ContSIntensity[0], ContSIntensity[0],
+		 sizeof(double)*EneContinuousNum);
+	}
+	else {
+	  clone->ContSIntensity[0] = NULL;
+	}
+	if (ResampleFlag && ContSIntensity[1]) {
+	  clone->ContSIntensity[1] =new double[ResampleNum];
+	  memcpy(clone->ContSIntensity[1], ContSIntensity[1],
+		 sizeof(double)*ResampleNum);
+	}
+	else if (ContSIntensity[1]) {
+	  clone->ContSIntensity[1] =new double[EneContinuousNum];
+	  memcpy(clone->ContSIntensity[1], ContSIntensity[1],
+		 sizeof(double)*EneContinuousNum);
+	}
+	else {
+	  clone->ContSIntensity[1] = NULL;
+	}
+
+	if (EneContinuousNum > 1) {
+	  clone->IntervalIntensity[0] = new double[EneContinuousNum-1];
+	  clone->IntervalIntensity[1] = new double[EneContinuousNum-1];
+	  clone->IntervalWeight[0] = new double[EneContinuousNum-1];
+	  clone->IntervalWeight[1] = new double[EneContinuousNum-1];
+	  clone->IntervalCumul = new double[2*EneContinuousNum-1];
+	  memcpy(clone->IntervalIntensity[0], IntervalIntensity[0],
+		 sizeof(double)*(EneContinuousNum-1));
+	  memcpy(clone->IntervalIntensity[1], IntervalIntensity[1],
+		 sizeof(double)*(EneContinuousNum-1));
+	  memcpy(clone->IntervalWeight[0], IntervalWeight[0],
+		 sizeof(double)*(EneContinuousNum-1));
+	  memcpy(clone->IntervalWeight[1], IntervalWeight[1],
+		 sizeof(double)*(EneContinuousNum-1));
+	  memcpy(clone->IntervalCumul, IntervalCumul,
+		 sizeof(double)*(2*EneContinuousNum-1));
+	}
+	else {
+	  clone->IntervalIntensity[0] = 
+	    clone->IntervalIntensity[1] = 
+	    clone->IntervalWeight[0] = 
+	    clone->IntervalWeight[1] = 
+	    clone->IntervalCumul = NULL; 
+	}
+	
+  	if (EneLineNum > 0) {
+	  clone->LineWeight[0] = new double[EneLineNum];
+	  clone->LineWeight[1] = new double[EneLineNum];
+	  clone->LineCumul = new double[2*EneLineNum+1];
+	  clone->LineEne = new double[EneLineNum];
+	  clone->LineSigma = new double[EneLineNum];
+	  clone->LineIntensity[0] = new double[EneLineNum];
+	  clone->LineIntensity[1] = new double[EneLineNum];
+	  memcpy(clone->LineWeight[0], LineWeight[0],
+		 sizeof(double)*EneLineNum);
+	  memcpy(clone->LineWeight[1], LineWeight[1],
+		 sizeof(double)*EneLineNum);
+	  memcpy(clone->LineCumul, LineCumul, sizeof(double)*(2*EneLineNum+1));
+	  memcpy(clone->LineEne, LineEne, sizeof(double)*EneLineNum);
+	  memcpy(clone->LineSigma, LineSigma, sizeof(double)*EneLineNum);
+	  memcpy(clone->LineIntensity[0], LineIntensity[0],
+		 sizeof(double)*EneLineNum);
+	  memcpy(clone->LineIntensity[1], LineIntensity[1],
+		 sizeof(double)*EneLineNum);
+  	}
+	else {
+	  clone->LineWeight[0] = 
+	    clone->LineWeight[1] = 
+	    clone->LineIntensity[0] = 
+	    clone->LineIntensity[1] = 
+	    clone->LineEne = 
+	    clone->LineSigma = 
+	    clone->LineCumul = NULL;
+	}
+
+	return clone;
+}

@@ -1,0 +1,36 @@
+; Spectrum file
+;
+Newdevice spectrum		; Device type
+Spectrum		; Device name
+PolarizedFlag 0		; unpolarized/polarized beam (0/1)
+LoopFlag 1		; 0: extract random energies on the whole spectrum
+			; 1: loop on all lines and sampling points
+ContinuousPhotonNum 1	; Multiplicity of events for each interval in spectrum 
+LinePhotonNum 1		; Multiplicity of events for each line in the spectrum
+RandomEneFlag 1		; enable random energy on each interval (0/1)
+ContinuousSpectrum	; continuous part of the spectrum
+21			; Number of sampling points in the spectrum
+;			Energy Lines :
+40 1			; Energy (keV) , sigma (keV) , intensity (photons/sec)
+41 1
+42 1
+43 1
+44 1
+45 1
+46 1
+47 1
+48 1
+49 1
+50 1
+51 1
+52 1
+53 1
+54 1
+55 1
+56 1
+57 1
+58 1
+59 1
+60 1
+
+End

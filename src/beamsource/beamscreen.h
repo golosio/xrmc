@@ -51,7 +51,8 @@ class beamscreen : public xrmc_screen, public phcdevice
   double *CumulXY; // cumulative function for position x, y on the beamscreen
 
   double TotalIntensity; // total beam intensity
-  
+  double PhC_rE0; // random number used to set energy in PhC mode
+
   ~beamscreen(); // destructor
   beamscreen(std::string dev_name); // constructor
 

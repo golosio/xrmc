@@ -140,6 +140,16 @@ int phcdetector::Acquisition()
   delete [] SampleClones;
   delete [] PhotonArray;
 
+  if (ConvolveFlag!=0) {
+    int tmp_nx=NX, tmp_ny=NY;
+    NX = ImageNx;
+    NY = ImageNy;
+    Convolve();
+    NX = tmp_nx;
+    NY = tmp_ny;
+
+  }
+
   return 0;
 }
 
@@ -257,6 +267,10 @@ int phcdetector::RunInit()
   cout << "ImageNy " << ImageNy << endl;
   Image = alloc_3d_double(ModeNum*NBins, ImageNy, ImageNx);
   //Image = double_array3d(ModeNum, N, NBins);
+  if (ConvolutedImage!=NULL) free_double_array3d(ConvolutedImage);
+  if (ConvolveFlag!=0)
+    ConvolutedImage = double_array3d(ModeNum*NBins, ImageNy, ImageNx);	
+
   //if (PhaseImage!=NULL) free_double_array2d(PhaseImage);
   // allocate the phase image array
   //PhaseImage = double_array2d(N, NBins);
@@ -264,7 +278,7 @@ int phcdetector::RunInit()
   // allocate the image weights array
   ImageWeight = alloc_3d_double(THREAD_MAXNUM*NBins, NY, NX);
   
-  Rv2 = X - Sample->Source->X;
+  Rv2 = X - Sample->SourceX();
 
   R2 = Rv2.Mod();
   // TO DO: CHECK ON DISTANCES, DIV BY ZERO,....
@@ -310,6 +324,11 @@ int phcdetector::CastInputDevices()
   if (Sample==0)
     throw xrmc_exception(string("Device ") + InputDeviceName[0]
 			 + " cannot be casted to type sample\n");
+  // also cast it to type basesource*
+  Source = dynamic_cast<basesource*>(InputDevice[0]);
+  if (Source==0)
+    throw xrmc_exception(string("Device ") + InputDeviceName[0]
+			 + " cannot be casted to type basesource\n");
 
   return 0;
 }
@@ -496,12 +515,11 @@ int phcdetector::CloneAcquisition(int ie, int thread_idx,
 	 //cout << ipix << " " << iph << endl;
 	 Rp = RandomPointOnPixel(ipix, rngs[thread_idx]);
 	 
+	 double muL, deltaL;
 	 SampleClones[thread_idx]->Out_Phase_Photon_x1
-	   (&PhotonArray[thread_idx], Rp);
-	 double muL=0, deltaL=0; //, Pgeom=0;
+	   (&PhotonArray[thread_idx], Rp, muL, deltaL);
+	 // Pgeom=0;
 	 if (PhotonArray[thread_idx].w != 0) { //check that weight is not 0
-	   muL = SampleClones[thread_idx]->Path->MuL;
-	   deltaL = SampleClones[thread_idx]->Path->DeltaL;
 	   // if pixel is elliptical, correct the weight
 	   if (Shape==1) PhotonArray[thread_idx].w *= PI/4;
 	   

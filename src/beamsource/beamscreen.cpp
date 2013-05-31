@@ -248,7 +248,9 @@ bool beamscreen::RandomEnergy(vect3 x0, vect3 u, double &E, int &pol,
     if (pol>1)
       throw xrmc_exception("Error in cumulative energy array dimensions.\n");
   }
-  double rE = Rnd_r(rng) - 0.5;
+  double rE;
+  if (PhCFlag) rE = PhC_rE0;
+  else rE = Rnd_r(rng) - 0.5;
   double rx = tx - 0.5;
   double ry = ty - 0.5;
   w = w0*InterpolWeight(iE, ix, iy, pol, rE, rx, ry, 0);
@@ -353,11 +355,17 @@ double beamscreen::InterpolWeight(int iE, int ix, int iy, int pol,
 // initialize loop on events
 int beamscreen::Begin()
 {
+  // check if phase contrast mode is enabled
+  if (LoopFlag==0 && PhCFlag)
+    throw xrmc_exception("Phase contrast mode can only be used with loop "
+			 "mode enabled\n(i.e. set LoopFlag to 1 in "
+			 "beamscreen input file).\n");
   // check if flag for loop on all lines and on all intervals is enabled
   if (LoopFlag==0) LoopIdx = 0; // if not, set loop index to zero
   else { // if yes, initialize all nested loop indexes
     PolIdx = PhotonIdx = EnergyIdx = 0;
   }
+  if (PhCFlag) PhC_rE0 = Rnd_r(Rng) - 0.5;
 
   return 0;
 }
@@ -379,6 +387,7 @@ int beamscreen::Next()
       }
     }
   }
+  if (PhCFlag) PhC_rE0 = Rnd_r(Rng) - 0.5;
 
   return 0;
 }
@@ -445,8 +454,8 @@ beamscreen *beamscreen::Clone(string dev_name) {
 // get energy in phase contrast mode
 double beamscreen::GetPhC_E0()
 {
-  //return PhC_E0;
-    throw xrmc_exception("Phase contrast not yet defined for this device.\n");
+  // central bin energy
+  double E = Emin + (Emax - Emin)*(0.5 + EnergyIdx + PhC_rE0)/NBins;
 
-    return 0;
+  return E;
 }

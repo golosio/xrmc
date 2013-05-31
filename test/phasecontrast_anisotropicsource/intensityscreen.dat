@@ -1,0 +1,16 @@
+; beamscreen array parameter file
+;
+Newdevice intensityscreen	; Device type
+IntensityScreen			; Device name
+NPixels 200 200			; Pixel number (NX x NY)
+PixelSize 0.0002 0.0002       ; Pixel Size (cm)
+X       0       350     0       ; screen x, y, z
+				; Screen orientation :
+uk	0	-1	0	; z direction (normal to the screen)
+ui	1	0	0	; x direction
+InterpolFlag 1			; do not use interpolation inside pixels/bins
+ImageFile intensityscreen_image/intensityscreen_image.dat
+;Rotate 0 0 0 1 0 0 -20		; rotation around axis x, u, angle theta
+;Rotate 0 0 0 0 0 1 -30		; rotation around axis x, u, angle theta
+
+End
