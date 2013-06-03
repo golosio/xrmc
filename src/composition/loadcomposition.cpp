@@ -83,7 +83,6 @@ int composition::Load(istream &fs)
 	istringstream buffer(comp);
 	if ((buffer >> elem)) {
 		//classic mode: integer found
-		cout << "classic mode" << endl;
 		elem_found = 0;
 		for (Z = 0 ; Z < n_elem ; Z++) {
 			if (elem == Ph[NPhases].Z[Z]) {
@@ -104,7 +103,6 @@ int composition::Load(istream &fs)
 	}
 	else {
 		//modern mode: chemical formula
-		cout << "modern mode" << endl;
 		if (CompoundParser(comp.c_str(), &cd) == 0){
    			throw xrmc_exception("Cannot parse compound\n");
 		}
@@ -118,7 +116,7 @@ int composition::Load(istream &fs)
 				}	
 			}
 			if (elem_found) {
-				Ph[NPhases].W[Z] += w/100.0;
+				Ph[NPhases].W[Z] += w*cd.massFractions[Zcd]/100.0;
 			}
 			else {
 				Ph[NPhases].Z = (int *) realloc(Ph[NPhases].Z, sizeof(int)*++n_elem);
@@ -130,9 +128,9 @@ int composition::Load(istream &fs)
 		xrlFree(cd.Elements);
 		xrlFree(cd.massFractions);
 	}	
-	Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*n_elem);
-        Ph[NPhases].NElem = n_elem;
       }
+      Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*n_elem);
+      Ph[NPhases].NElem = n_elem;
       for (int elem_idx = 0 ; elem_idx < n_elem ; elem_idx++) {
 		cout << "\t" << Ph[NPhases].Z[elem_idx] << "\t"
 	     	<< Ph[NPhases].W[elem_idx] << endl;
