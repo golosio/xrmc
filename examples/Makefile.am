@@ -6,4 +6,7 @@ SUBDIRS = cylind_shell \
 	  wheel \
 	  xmi-msim \
 	  fluor_layers \
-	  xmi-msim2
+	  xmi-msim2 \
+	  anisotropicsource \
+	  beamsource \
+	  phasecontrast

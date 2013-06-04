@@ -14,17 +14,17 @@ double Gauss(double x, double x0, double s)
 int main()
 {
   FILE *fp;
-  const int Nx=10, Ny=10, NE=200;
-  double dx=0.2, dy = 0.2, Emin=0.5, Emax=100;
-  double x0, y0, x, y, r, E, dE, Ec, Ec0=45, Ec1=55;
+  const int Nx=100, Ny=100, NE=100;
+  double dx=0.12, dy = 0.12, Emin=50, Emax=100;
+  double x0, y0, x, y, r, E, dE, Ec, Ec0=50, Ec1=100;
   int ix, iy, iE, i;
   double *Image;
   double sx, sy, sE;
 
   Image = (double*)malloc(Nx*Ny*NE*sizeof(double));
-  sx=0.4;
-  sy=0.2;
-  sE=40;
+  sx=4.0;
+  sy=2.0;
+  sE=4;
 
   y0=(-0.5*Ny + 0.5)*dy;
   x0=(-0.5*Nx + 0.5)*dx;
@@ -36,8 +36,8 @@ int main()
       y = y0 + dy*iy;
       for (ix=0; ix<Nx; ix++) {
 	x = x0 + dx*ix;
-	r=sqrt(x*x + y*y);
-	Ec = Ec0+Ec1*r;
+	r=sqrt(x*x + y*y)/(-x0);
+	Ec = Ec0+(Ec1-Ec0)*r;
 	Image[i] = Gauss(x, 0, sx)*Gauss(y, 0, sy)*Gauss(E, Ec, sE);
 	i++;
 	//printf("%d\n", i);
@@ -49,6 +49,6 @@ int main()
   fwrite(Image, sizeof(double), Nx*Ny*NE, fp);
   fclose(fp);
   free(Image);
-  
+
   return 0;
 }

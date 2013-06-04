@@ -1,0 +1,38 @@
+XRMC example using source with direction-dependent intensity and energy spectrum
+
+The program "beamscreen_image.c" produces the file with the intensity and energy distribution on an ideal screen placed at z=15 cm and oriented perpendicularly to the z axis. The screen is divided in 100x100 pixels.
+The intensity on this screen is distributed according to a two-dimensional gaussian function, with sigmax = 4 cm and sigmay = 2 cm
+The energy spectrum depends on the radial distance r from the screen center, and it is a gaussian function with sigma = 4 keV and centered in
+  Ec = Ec0+(Ec1-Ec0)*r/L;
+where Ec0=50 keV, Ec1=100 keV and L is the half-side of the screen.
+
+Compiling the program "beamscreen_image"
+//////////////////////////////////////////////////////////////////////
+If you are using a linux/unix platform with the gcc compiler, you can compile the program by typing the command:
+
+./make.sh
+
+If you are working on other platforms and/or you are not using the gcc compiler, refer to the specific instructions of the C language compiler that you are using for the compilation. After the compilation, you should see the executable:
+   beamscreen_image
+
+//////////////////////////////////////////////////////////////////////
+Running the simulation
+//////////////////////////////////////////////////////////////////////
+Run the beamscreen_image program by typing:
+
+    ./beamscreen_image
+
+it should produce a file called beamscreen_image.dat
+Run the simulation by typing the command:
+
+    xrmc input.dat
+
+The results are stored in the file "image.dat".
+To see the intensity as a function of the energy, run:
+
+   xrmc input_spectrum.dat
+
+which uses an energy sensitive detector (input file detector.dat) with 25 energy bins.
+The results are stored in the file "image_spectrum.dat", which contains a stak of 25 images, one for each energy bin.
+
+
