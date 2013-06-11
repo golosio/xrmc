@@ -332,7 +332,7 @@ int detectorarray::Poisson(randmt_t *rng)
   for (int mode_idx=0; mode_idx<ModeNum; mode_idx++) {
     for (int iy=0; iy<NY; iy++) { // loop on detector pixels
       for (int ix=0; ix<NX; ix++) { // loop on detector pixels
-	for (int ibin=0; ibin>NBins; ibin++) { // loop on energy bins
+	for (int ibin=0; ibin<NBins; ibin++) { // loop on energy bins
 	  signal = Image[mode_idx*NBins+ibin][iy][ix];
 	  sigma = sqrt(signal);          // approximate poisson deviation 
 	  signal +=sigma*GaussRnd_r(rng);// using a random Gaussian distribution
