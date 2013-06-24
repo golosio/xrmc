@@ -126,7 +126,8 @@ class sample : public basesource
   // simulates an event up to the last interaction point
   virtual int Out_Photon(photon *Photon);
   virtual int Out_Photon(photon *Photon, int *ModeIdx);
-  virtual int Out_Phase_Photon_x1(photon *Photon, vect3 x1);
+  virtual int Out_Phase_Photon_x1(photon *Photon, vect3 x1, double &muL,
+				  double &deltaL);
   virtual double GetPhC_E0();
   virtual int PhCOn();
   virtual int PhCOff();
@@ -134,6 +135,7 @@ class sample : public basesource
   virtual int RunInit(); // sample run initialization method
  // set the random number generator structure
   virtual int SetRng(randmt_t *rng);
+  virtual vect3 SourceX();
   virtual basesource *Clone(string dev_name);
  private:
   geom3d *Geom3D; // input geom3d device

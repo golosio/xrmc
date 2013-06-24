@@ -1,0 +1,23 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+Load anisotropicsource.dat		; Source position, orientation
+
+Load phcdetector.dat		; Phase Contrast Detector parameter file
+
+Load intensityscreen.dat	; beam file
+
+Load spectrum.dat		; spectrum file
+
+Load sample2.dat		; Sample file
+
+Load quadric.dat		; Quadric file
+
+Load geom3d.dat			; Qvolume file
+
+Load composition.dat		; Composition file
+
+Run PhCDetector			; Run device
+
+Save PhCDetector Image image.dat    ; Output file : phase contrast image

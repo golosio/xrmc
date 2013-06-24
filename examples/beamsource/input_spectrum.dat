@@ -1,0 +1,24 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+Load beamsource.dat		; beamsource position, orientation
+
+Load detector.dat		; Detector position, orientation, size file
+
+Load spectrum_detector.dat	; Energy sensitive detector file
+
+Load beamscreen.dat		; Beam Screen file
+
+Load sample.dat			; Sample file
+
+Load quadric.dat		; Quadric file
+
+Load geom3d.dat			; Qvolume file
+
+Load composition.dat		; Composition file
+
+Run DetectorArray1		; Run device
+
+Save DetectorArray1 Image image_spectrum.dat    ; Output file : transmission images vs energy bin
+

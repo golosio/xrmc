@@ -47,7 +47,7 @@ class phcdetector : public detectorarray
   double Csix, Csiy, Csiz;
   double Lx1, Ly1, Sigmax1, Sigmay1;
   vect3 Rv2;
-  double R1, R2, R12, Reff, X2, Y2, Z2, Z1, Z12;
+  double R1, R2, R12, Reff, X2, Y2, Z2, Z1;
   double dx1, dy1;
   double L1Coeff, Sigma1Coeff;
 

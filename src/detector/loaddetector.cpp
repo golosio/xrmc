@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_exception.h"
 #include "xrmc_math.h"
 #include "xrmc_loaddetector.h"
+#include "image_convolution.h"
 
 using namespace std;
 using namespace gettoken;
@@ -51,6 +52,7 @@ int detectorarray::Load(istream &fs)
     //
     // check if it's a command for setting an input device name
     if (ParseInputDeviceCommand(fs, comm)) continue;
+    else if (ParsePSFCommand(fs, comm)) continue;
     else if(comm=="NPixels") { // set the number of pixels (rows and columns)
       GetIntToken(fs, &NX);
       GetIntToken(fs, &NY);
@@ -112,6 +114,10 @@ int detectorarray::Load(istream &fs)
       cout << "Multiplicity of simulated events per pixel: "
 	   << PhotonNum << "\n";
     }
+    else if(comm=="Z12") { // Distance between object plane and detector
+      GetDoubleToken(fs, &Z12);
+      cout <<  "Distance between object plane and detector: " <<  Z12 << endl;
+    }
     else if(comm=="RandomPixelFlag") { // enable/disable random point on pixels
       GetIntToken(fs, &RandomPixelFlag);
       cout << "Enable random point on pixels (0/1): " << RandomPixelFlag
@@ -134,10 +140,6 @@ int detectorarray::Load(istream &fs)
       GetIntToken(fs, &AsciiFlag);
       cout << "Binary(0) or ascii(1) output file format: " << AsciiFlag
 	   << "\n"; 
-    }
-    else if(comm=="ConvolveFlag") {  // generates convoluted image (0/1)
-      GetIntToken(fs, &ConvolveFlag);
-      cout << "Generates convoluted image (0/1): " << ConvolveFlag << "\n"; 
     }
     /*
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
@@ -184,7 +186,7 @@ int detectorarray::Load(istream &fs)
 	   << SaturateEmax << "\n";
     }
     else if(comm=="Seeds") { // seeds for random number generation
-      cout << "\tSeeds for random number generation\n";
+      cout << "Seeds for random number generation\n";
       int NS;
       long l;
       GetIntToken(fs, &NS);
@@ -330,9 +332,10 @@ int detectorarray::SetDefault()
 
   ExpTime = 1; // 1 sec. Exposure Time
   PhotonNum = 1; // Num. of simulated photons per detector pixel
+  Z12 = 0; // object-detector distance used for source convolution
   RandomPixelFlag = 1; // Enable random point on pixels 
   PoissonFlag = 0; // Poisson statistic on pixel counts disabled
-  RoundFlag = 0;   // Round pixel counts round to integer disabled
+  RoundFlag = 0;   // pixel counts round to integer disabled
   HeaderFlag = 0; // header in output file disabled
   AsciiFlag = 0; // Default output format is binary 
   //RunningFasterFlag = 0; // columns running faster than rows in output file
@@ -344,6 +347,247 @@ int detectorarray::SetDefault()
   Emax = 100; // maximum bin energy is 100 keV
   SaturateEmin = 0; // do not Saturate energies lower than Emin
   SaturateEmax = 0; // do not Saturate energies greater than Emax
+  NBx = NBy = 20; // size of borders (in pixels) used for FFT convolution
+
+  return 0;
+}
+
+
+int detectorarray::LoadPSFBin(int n, vector<gauss_vect> &PSF_bin,
+			      istream &psf_fs)
+{
+  cout << "Gaussian function parameters :\n";
+  gauss_par gp;
+  gauss_vect gv;
+
+  if (NBins<=0)
+    throw xrmc_exception("Number of energy bins (NBins) undefined.\n");
+    
+  PSF_bin.clear();    
+  for (int ibin=0; ibin<NBins; ibin++) {
+    gv.clear();
+    for (int ig=0; ig<n; ig++) {
+      GetDoubleToken(psf_fs, &gp.height);
+      GetDoubleToken(psf_fs, &gp.x0);
+      GetDoubleToken(psf_fs, &gp.sigma);
+      cout << "\t" << gp.height <<
+	"\t" << gp.x0 << "\t" << gp.sigma << "\t"; 
+      gv.push_back(gp);
+    }
+    cout << endl;
+    PSF_bin.push_back(gv);    
+  }
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// parse file for PSF, source size and efficiency commands
+//////////////////////////////////////////////////////////////////////
+bool detectorarray::ParsePSFCommand(istream &fs, string comm)
+{
+  if(comm=="EfficiencyFlag") { // flag for using efficiency before convolution
+    GetIntToken(fs, &EfficiencyFlag);
+    cout << "Use efficiency before image convolution (0/1): "
+	 << ConvolveFlag << "\n"; 
+  }
+  //  load from file energy-dependent efficiency
+  else if(comm=="EfficiencyFile") {
+    cout << "Energy dependent detector efficiency\n";
+    Efficiency.clear();
+    string eff_file;
+    GetToken(fs, eff_file); // efficiency file name
+    cout << "\tefficiency file name: " << eff_file << "\n";
+    ifstream eff_fs(eff_file.c_str());
+    if (!eff_fs)
+      throw xrmc_exception("Efficiency file can not be opened.");
+    LoadEfficiency(eff_fs);
+    eff_fs.close();
+  }
+  else if(comm=="ConvolveFlag") {  // generates convoluted image (0/1)
+      GetIntToken(fs, &ConvolveFlag);
+      cout << "Generates convoluted image (0/1): " << ConvolveFlag << "\n"; 
+    }
+    else if(comm=="GaussPSFx") { // sum-of-gaussians model of detector PSF
+    cout << "Gaussian model of detector PSF (x component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussPSFx.clear();
+    if (n==0) cout << "\t\tDisabled\n";
+    else {
+      GaussPSFxBin.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      gauss_par gp;
+      for (int i=0; i< n; i++) {
+	GetDoubleToken(fs, &gp.height);
+	GetDoubleToken(fs, &gp.x0);
+	GetDoubleToken(fs, &gp.sigma);
+	cout << "\tGaussian function n. " << i << ": height " << gp.height <<
+	  ", x0 " << gp.x0 << ", sigma " << gp.sigma << endl; 
+	GaussPSFx.push_back(gp);
+      }
+    }
+  }
+  else if(comm=="GaussPSFy") { // sum-of-gaussians model of detector PSF
+    cout << "Gaussian model of detector PSF (y component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussPSFy.clear();
+    if (n==0) cout << "\t\tDisabled\n";
+    else {
+      GaussPSFyBin.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      gauss_par gp;
+      for (int i=0; i< n; i++) {
+	GetDoubleToken(fs, &gp.height);
+	GetDoubleToken(fs, &gp.x0);
+	GetDoubleToken(fs, &gp.sigma);
+	cout << "\tGaussian function n. " << i << ": height " << gp.height <<
+	  ", y0 " << gp.x0 << ", sigma " << gp.sigma << endl; 
+	GaussPSFy.push_back(gp);
+      }
+    }
+  }
+  // energy bin dependent sum-of-gaussians model of detector PSF
+  // load from file
+  else if(comm=="GaussPSFxBinFile") {
+    cout << "Energy dependent Gaussian model of detector PSF (x component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussPSFxBin.clear();
+    if (n==0) cout << "\tDisabled\n";
+    else {
+      GaussPSFx.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      string psf_file;
+      GetToken(fs, psf_file); // psf file name
+      cout << "\tPSF file name: " << psf_file << "\n";
+      ifstream psf_fs(psf_file.c_str());
+      if (!psf_fs)
+	throw xrmc_exception("PSF file can not be opened.");
+      LoadPSFBin(n, GaussPSFxBin, psf_fs);
+      psf_fs.close();
+    }
+  }
+  else if(comm=="GaussPSFyBinFile") {
+    cout << "Energy dependent Gaussian model of detector PSF (y component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussPSFyBin.clear();
+    if (n==0) cout << "\tDisabled\n";
+    else {
+      GaussPSFy.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      string psf_file;
+      GetToken(fs, psf_file); // psf file name
+      cout << "\tPSF file name: " << psf_file << "\n";
+      ifstream psf_fs(psf_file.c_str());
+      if (!psf_fs)
+	throw xrmc_exception("PSF file can not be opened.");
+      LoadPSFBin(n, GaussPSFyBin, psf_fs);
+      psf_fs.close();
+    }
+  }
+  
+  else if(comm=="GaussSourceX") { // sum-of-gaussians model of source x size
+    cout << "Gaussian model of source size (x component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussSourceX.clear();
+    if (n==0) cout << "\t\tDisabled\n";
+    else {
+      GaussSourceXBin.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      gauss_par gp;
+      for (int i=0; i< n; i++) {
+	GetDoubleToken(fs, &gp.height);
+	GetDoubleToken(fs, &gp.x0);
+	GetDoubleToken(fs, &gp.sigma);
+	cout << "\tGaussian function n. " << i << ": height " << gp.height <<
+	  ", x0 " << gp.x0 << ", sigma " << gp.sigma << endl; 
+	GaussSourceX.push_back(gp);
+      }
+    }
+  }
+  else if(comm=="GaussSourceY") { // sum-of-gaussians model of source y size
+    cout << "Gaussian model of source size (y component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussSourceY.clear();
+    if (n==0) cout << "\t\tDisabled\n";
+    else {
+      GaussSourceYBin.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      gauss_par gp;
+      for (int i=0; i< n; i++) {
+	GetDoubleToken(fs, &gp.height);
+	GetDoubleToken(fs, &gp.x0);
+	GetDoubleToken(fs, &gp.sigma);
+	cout << "\tGaussian function n. " << i << ": height " << gp.height <<
+	  ", y0 " << gp.x0 << ", sigma " << gp.sigma << endl; 
+	GaussSourceY.push_back(gp);
+      }
+    }
+  }
+  // energy bin dependent sum-of-gaussians model of source size
+  // load from file
+  else if(comm=="GaussSourceXBinFile") {
+    cout << "Energy dependent Gaussian model of source size (x component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussSourceXBin.clear();
+    if (n==0) cout << "\tDisabled\n";
+    else {
+      GaussSourceX.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      string psf_file;
+      GetToken(fs, psf_file); // psf file name
+      cout << "\tPSF file name: " << psf_file << "\n";
+      ifstream psf_fs(psf_file.c_str());
+      if (!psf_fs)
+	throw xrmc_exception("PSF file can not be opened.");
+      LoadPSFBin(n, GaussSourceXBin, psf_fs);
+      psf_fs.close();
+    }
+  }
+  else if(comm=="GaussSourceYBinFile") {
+    cout << "Energy dependent Gaussian model of source size (y component)\n";
+    int n;
+    GetIntToken(fs, &n);
+    GaussSourceYBin.clear();
+    if (n==0) cout << "\tDisabled\n";
+    else {
+      GaussSourceY.clear();
+      cout << "\tSuperposition of " << n << " Gaussian functions\n";
+      string psf_file;
+      GetToken(fs, psf_file); // psf file name
+      cout << "\tPSF file name: " << psf_file << "\n";
+      ifstream psf_fs(psf_file.c_str());
+      if (!psf_fs)
+	throw xrmc_exception("PSF file can not be opened.");
+      LoadPSFBin(n, GaussSourceYBin, psf_fs);
+      psf_fs.close();
+    }
+  }
+  else return false;
+
+  return true;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Load energy dependent efficiency
+//////////////////////////////////////////////////////////////////////
+int detectorarray::LoadEfficiency(istream &eff_fs)
+{
+  if (NBins<=0)
+    throw xrmc_exception("Number of energy bins (NBins) undefined.\n");
+    
+  Efficiency.clear();    
+  for (int ibin=0; ibin<NBins; ibin++) {
+    double eff;
+    GetDoubleToken(eff_fs, &eff);
+    Efficiency.push_back(eff);
+  }
 
   return 0;
 }

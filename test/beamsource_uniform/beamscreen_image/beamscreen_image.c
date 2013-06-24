@@ -19,12 +19,12 @@ int main()
   y0=(-0.5*Ny + 0.5)*dy;
   x0=(-0.5*Nx + 0.5)*dx;
   i = 0;
-  for (iy=0; iy<Ny; iy++) {
-    y = y0 + dy*iy;
-    for (ix=0; ix<Nx; ix++) {
-      x = x0 + dx*ix;
-      r=sqrt(x*x + y*y);
-      for (iE=0; iE<NE; iE++) {
+  for (iE=0; iE<NE; iE++) {
+    for (iy=0; iy<Ny; iy++) {
+      y = y0 + dy*iy;
+      for (ix=0; ix<Nx; ix++) {
+	x = x0 + dx*ix;
+	r=sqrt(x*x + y*y);
 	if (r>R) Image[i] = 0;
 	else Image[i] = 1;
 	i++;

@@ -106,15 +106,15 @@ int beamscreen::RunInit()
     
     for (int iy=0; iy<NY; iy++) {
       for (int ix=0; ix<NX; ix++) {
-	int i0 = NBins*(NX*iy + ix);
+	int i0 = NX*iy + ix;
 	double sum=0;
 	for(int iE=0; iE<NBins; iE++) {
 	  CumulEnergy[2*i0+iE] = sum;
-	  sum += Image[i0+iE];
+	  sum += Image[N*iE+i0];
 	}
 	for(int iE=0; iE<NBins; iE++) {
 	  CumulEnergy[2*i0+NBins+iE] = sum;
-	  sum += Image[N*NBins+i0+iE];
+	  sum += Image[N*(NBins+iE)+i0];
 	}
 	SumEnergyImage[NX*iy + ix] = sum;
 	if (sum>0) {
@@ -136,7 +136,7 @@ int beamscreen::RunInit()
 	for (int iy=0; iy<NY; iy++) {
 	  for (int ix=0; ix<NX; ix++) {
 	    CumulXY[i0 + NX*iy + ix] = sum;  // cumulative function for x, y
-	    int i = NBins*(N*ipol + NX*iy + ix) + iE;
+	    int i = N*(NBins*ipol + iE)+ NX*iy + ix;
 	    sum += Image[i];
 	  }
 	}
@@ -162,12 +162,12 @@ int beamscreen::RandomPixel(int &iE, int &ix, int &iy, int &pol, randmt_t *rng)
   double R = Rnd_r(rng);
   
   Locate(R, CumulImage, 2*N*NBins, &i);
-  iE = i % NBins;
-  i /= NBins;
   ix = i % NX;
   i /= NX;
   iy = i % NY;
-  pol = i / NY;
+  i /= NY;
+  iE = i % NBins;
+  pol = i / NBins;
   if (pol>1)
     throw xrmc_exception("Error in beam screen array dimensions.\n");
 
@@ -220,7 +220,7 @@ bool beamscreen::RandomEnergy(vect3 x0, vect3 u, double &E, int &pol,
   if (LoopFlag==1) { // loop mode
     iE = EnergyIdx;
     pol = PolIdx;
-    double num = Image[N*NBins*pol + NX*NBins*iy + NBins*ix + iE];
+    double num = Image[N*(NBins*pol + iE) + NX*iy + ix];
     if (num+dO<=num) { // check for division overflow or wrong side of screen
       w=0;
       E=0;
@@ -248,7 +248,9 @@ bool beamscreen::RandomEnergy(vect3 x0, vect3 u, double &E, int &pol,
     if (pol>1)
       throw xrmc_exception("Error in cumulative energy array dimensions.\n");
   }
-  double rE = Rnd_r(rng) - 0.5;
+  double rE;
+  if (PhCFlag) rE = PhC_rE0;
+  else rE = Rnd_r(rng) - 0.5;
   double rx = tx - 0.5;
   double ry = ty - 0.5;
   w = w0*InterpolWeight(iE, ix, iy, pol, rE, rx, ry, 0);
@@ -306,14 +308,14 @@ double beamscreen::InterpolWeight(int iE, int ix, int iy, int pol,
   }
   uy = 1. - ty;
   ipol = pol*NY*NX*NBins;
-  i000 = ipol + NX*NBins*iy  + NBins*ix   + iE;
-  i001 = ipol + NX*NBins*iy  + NBins*ix   + iE1;
-  i010 = ipol + NX*NBins*iy  + NBins*ix1  + iE;
-  i011 = ipol + NX*NBins*iy  + NBins*ix1  + iE1;
-  i100 = ipol + NX*NBins*iy1 + NBins*ix   + iE;
-  i101 = ipol + NX*NBins*iy1 + NBins*ix   + iE1;
-  i110 = ipol + NX*NBins*iy1 + NBins*ix1  + iE;
-  i111 = ipol + NX*NBins*iy1 + NBins*ix1  + iE1;
+  i000 = ipol + N*iE  + NX*iy  + ix;
+  i001 = ipol + N*iE1 + NX*iy  + ix;
+  i010 = ipol + N*iE  + NX*iy  + ix1;
+  i011 = ipol + N*iE1 + NX*iy  + ix1;
+  i100 = ipol + N*iE  + NX*iy1 + ix;
+  i101 = ipol + N*iE1 + NX*iy1 + ix;
+  i110 = ipol + N*iE  + NX*iy1 + ix1;
+  i111 = ipol + N*iE1 + NX*iy1 + ix1;
     
   c000 = Image[i000];
   c001 = Image[i001];
@@ -353,11 +355,17 @@ double beamscreen::InterpolWeight(int iE, int ix, int iy, int pol,
 // initialize loop on events
 int beamscreen::Begin()
 {
+  // check if phase contrast mode is enabled
+  if (LoopFlag==0 && PhCFlag)
+    throw xrmc_exception("Phase contrast mode can only be used with loop "
+			 "mode enabled\n(i.e. set LoopFlag to 1 in "
+			 "beamscreen input file).\n");
   // check if flag for loop on all lines and on all intervals is enabled
   if (LoopFlag==0) LoopIdx = 0; // if not, set loop index to zero
   else { // if yes, initialize all nested loop indexes
     PolIdx = PhotonIdx = EnergyIdx = 0;
   }
+  if (PhCFlag) PhC_rE0 = Rnd_r(Rng) - 0.5;
 
   return 0;
 }
@@ -379,6 +387,7 @@ int beamscreen::Next()
       }
     }
   }
+  if (PhCFlag) PhC_rE0 = Rnd_r(Rng) - 0.5;
 
   return 0;
 }
@@ -445,8 +454,8 @@ beamscreen *beamscreen::Clone(string dev_name) {
 // get energy in phase contrast mode
 double beamscreen::GetPhC_E0()
 {
-  //return PhC_E0;
-    throw xrmc_exception("Phase contrast not yet defined for this device.\n");
+  // central bin energy
+  double E = Emin + (Emax - Emin)*(0.5 + EnergyIdx + PhC_rE0)/NBins;
 
-    return 0;
+  return E;
 }

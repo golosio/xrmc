@@ -68,6 +68,7 @@ class anisotropicsource : public basesource
   virtual int RunInit(); // source run initialization method
  // set the random number generator structure
   virtual int SetRng(randmt_t *rng);
+  virtual vect3 SourceX() {return X;}
  private:
   // extract the initial direction of a photon produced by the source
   //int PhotonDirection(photon *Photon, int pol);

@@ -1,4 +1,4 @@
-AC_INIT([xrmc],[6.4.2],[golosio@uniss.it])
+AC_INIT([xrmc],[6.4.3],[golosio@uniss.it])
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([src/main/xrmc_main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -125,6 +125,9 @@ AC_CONFIG_FILES([	Makefile
 			examples/xmi-msim/Makefile
 			examples/xmi-msim2/Makefile
 			examples/fluor_layers/Makefile
+			examples/anisotropicsource/Makefile
+			examples/beamsource/Makefile
+			examples/phasecontrast/Makefile
 			libxrmc.pc
 			xrmc.spec
 			nsis/Makefile

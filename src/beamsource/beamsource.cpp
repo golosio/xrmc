@@ -85,7 +85,7 @@ int beamsource::Out_Photon(photon *Photon)
   Photon->w = w*BeamScreen->TotalIntensity;
   Photon->E = E;
   Photon->x = X; // starting photon position is the source position
-  if (SizeFlag != 0) {  // plus gaussian deviations
+  if (SizeFlag != 0 && !PhCFlag) {  // plus gaussian deviations
     //if (Rng == NULL)
     //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
     //    + uk*Sigmaz*GaussRnd();

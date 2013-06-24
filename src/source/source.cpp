@@ -352,25 +352,11 @@ int source::Out_Photon_x1(photon *Photon, vect3 x1)
 basesource *source::Clone(string dev_name) {
 	//cout << "Entering source::Clone\n";
 	source *clone = new source(dev_name);
-	clone->Thx = Thx;
-	clone->Thy = Thy;
-	clone->Cos2Thx = Cos2Thx;
-	clone->Sin2Thx = Sin2Thx;
-	clone->Cos2Thy = Cos2Thy;
-	clone->Sin2Thy = Sin2Thy;
-	clone->Omega = Omega;
-	clone->Sigmax = Sigmax;
-	clone->Sigmay = Sigmay;
-	clone->Sigmaz = Sigmaz;
-	clone->SizeFlag = SizeFlag;
+	*clone = *this;
+
 	clone->InputDeviceName[0] = InputDeviceName[0];
-	clone->X = X;
-	clone->ui = ui;
-	clone->uj = uj;
-	clone->uk = uk;
 	//clone Spectrum
 	clone->Spectrum = Spectrum->Clone(InputDeviceName[0]);
-
 
 	return dynamic_cast<basesource*>(clone);
 }

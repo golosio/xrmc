@@ -1,0 +1,62 @@
+; Phase contrast detector parameter file
+;
+Newdevice phcdetector			; Device type
+PhCDetector			; Device name
+SampleName Sample		; Source input device name
+NPixels 800 800			; Pixel number (NX x NY)
+PixelSize 0.00005 0.00005	; Pixel Size (cm)
+Shape 0	       			; Pixel shape (0 rectangular, 1 elliptical)
+dOmegaLim 1e-2			; Cut on dOmega (default = 2*PI)
+X	0	350	0	; screen x, y, z
+				; Screen orientation :
+uk	0	-1	0	; z direction (normal to the screen)
+ui	1	0	0	; x direction
+;NBorderPixels	50	50	; Border thickness in pixels (NBx, NBy)
+Z12		350             ; Distance object-detector planes (cm)
+L1Coeff		0.5             ; Coefficient L1Coeff
+Sigma1Coeff	0.3		; Coefficient Sigma1Coeff
+ExpTime 1			; Exposure time (sec)
+PhotonNum 1			; Multiplicity of simulated events per pixel
+RandomPixelFlag 1		; Enable random point on pixels (0/1)
+PoissonFlag 0			; Enable Poisson statistic on pix. counts (0/1)
+RoundFlag 0			; Round pixel counts to integer (0/1)
+HeaderFlag 0                    ; Use header in output file (0/1)
+PixelType 0			; Pixel content type:
+				; 0: fluence,      1: energy fluence,
+				; 2: fluence(E),   3: energy fluence(E)
+;Emin 0				; Emin
+;Emax 100			; Emax
+;NBins 1000			; NBins
+;SaturateEmin 0			; Saturate energies lower than Emin (0/1)
+;SaturateEmax 0			; Saturate energies greater than Emax (0/1)
+ConvolveFlag 1			; create convoluted image
+GaussSourceX 1    			; PSF model (x component): 1 Gaussian
+; height, x0 (cm), sigma (cm)
+1 0 0.0042466
+;GaussSourceY 2    			; PSF model (y component): sum of 2 Gaussians
+; height, x0 (cm), sigma (cm)
+;1 0 0.09			; 1st gaussian
+;1 0.3 0.6			; 2nd gaussian
+;GaussPSFx 1    			; PSF model (x component): 1 Gaussian
+; height, x0 (cm), sigma (cm)
+;1 0 0.03
+;GaussPSFy 1    			; PSF model (x component): 1 Gaussian
+; height, x0 (cm), sigma (cm)
+;1 0 0.03
+
+Seeds 10      			; Seeds for random number generation
+123450				; 1st seed
+123451				; ...
+123452				; ...
+123453				; ...
+123454				; ...
+123455				; ...
+123456				; ...
+123457				; ...
+123458				; ...
+123459				; last seed
+
+;Rotate 0 0 0 1 0 0 -20		; rotation around axis x, u, angle theta
+;Rotate 0 0 0 0 0 1 -30		; rotation around axis x, u, angle theta
+
+End

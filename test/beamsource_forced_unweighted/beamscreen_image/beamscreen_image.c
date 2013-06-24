@@ -30,14 +30,14 @@ int main()
   x0=(-0.5*Nx + 0.5)*dx;
   dE = (Emax - Emin)/(NE-1);
   i = 0;
-  for (iy=0; iy<Ny; iy++) {
-    y = y0 + dy*iy;
-    for (ix=0; ix<Nx; ix++) {
-      x = x0 + dx*ix;
-      r=sqrt(x*x + y*y);
-      Ec = Ec0+Ec1*r;
-      for (iE=0; iE<NE; iE++) {
-	E=Emin+dE*iE;
+  for (iE=0; iE<NE; iE++) {
+    E=Emin+dE*iE;
+    for (iy=0; iy<Ny; iy++) {
+      y = y0 + dy*iy;
+      for (ix=0; ix<Nx; ix++) {
+	x = x0 + dx*ix;
+	r=sqrt(x*x + y*y);
+	Ec = Ec0+Ec1*r;
 	Image[i] = Gauss(x, 0, sx)*Gauss(y, 0, sy)*Gauss(E, Ec, sE);
 	i++;
 	//printf("%d\n", i);
@@ -49,6 +49,6 @@ int main()
   fwrite(Image, sizeof(double), Nx*Ny*NE, fp);
   fclose(fp);
   free(Image);
-
+  
   return 0;
 }
