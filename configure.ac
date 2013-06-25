@@ -70,7 +70,7 @@ PKG_PROG_PKG_CONFIG
 
 
 #search for xraylib and other modules
-PKG_CHECK_MODULES([xraylib],libxrl >= 2.15.0)
+PKG_CHECK_MODULES([xraylib],libxrl >= 2.17.0)
 
 
 #determine if the xmi-msim should be built
