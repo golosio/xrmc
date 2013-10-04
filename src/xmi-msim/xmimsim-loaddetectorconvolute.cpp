@@ -175,6 +175,13 @@ int detectorconvolute::Load(istream &fs) {
       if (PixelType != 2) 
 	throw xrmc_exception("when using a detectorconvolute device, the PixelType must be 2!"); 
     }
+    else if(comm=="ForceDetectFlag") {     // photon not forced/forced 
+      GetIntToken(fs, &ForceDetectFlag); //   to be detected
+      if (ForceDetectFlag==0) 
+	cout << "Photon not forced to be detected\n"; 
+      else
+	cout << "Photon forced to be detected\n"; 
+    }
     else if(comm=="Emin") { // set the minimum bin energy
       GetDoubleToken(fs, &Emin);
       cout << "\tEmin: " << Emin << "\n"; 
@@ -240,7 +247,7 @@ int detectorconvolute::SetDefault() {
 	InputDeviceName[1] = "Composition";
 	CrystalPhaseName = "Crystal";
 	WindowPhaseName = "Window";
-	xd->detector_type = XMI_DETECTOR_SILI;
+	xd->detector_type = XMI_DETECTOR_SI_SDD;
 	xd->pulse_width = 0.0;
 	xd->fano = 0.12;
 	xd->noise = 0.1;
