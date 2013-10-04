@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_photon.h"
 #include "xrmc_math.h"
 #include "xrmc_exception.h"
+#include <algorithm>
 
 using namespace std;
 using namespace xrmc_algo;
@@ -142,7 +143,37 @@ int sample::RunInit()
   Path->Delta = new double[mns]; // delta coeff. in each step
   Path->SumMuS = new double[mns]; // cumulative sum of Mu * steplength
   Path->SumS = new double[mns]; // cumulative sum of steplengths
+  
+  //Doppler calculation
+  int i,j,k;
+  for (i = 0 ; i < Geom3D->NQVol ; i++) {
+  	//iterate over all qvolumes
+	phase myPh = Geom3D->Comp->Ph[Geom3D->QVol[i].iPhaseIn];
+	for (j = 0 ; j < myPh.NElem ; j++) {
+		compZ.push_back(myPh.Z[j]);	
+	}
+	myPh = Geom3D->Comp->Ph[Geom3D->QVol[i].iPhaseOut];
+	for (j = 0 ; j < myPh.NElem ; j++) {
+		compZ.push_back(myPh.Z[j]);	
+	}
+  }
+  sort(compZ.begin(), compZ.end());
+  compZ.erase(unique(compZ.begin(), compZ.end()), compZ.end());
+  for (i = 0 ; i < compZ.size() ; i++)
+  	cout << "compZ: " << compZ[i] << endl;
 
+  doppler_pz = new double*[compZ.size()];
+  for (i = 0 ; i < compZ.size() ; i++)
+  	doppler_pz[i] = new double[2000];
+
+  const int maxpz = 100;
+  const int nintervals_pz = 1000000;
+  double *pzs = new double[nintervals_pz];
+  for (i = 0 ; i < compZ.size() ; i++) {
+  	pzs[i]= maxpz * (i)/nintervals_pz;
+  }
+
+  exit(0);
   return 0;
 }
 

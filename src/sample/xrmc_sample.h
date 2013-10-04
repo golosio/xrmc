@@ -95,6 +95,9 @@ class sample : public basesource
   int PhotonIdx; // event index
   int WeightedStepLength; // flag for weighted steplength extraction method
   basesource *Source; // input source device
+  vector<int> compZ; //sorted vector with all elements that are used in the simulation
+  double **doppler_pz;
+
 
   virtual ~sample(); // destructor
   sample(std::string dev_name); // constructor
