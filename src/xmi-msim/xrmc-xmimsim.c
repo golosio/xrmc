@@ -188,18 +188,34 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	double *abscorrImage = (double *) malloc(sizeof(double)*NBins);
 	int ix, iy;
 
-	for (i = 0 ; i < ModeNum ; i++) {
-	  for (iy = 0 ; iy < NY ; iy++) {
-	    for (ix = 0 ; ix < NX ; ix++) {
-	      for (k = 0 ; k < NBins ; k++) 
-		abscorrImage[k] = Image[i*NBins+k][iy][ix] * blbs[k];
+	for (iy = 0 ; iy < NY ; iy++) {
+	  for (ix = 0 ; ix < NX ; ix++) {
+	    for (k = 0 ; k < NBins ; k++) {
+	      abscorrImage[k] = 0.0;
+	    }
+	    for (i = 0 ; i < ModeNum ; i++) {
+	      for (k = 0 ; k < NBins ; k++) {
+		abscorrImage[k] += Image[i*NBins+k][iy][ix] * blbs[k];
+	      }
 	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, NBins, options, escape_ratios_def);
-	      for (k = 0 ; k < NBins ; k++) 
-		ConvolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
+	      for (k = 0 ; k < NBins ; k++) {
+	        ConvolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
+	      }
 	      xmi_deallocate(channels_conv_temp);
 	    }
 	  }
 	}
+
+	for (iy = 0 ; iy < NY ; iy++) {
+	  for (ix = 0 ; ix < NX ; ix++) {
+	    for (i = ModeNum-1 ; i > 0 ; i--) {
+	      for (k = 0 ; k < NBins ; k++) {
+	        ConvolutedImage[i*NBins+k][iy][ix] = MAX(ConvolutedImage[i*NBins+k][iy][ix]-ConvolutedImage[(i-1)*NBins+k][iy][ix], 0.0);
+	      }
+	    }
+	  }
+	}
+
 
 	free(abscorrImage);
 	free(blbs);
