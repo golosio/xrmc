@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_math.h"
 #include "xrmc_exception.h"
 #include <algorithm>
+#include <xraylib.h>
 
 using namespace std;
 using namespace xrmc_algo;
@@ -145,7 +146,7 @@ int sample::RunInit()
   Path->SumS = new double[mns]; // cumulative sum of steplengths
   
   //Doppler calculation
-  int i,j,k;
+  int i,j,k,l,m;
   for (i = 0 ; i < Geom3D->NQVol ; i++) {
   	//iterate over all qvolumes
 	phase myPh = Geom3D->Comp->Ph[Geom3D->QVol[i].iPhaseIn];
@@ -159,21 +160,53 @@ int sample::RunInit()
   }
   sort(compZ.begin(), compZ.end());
   compZ.erase(unique(compZ.begin(), compZ.end()), compZ.end());
-  for (i = 0 ; i < compZ.size() ; i++)
-  	cout << "compZ: " << compZ[i] << endl;
 
-  doppler_pz = new double*[compZ.size()];
+  doppler_pz = new double*[100];
   for (i = 0 ; i < compZ.size() ; i++)
-  	doppler_pz[i] = new double[2000];
+  	doppler_pz[compZ[i]] = new double[NINTERVALS_R];
+
+  rs = new double[NINTERVALS_R];
+  for (i = 0 ; i < NINTERVALS_R ; i++)
+  	rs[i] = i/(NINTERVALS_R-1.0);
 
   const int maxpz = 100;
   const int nintervals_pz = 1000000;
   double *pzs = new double[nintervals_pz];
-  for (i = 0 ; i < compZ.size() ; i++) {
-  	pzs[i]= maxpz * (i)/nintervals_pz;
+  for (i = 0 ; i < nintervals_pz ; i++) {
+  	pzs[i]= maxpz * (i)/(nintervals_pz-1.0);
   }
+  double *trapez2 = new double[nintervals_pz-1];
+  double trapez2_sum, temp_sum;
+  for (i = 0 ; i < compZ.size() ; i++) {
+  	cout << "Compton profile icdf for element: " << compZ[i] << endl;
+  	trapez2_sum = 0.0;
+	for (j = 0 ; j < nintervals_pz-1 ; j++) {
+		trapez2[j] = (ComptonProfile(compZ[i], pzs[j])+ComptonProfile(compZ[i],pzs[j+1]))*(pzs[1]-pzs[0])/2.0/compZ[i];
+		trapez2_sum += trapez2[j];
+	}
 
-  exit(0);
+	for (j = 0 ; j < nintervals_pz-1 ; j++) {
+		trapez2[j] /= trapez2_sum;
+	}
+	
+  	temp_sum = 0.0;
+  	l=0;
+	m=0;
+	while (l != nintervals_pz-1) {
+		temp_sum += trapez2[l];
+		if (temp_sum >= rs[m]) {
+			doppler_pz[compZ[i]][m] = pzs[l];
+			if (m == NINTERVALS_R-1)
+				break;
+			m++;
+		}
+		if (l == nintervals_pz-2)
+			break;
+		l++;
+	}
+	doppler_pz[compZ[i]][NINTERVALS_R-1] = maxpz;
+	doppler_pz[compZ[i]][0] = 0.0;
+  }
   return 0;
 }
 
@@ -573,6 +606,9 @@ basesource *sample::Clone(string dev_name) {
 	sample *clone = new sample(dev_name);
 
 	*clone = *this;
+	clone->compZ = compZ;
+	clone->doppler_pz = doppler_pz;
+	clone->rs = rs;
 
 	clone->Path = Path->Clone();
 	clone->PhotonNum = new int[ScattOrderNum];

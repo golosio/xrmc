@@ -33,6 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "phcdevice.h"
 #include "randmt.h"
 
+#define NINTERVALS_R 2000
+
 using namespace std;
 
 class photon;
@@ -97,6 +99,7 @@ class sample : public basesource
   basesource *Source; // input source device
   vector<int> compZ; //sorted vector with all elements that are used in the simulation
   double **doppler_pz;
+  double *rs;
 
 
   virtual ~sample(); // destructor
