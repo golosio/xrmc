@@ -62,7 +62,6 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 
 
 	options.use_M_lines = 1;
-	options.use_self_enhancement = 0;
 	options.use_cascade_auger = 1;
 	options.use_cascade_radiative = 1;
 	options.use_variance_reduction = 1;
@@ -70,10 +69,9 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	options.use_sum_peaks = 0;
 	options.use_poisson = 0;
 	options.verbose = 1;
-#if XMI_MSIM_VERSION_MAJOR >= 2 && XMI_MSIM_VERSION_MINOR >= 1
 	options.extra_verbose = 0;
 	options.omp_num_threads = omp_get_max_threads();
-#endif
+	options.nchannels = NBins;
 
 	if (xd->pulse_width > 0.0)
 		options.use_sum_peaks = 1;
@@ -130,11 +128,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 		g_fprintf(stdout,"Querying %s for escape peak ratios\n",xmimsim_hdf5_escape_ratios);
 
 	//check if escape ratios are already precalculated
-#if XMI_MSIM_VERSION_MAJOR >= 2 && XMI_MSIM_VERSION_MINOR >= 1
 	if (xmi_find_escape_ratios_match(xmimsim_hdf5_escape_ratios , input, &escape_ratios_def, options) == 0)
-#else
-	if (xmi_find_escape_ratios_match(xmimsim_hdf5_escape_ratios , input, &escape_ratios_def) == 0)
-#endif
 		return 0;
 	if (escape_ratios_def == NULL) {
 		if (options.verbose)
@@ -197,7 +191,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	      for (k = 0 ; k < NBins ; k++) {
 		abscorrImage[k] += Image[i*NBins+k][iy][ix] * blbs[k];
 	      }
-	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, NBins, options, escape_ratios_def);
+	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, options, escape_ratios_def);
 	      for (k = 0 ; k < NBins ; k++) {
 	        ConvolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
 	      }
@@ -227,7 +221,6 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	}
 	return 1;
 }
-#if XMI_MSIM_VERSION_MAJOR >= 2 && XMI_MSIM_VERSION_MINOR >= 1
 
 int xmi_msim_tube_ebel(struct xmi_layer *tube_anode, struct xmi_layer *tube_window,
                   struct xmi_layer *tube_filter, double tube_voltage,
@@ -244,4 +237,3 @@ int xmi_msim_tube_ebel(struct xmi_layer *tube_anode, struct xmi_layer *tube_wind
 }
 
 
-#endif
