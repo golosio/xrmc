@@ -191,7 +191,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	      for (k = 0 ; k < NBins ; k++) {
 		abscorrImage[k] += Image[i*NBins+k][iy][ix] * blbs[k];
 	      }
-	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, options, escape_ratios_def);
+	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, options, escape_ratios_def, i);
 	      for (k = 0 ; k < NBins ; k++) {
 	        ConvolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
 	      }

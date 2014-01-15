@@ -68,8 +68,6 @@ int composition::Load(istream &fs)
 	throw xrmc_exception("NElem variable initialization not found"); 
       GetIntToken(fs, &n_comp); // read number of elements in the phase
       //Ph[NPhases].NElem = n_elem;
-      cout << "Num. of compounds: " << n_comp << endl;
-      cout << "\tZ\tweight fract.\n";
       //Ph[NPhases].W = new double[n_elem];  // initializes weight fraction,
       //Ph[NPhases].Z = new int[n_elem];     // atomic numbers and absorption
       //Ph[NPhases].MuAtom = new double[n_elem]; // coefficient arrays
@@ -131,6 +129,8 @@ int composition::Load(istream &fs)
       }
       Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*n_elem);
       Ph[NPhases].NElem = n_elem;
+      cout << "Num. of compounds: " << n_elem << endl;
+      cout << "\tZ\tweight fract.\n";
       for (int elem_idx = 0 ; elem_idx < n_elem ; elem_idx++) {
 		cout << "\t" << Ph[NPhases].Z[elem_idx] << "\t"
 	     	<< Ph[NPhases].W[elem_idx] << endl;
