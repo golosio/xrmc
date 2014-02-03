@@ -210,6 +210,9 @@ int spectrum::LoadContinuousSpectrum(istream &sp_fs)
   for (int i=0; i<EneContinuousNum; i++) {
     GetDoubleToken(sp_fs, &ContinuousEne[i]);
     GetDoubleToken(sp_fs, &ContSIntensity[0][i]);
+    if (ContSIntensity[0][i] < 1E-20) {
+    	ContSIntensity[0][i] = 0.0;
+    }
     if (PolarizedFlag == 0) {
       cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\n";
       ContSIntensity[0][i] /= 2;
@@ -217,6 +220,9 @@ int spectrum::LoadContinuousSpectrum(istream &sp_fs)
     }
     else {
       GetDoubleToken(sp_fs, &ContSIntensity[1][i]);
+      if (ContSIntensity[1][i] < 1E-20) {
+    	  ContSIntensity[1][i] = 0.0;
+      }
       cout << ContinuousEne[i] << "\t" << ContSIntensity[0][i] << "\t"
 	   << ContSIntensity[1][i] << "\n";
     }

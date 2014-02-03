@@ -66,6 +66,7 @@ detectorarray::detectorarray(string dev_name) {
 
   PixelX=NULL;
   Image=NULL;
+  ConvolutedImage=NULL;
   NX = NY = N = PhotonNum = NBins = ModeNum = 0;
   Z12 = 0;
   SetDevice(dev_name, "detectorarray");

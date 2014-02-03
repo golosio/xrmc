@@ -102,7 +102,7 @@ int quadricarray::Load(istream &fs)
      NQuadr++;
     }
     else if (comm=="CylinderZ") { // cylinder parallel to z
-      cout << "CylinderX ";
+      cout << "CylinderZ ";
       MapQuadric(fs);
       for (i=0; i<2; i++) GetDoubleToken(fs, &xc[i]); // x,y coordinates
       printf("\txc: %g\t%g\n", xc[0], xc[1]);

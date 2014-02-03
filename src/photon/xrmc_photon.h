@@ -48,6 +48,7 @@ class photon
   vect3 ui, uj, uk; // photon local coord. system
   // uk: direction; ui: polarization vector
   randmt_t *Rng;
+  sample *mySample;
 
   photon() {Rng=NULL;} // constructor
 // move the photon in the direction uk by a distance step_length
@@ -76,6 +77,7 @@ class photon
   int Fluorescence(); // Fluorescent emission
   int Coherent(int Z); // Coherent (elastic) scattering
   int Incoherent(int Z); // Incoherent (inelastic) scattering
+  int ComptonEnergyDoppler(int Z, double theta);
 };
 #endif
 

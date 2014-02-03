@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_gettoken.h"
 #include "xrmc_exception.h"
 #include <xraylib.h>
+#include <cstring>
 
 using namespace std;
 using namespace gettoken;
@@ -42,7 +43,7 @@ int composition::Load(istream &fs)
   int z_elem;
   double w, rho;
   string comm, comp;
-  struct compoundData cd;
+  struct compoundData *cd;
 
   cout << "Composition file\n";
 
@@ -67,8 +68,6 @@ int composition::Load(istream &fs)
 	throw xrmc_exception("NElem variable initialization not found"); 
       GetIntToken(fs, &n_comp); // read number of elements in the phase
       //Ph[NPhases].NElem = n_elem;
-      cout << "Num. of compounds: " << n_comp << endl;
-      cout << "\tZ\tweight fract.\n";
       //Ph[NPhases].W = new double[n_elem];  // initializes weight fraction,
       //Ph[NPhases].Z = new int[n_elem];     // atomic numbers and absorption
       //Ph[NPhases].MuAtom = new double[n_elem]; // coefficient arrays
@@ -83,7 +82,6 @@ int composition::Load(istream &fs)
 	istringstream buffer(comp);
 	if ((buffer >> elem)) {
 		//classic mode: integer found
-		cout << "classic mode" << endl;
 		elem_found = 0;
 		for (Z = 0 ; Z < n_elem ; Z++) {
 			if (elem == Ph[NPhases].Z[Z]) {
@@ -104,35 +102,35 @@ int composition::Load(istream &fs)
 	}
 	else {
 		//modern mode: chemical formula
-		cout << "modern mode" << endl;
-		if (CompoundParser(comp.c_str(), &cd) == 0){
+		if ((cd = CompoundParser(comp.c_str())) == NULL){
    			throw xrmc_exception("Cannot parse compound\n");
 		}
 		int Zcd;
-		for (Zcd = 0 ; Zcd < cd.nElements ; Zcd++) {
+		for (Zcd = 0 ; Zcd < cd->nElements ; Zcd++) {
 			elem_found = 0;
 			for (Z = 0 ; Z < n_elem ; Z++) {
-				if (cd.Elements[Zcd] == Ph[NPhases].Z[Z]) {
+				if (cd->Elements[Zcd] == Ph[NPhases].Z[Z]) {
 					elem_found = 1;
 					break;
 				}	
 			}
 			if (elem_found) {
-				Ph[NPhases].W[Z] += w/100.0;
+				Ph[NPhases].W[Z] += w*cd->massFractions[Zcd]/100.0;
 			}
 			else {
 				Ph[NPhases].Z = (int *) realloc(Ph[NPhases].Z, sizeof(int)*++n_elem);
 				Ph[NPhases].W = (double *) realloc(Ph[NPhases].W, sizeof(double)*n_elem);
-				Ph[NPhases].Z[n_elem-1] = cd.Elements[Zcd];
-				Ph[NPhases].W[n_elem-1] = w*cd.massFractions[Zcd]/100.0;
+				Ph[NPhases].Z[n_elem-1] = cd->Elements[Zcd];
+				Ph[NPhases].W[n_elem-1] = w*cd->massFractions[Zcd]/100.0;
 			}
 		}
-		xrlFree(cd.Elements);
-		xrlFree(cd.massFractions);
+		FreeCompoundData(cd);
 	}	
-	Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*n_elem);
-        Ph[NPhases].NElem = n_elem;
       }
+      Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*n_elem);
+      Ph[NPhases].NElem = n_elem;
+      cout << "Num. of compounds: " << n_elem << endl;
+      cout << "\tZ\tweight fract.\n";
       for (int elem_idx = 0 ; elem_idx < n_elem ; elem_idx++) {
 		cout << "\t" << Ph[NPhases].Z[elem_idx] << "\t"
 	     	<< Ph[NPhases].W[elem_idx] << endl;
@@ -195,5 +193,23 @@ int composition::SetDefault()
   string ph_name="Vacuum";
   insert_pair = PhaseMap.insert(phase_map_pair(ph_name, 0));
 
+  //add NIST compound database
+  struct compoundDataNIST *cdn;
+  char **list = GetCompoundDataNISTList(NULL);
+
+  for (int i = 0 ; list[i] != NULL ; i++) {
+	cdn = GetCompoundDataNISTByIndex(i);
+  	xrlFree(list[i]);
+	Ph[NPhases].NElem = cdn->nElements;
+	Ph[NPhases].Z = (int *) malloc(sizeof(int)*cdn->nElements);
+	memcpy(Ph[NPhases].Z, cdn->Elements, sizeof(int)*cdn->nElements);
+	Ph[NPhases].W = (double *) malloc(sizeof(double)*cdn->nElements);
+	memcpy(Ph[NPhases].W, cdn->massFractions, sizeof(double)*cdn->nElements);
+	Ph[NPhases].Rho = cdn->density;
+	Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*cdn->nElements);
+  	insert_pair = PhaseMap.insert(phase_map_pair(cdn->name, NPhases++));
+	FreeCompoundDataNIST(cdn);	
+  }
+  xrlFree(list);
   return 0;
 }

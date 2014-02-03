@@ -348,6 +348,7 @@ int detectorarray::SetDefault()
   SaturateEmin = 0; // do not Saturate energies lower than Emin
   SaturateEmax = 0; // do not Saturate energies greater than Emax
   NBx = NBy = 20; // size of borders (in pixels) used for FFT convolution
+  EfficiencyFlag = 0; //EfficiencyFLag off by default
 
   return 0;
 }

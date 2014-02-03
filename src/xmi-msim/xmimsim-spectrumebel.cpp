@@ -152,5 +152,5 @@ int spectrum_ebel::RunInit() {
 	spectrum::RunInit();
 
 
-
+	return 1;
 }

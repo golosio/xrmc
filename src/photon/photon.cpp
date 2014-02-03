@@ -57,6 +57,8 @@ int photon::MonteCarloStep(sample *Sample, int *iZ, int *iType)
   phase *ph_compound;
   int step_idx, interaction_type, Z;
   double mu_atom, cs_interaction[3], cs_tot; 
+  
+  mySample = Sample;
 
   // evaluates the intersections of the photon trajectory with
   // the phases inside the sample and the absorption coefficient
@@ -276,7 +278,8 @@ int photon::Scatter(int Z, int interaction_type, vect3 v_r)
       denom = CS_Compt(Z, E);
       if (num+denom==num) weight = 0; // check for division overflow
       else weight = num/denom;
-      E = ComptonEnergy(E, theta); // update the photon energy
+      //E = ComptonEnergy(E, theta); // update the photon energy
+      ComptonEnergyDoppler(Z, theta);
       break;
     default :
       sprintf(s, "%d", interaction_type);
@@ -363,10 +366,41 @@ int photon::Incoherent(int Z)
   if (num+denom==num) weight = 0; // check for division overflow
   else weight = num/denom;
   w *= weight; // update the event weight
-  E = ComptonEnergy(E, cos(theta)); // update the photon energy
+  //E = ComptonEnergy(E, cos(theta)); // update the photon energy
+  ComptonEnergyDoppler(Z, theta);
 
   ChangeDirection(theta, phi); // update the photon direction
 
   return 0;
 }
 
+//
+int photon::ComptonEnergyDoppler(int Z, double theta) {
+	double K0K, pz, r;
+	int pos;
+	const double c = 1.2399E-6;
+	const double c0 = 4.85E-12;
+	const double c1 = 1.456E-2;
+	double c_lamb0, dlamb, c_lamb;
+	double energy, sth2;
+	int np;
+
+	energy = E*1000.0;
+	c_lamb0 = c/energy;
+
+	sth2 = sin(theta/2.0);
+	do {
+		r = Rnd_r(Rng);
+		pos = (int) (r*(NINTERVALS_R-1.0));
+		pz = (mySample->doppler_pz[Z][pos+1] - mySample->doppler_pz[Z][pos])*(r-mySample->rs[pos])/(mySample->rs[pos+1]-mySample->rs[pos])+mySample->doppler_pz[Z][pos];
+		if (Rnd_r(Rng) < 0.5)
+			pz *= -1.0;
+		dlamb = c0*sth2*sth2-c1*c_lamb0*sth2*pz;
+                c_lamb = c_lamb0+dlamb;
+                energy = c/c_lamb/1000.0;
+
+	} while(energy > E);
+
+	E = energy;
+	return 0;
+}
