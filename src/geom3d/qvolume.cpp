@@ -53,6 +53,13 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
   double t01max=0, t10min=0;
   int t01flag=0, t10flag=0;
 
+  bool *inside = new bool[NQuadr], inside_obj=true;
+
+  for (int iq=0; iq<NQuadr; iq++) { // loop on quadrics delimiting the object
+    inside[iq]=(Quadr[iq]->Inside(x0)==0); // check if x0 is inside the quadric
+    inside_obj = inside_obj && inside[iq];
+  }
+
   for (int iq=0; iq<NQuadr; iq++) { // loop on quadrics delimiting the object
     n_inters_q = Quadr[iq]->NInters; // num. of intersections with quadric iq
     // cout << "iq, n_inters_q: " << iq << "\t" << n_inters_q <<"\n";
@@ -70,6 +77,8 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
       // cout << "t_q: " << t_q << "\n";
       enter_q = Quadr[iq]->Enter[ii]; // check if the quadric is crossed from
                                       // outside to inside or viceversa
+      if (n_inters_q==2 && ii==0 && !inside_obj && enter_q==0) continue; 
+      else if (ii==1 && inside_obj && enter_q==1) break; 
       //cout << "enter_q: " << enter_q << "\n";
       //cout << "t_q: " << t_q << "\n";
       // t01flag: flag for at least one crossing from outside to inside
