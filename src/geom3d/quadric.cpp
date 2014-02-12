@@ -138,7 +138,7 @@ double quadric::Prod3(double *x, double *y) {
 }
 
 //////////////////////////////////////////////////////////////////////
-// check if point x is inside (0) or outside (1) the quadric
+// check if point x is inside (1) or outside (0) the quadric
 //////////////////////////////////////////////////////////////////////
 int quadric::Inside(vect3 x)
 {
@@ -304,6 +304,7 @@ int quadric::Intersect(vect3 x0, vect3 u) {
   if ((beta+a)==beta) {  // a is 0 or comparable to 0
     if (c+beta != c) { // check that beta is not too small
       tInters[0] = -c/(2.*beta); // only one solution in this case
+      //if (tInters[0]>0)
       NInters++; // 1 solution
     }
   }
@@ -311,8 +312,8 @@ int quadric::Intersect(vect3 x0, vect3 u) {
     det = beta*beta - a*c; // discriminant of 2nd degree equation
     if (det > 0) { // two solutions
       det = sqrt(det);
-      double sol1 = -beta + det;
-      double sol2 = -beta - det;
+      double sol1 = -beta - det;
+      double sol2 = -beta + det;
       // if (sol1 == sol2) {
       //   tInters[0] = sol1 / a;
       //   NInters++; Reconsider in case of nonconvex quadrics
@@ -320,15 +321,23 @@ int quadric::Intersect(vect3 x0, vect3 u) {
       if (sol1 != sol2) {
 	if ((sol1+a) != sol1) { // check that denominator is not too small
 	  tInters[0] = sol1 / a; // first intersection
+	  //if (tInters[0]>0)
 	  NInters++;
 	} 
 	if ((sol2+a) != sol2) { // check that denominator is not too small
 	  tInters[NInters] = sol2 / a; // second intersection
+	  //if (tInters[NInters]>0)
 	  NInters++; // two solutions
 	} 
       }
     }
   }
+  if (NInters==2 && tInters[1]<tInters[0]) { //swap to have growing t
+    double tmp_t = tInters[0];
+    tInters[0] = tInters[1];
+    tInters[1] = tmp_t;
+  }
+
   for (int i=0; i<NInters; i++) {
     // check the crossing direction of each intersection:
     // from inside to outside (0) or from outside to inside (1)

@@ -56,7 +56,7 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
   bool *inside = new bool[NQuadr], inside_obj=true;
 
   for (int iq=0; iq<NQuadr; iq++) { // loop on quadrics delimiting the object
-    inside[iq]=(Quadr[iq]->Inside(x0)==0); // check if x0 is inside the quadric
+    inside[iq]=Quadr[iq]->Inside(x0); // check if x0 is inside the quadric
     inside_obj = inside_obj && inside[iq];
   }
 
