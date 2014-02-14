@@ -1,1 +1,1 @@
-EXTRA_DIST = License.rtf xrmc.nsi.in 
+EXTRA_DIST = License.rtf xrmc-win32.nsi.in 
