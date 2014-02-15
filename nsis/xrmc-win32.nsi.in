@@ -432,6 +432,8 @@ SetOutPath "$INSTDIR\Bin"
 DetailPrint "Installing GLIB runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\intl.dll" "$INSTDIR\Bin\intl.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgcc_s_dw2-1.dll" "$INSTDIR\Bin\libgcc_s_dw2-1.dll" "$INSTDIR"
 
 
 
@@ -475,6 +477,8 @@ DetailPrint "Uninstalling libstdc++ runtime libraries"
 DetailPrint "Uninstalling GLIB runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libglib-2.0-0.dll" 
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgmodule-2.0-0.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgcc_s_dw2-1.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\intl.dll" 
 
 RMDir "$INSTDIR\Bin"
 
@@ -644,14 +648,14 @@ ExecWait "$R0"
 
 to32:
 
-ReadRegStr $R0 HKLM ${PRODUCT_UNINST_KEY} "UninstallString"
+ReadRegStr $R0 HKLM ${PRODUCT_UNINST_KEY} "QuietUninstallString"
 StrCmp $R0 "" done
 MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the previous version or `Cancel` to cancel this upgrade." IDOK uninst
 Abort
 
 uninst:
 ClearErrors
-Exec $INSTDIR\Uninstall.exe
+ExecWait $INSTDIR\Uninstall.exe
 
 
 done:
