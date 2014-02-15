@@ -433,7 +433,7 @@ DetailPrint "Installing GLIB runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\intl.dll" "$INSTDIR\Bin\intl.dll" "$INSTDIR"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgcc_s_dw2-1.dll" "$INSTDIR\Bin\libgcc_s_dw2-1.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\MinGW32\bin\libgcc_s_dw2-1.dll" "$INSTDIR\Bin\libgcc_s_dw2-1.dll" "$INSTDIR"
 
 
 
