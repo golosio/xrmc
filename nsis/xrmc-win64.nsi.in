@@ -114,6 +114,16 @@ DetailPrint "Installing OpenMP runtime libraries"
 DetailPrint "Installing libstdc++ libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libstdc++_64-6.dll" "$INSTDIR\Bin\libstdc++_64-6.dll" "$INSTDIR"
 
+
+!insertmacro SectionFlagIsSet ${SecXMI_MSIM} ${SF_SELECTED} with_msim no_msim
+
+no_msim:
+DetailPrint "Installing GLIB runtime libraries"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
+
+with_msim:
+
 SetOutPath "$INSTDIR\Sources"
 File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
 
@@ -230,13 +240,10 @@ ${ElseIf} $R1 == 1
 ${ElseIf} $R1 == 2
 	MessageBox MB_OK "The version of xraylib that was found on this system is incompatible with this release of XRMC. The correct version of xraylib will now be downloaded and installed."
 	;quiet uninstall first
-	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib" "QuietUninstallString"
+	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_64_is1" "QuietUninstallString"
 	${If} $R2 == ""
-		ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_is1" "QuietUninstallString"
-		${If} $R2 == ""
-			MessageBox MB_OK "Could not find xraylib QuietUninstallString in registry. Aborting"
-			Abort "Registry error"
-		${Endif}
+		MessageBox MB_OK "Could not find xraylib QuietUninstallString in registry. Aborting"
+		Abort "Registry error"
 	${Endif}
 	ExecWait '$R2'	
 	Goto xraylib
@@ -451,6 +458,10 @@ DetailPrint "Uninstalling OpenMP runtime libraries"
 
 DetailPrint "Uninstalling libstdc++ runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libstdc++_64-6.dll" 
+
+DetailPrint "Uninstalling GLIB runtime libraries"
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libglib-2.0-0.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgmodule-2.0-0.dll" 
 
 RMDir "$INSTDIR\Bin"
 
