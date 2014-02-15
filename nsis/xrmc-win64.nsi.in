@@ -115,15 +115,6 @@ DetailPrint "Installing libstdc++ libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libstdc++_64-6.dll" "$INSTDIR\Bin\libstdc++_64-6.dll" "$INSTDIR"
 
 
-!insertmacro SectionFlagIsSet ${SecXMI_MSIM} ${SF_SELECTED} with_msim no_msim
-
-no_msim:
-DetailPrint "Installing GLIB runtime libraries"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
-
-with_msim:
-
 SetOutPath "$INSTDIR\Sources"
 File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
 
@@ -425,6 +416,22 @@ no_header:
 
 SectionEnd
 
+Section -
+
+;dummy section
+!insertmacro SectionFlagIsSet ${SecXMI_MSIM} ${SF_SELECTED} with_msim no_msim
+
+no_msim:
+SetOutPath "$INSTDIR\Bin"
+DetailPrint "Installing GLIB runtime libraries"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
+
+
+
+with_msim:
+
+SectionEnd
 
 
 LangString DESC_SecXRMC ${LANG_ENGLISH} "The core files and examples of XRMC. Required"
