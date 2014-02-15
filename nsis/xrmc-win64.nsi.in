@@ -506,15 +506,12 @@ DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
 
 ;clean environment variables
 ReadRegStr $R0 HKLM "Software\XMI-MSIM" "InstallationDirectory"
-${If} $R0 == ""
-	MessageBox MB_OK "Could not find XMI-MSIM InstallationDirectory value in registry"
-	Abort "Registry error" 
+${IfNot} $R0 == ""
+	${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\Lib"
+	${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\GTK2"
+	${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\Bin"
+	${un.EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "R" "HKLM" "$INSTDIR\Plugins"
 ${Endif}
-
-${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\Lib"
-${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\GTK2"
-${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\Bin"
-${un.EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "R" "HKLM" "$INSTDIR\Plugins"
 
 ;delete examples
 Delete "$INSTDIR\Examples\xmi-msim\composition.dat"
