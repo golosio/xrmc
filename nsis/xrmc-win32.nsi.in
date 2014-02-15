@@ -655,7 +655,7 @@ Abort
 
 uninst:
 ClearErrors
-ExecWait $INSTDIR\Uninstall.exe
+ExecWait "$R0" 
 
 
 done:
