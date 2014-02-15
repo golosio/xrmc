@@ -110,8 +110,19 @@ DetailPrint "Installing OpenMP runtime libraries"
 DetailPrint "Installing POSIX threads runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\pthreadGC2.dll" "$INSTDIR\Bin\pthreadGC2.dll" "$INSTDIR"
 
-DetailPrint "Installing libstdc++ libraries"
+DetailPrint "Installing libstdc++ runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libstdc++-6.dll" "$INSTDIR\Bin\libstdc++-6.dll" "$INSTDIR"
+
+!insertmacro SectionFlagIsSet ${SecXMI_MSIM} ${SF_SELECTED} with_msim no_msim
+
+no_msim:
+DetailPrint "Installing GLIB runtime libraries"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
+
+
+
+with_msim:
 
 SetOutPath "$INSTDIR\Sources"
 File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
@@ -454,6 +465,10 @@ DetailPrint "Uninstalling POSIX threads runtime libraries"
 
 DetailPrint "Uninstalling libstdc++ runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libstdc++-6.dll" 
+
+DetailPrint "Uninstalling GLIB runtime libraries"
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libglib-2.0-0.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgmodule-2.0-0.dll" 
 
 RMDir "$INSTDIR\Bin"
 
