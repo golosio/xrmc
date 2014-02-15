@@ -213,14 +213,10 @@ AddSize 42000
 SetAutoClose false
 SetShellVarContext all
 DetailPrint "Checking xraylib presence..."
-ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib" "DisplayVersion"
-
+ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_64_is1" "DisplayVersion"
 ${If} $R0 == ""
-	ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_is1" "DisplayVersion"
-	${If} $R0 == ""
-		MessageBox MB_OK "xraylib was not found on the system. It will now be downloaded and installed."
-		Goto xraylib
-	${Endif}
+	MessageBox MB_OK "xraylib was not found on the system. It will now be downloaded and installed."
+	Goto xraylib
 ${Endif}
 
 ${VersionCompare} $R0 ${XRAYLIB_VERSION_MIN} $R1
