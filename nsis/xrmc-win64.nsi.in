@@ -426,6 +426,8 @@ SetOutPath "$INSTDIR\Bin"
 DetailPrint "Installing GLIB runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libintl-8.dll" "$INSTDIR\Bin\libintl-8.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\TDM-GCC-64\bin\libgcc_s_seh_64-1.dll" "$INSTDIR\Bin\libgcc_s_seh_64-1.dll" "$INSTDIR"
 
 
 
@@ -469,6 +471,8 @@ DetailPrint "Uninstalling libstdc++ runtime libraries"
 DetailPrint "Uninstalling GLIB runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libglib-2.0-0.dll" 
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgmodule-2.0-0.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libintl-8.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgcc_s_seh_64-1.dll" 
 
 RMDir "$INSTDIR\Bin"
 
