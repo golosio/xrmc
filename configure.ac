@@ -131,7 +131,8 @@ AC_CONFIG_FILES([	Makefile
 			libxrmc.pc
 			xrmc.spec
 			nsis/Makefile
-			nsis/xrmc.nsi])
+			nsis/xrmc-win32.nsi
+			nsis/xrmc-win64.nsi])
 AC_CONFIG_HEADERS([config.h])
 
 

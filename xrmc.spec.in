@@ -8,7 +8,7 @@ Packager: Tom Schoonjans <Tom.Schoonjans@me.com>
 URL: http://github.com/golosio/xrmc
 Source: xrmc-%{version}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-BuildRequires: gcc gcc-c++ xraylib-devel >= 2.15.0 xmimsim-devel >= 2.0 libstdc++-devel pkgconfig
+BuildRequires: gcc gcc-c++ xraylib-devel >= 3.0.0 xmimsim-devel >= 3.0 libstdc++-devel pkgconfig
 Requires: xraylib >= 2.15.0 libstdc++
 
 %description
@@ -17,7 +17,7 @@ XRMC is a Monte Carlo program for accurate simulation of X-ray imaging and spect
 
 %package devel
 Summary: A tool for the simulation of X-ray imaging and spectroscopy experiments: development package
-Requires: xraylib-devel >= 2.15.0 xmimsim-devel >= 2.0 libstdc++-devel xrmc == @VERSION@ xrmc-xmimsim == @VERSION@
+Requires: xraylib-devel >= 3.0.0 xmimsim-devel >= 3.0 libstdc++-devel xrmc == @VERSION@ xrmc-xmimsim == @VERSION@
 
 %description devel
 XRMC is a Monte Carlo program for accurate simulation of X-ray imaging and spectroscopy experiments in heterogeneous samples. The use of the Monte Carlo method makes the code suitable for the detailed simulation of complex experiments on generic samples. Variance reduction techniques are used for reducing considerably the computation time compared to general purpose Monte Carlo programs. The program is written in c++ and has been tested on Linux, Mac OS X and MS Windows platforms.
@@ -26,7 +26,7 @@ This package contains the headers and static libraries, as well as a pkg-config 
 
 %package xmimsim
 Summary: A tool for the simulation of X-ray imaging and spectroscopy experiments: XMI-MSIM plugin
-Requires: xrmc == @VERSION@ xmimsim >= 2.0
+Requires: xrmc == @VERSION@ xmimsim >= 3.0
 
 %description xmimsim 
 XRMC is a Monte Carlo program for accurate simulation of X-ray imaging and spectroscopy experiments in heterogeneous samples. The use of the Monte Carlo method makes the code suitable for the detailed simulation of complex experiments on generic samples. Variance reduction techniques are used for reducing considerably the computation time compared to general purpose Monte Carlo programs. The program is written in c++ and has been tested on Linux, Mac OS X and MS Windows platforms.
@@ -66,9 +66,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %{_libdir}/libxrmc.so.*
 %{_bindir}/xrmc
-%{_prefix}/share/doc/xrmc/xrmc_6.4.1_man.pdf
 %{_prefix}/share/examples/xrmc/*
-
+%{_prefix}/share/doc/xrmc/xrmc_6.4.3_man.pdf
 
 
 %files devel

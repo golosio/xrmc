@@ -1,4 +1,4 @@
-;Copyright (C) 2010-2011 Tom Schoonjans and Laszlo Vincze
+;Copyright (C) 2010-2011 Tom Schoonjans and Bruno Golosio
 
 ;This program is free software: you can redistribute it and/or modify
 ;it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define MY_HOME "C:\msys\1.0\home\schoon\"
 !define MY_MINGW "C:\MinGW32\"
-!define XRAYLIB_VERSION "2.16.0"
-!define XRAYLIB_VERSION_MIN "2.15.0"
+!define XRAYLIB_VERSION "3.0.0"
+!define XRAYLIB_VERSION_MIN "3.0.0"
 
-!define XMI_MSIM_VERSION "2.0"
-!define XMI_MSIM_VERSION_MIN "2.0"
+!define XMI_MSIM_VERSION "3.0"
+!define XMI_MSIM_VERSION_MIN "3.0"
 
 
 
@@ -110,8 +110,9 @@ DetailPrint "Installing OpenMP runtime libraries"
 DetailPrint "Installing POSIX threads runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\pthreadGC2.dll" "$INSTDIR\Bin\pthreadGC2.dll" "$INSTDIR"
 
-DetailPrint "Installing libstdc++ libraries"
+DetailPrint "Installing libstdc++ runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libstdc++-6.dll" "$INSTDIR\Bin\libstdc++-6.dll" "$INSTDIR"
+
 
 SetOutPath "$INSTDIR\Sources"
 File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
@@ -184,7 +185,7 @@ File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
 
 ;documentation
 SetOutPath "$INSTDIR\Doc"
-File "${MY_HOME}share\doc\xrmc\xrmc_6.4.1_man.pdf"
+File "${MY_HOME}share\doc\xrmc\xrmc_6.4.3_man.pdf"
 
 ;registry modifications
 WriteRegStr HKLM "Software\${PRODUCT_NAME}" "InstallationDirectory" "$INSTDIR"
@@ -215,8 +216,11 @@ DetailPrint "Checking xraylib presence..."
 ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib" "DisplayVersion"
 
 ${If} $R0 == ""
-	MessageBox MB_OK "xraylib was not found on the system. It will now be downloaded and installed."
-	Goto xraylib
+	ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_is1" "DisplayVersion"
+	${If} $R0 == ""
+		MessageBox MB_OK "xraylib was not found on the system. It will now be downloaded and installed."
+		Goto xraylib
+	${Endif}
 ${Endif}
 
 ${VersionCompare} $R0 ${XRAYLIB_VERSION_MIN} $R1
@@ -231,6 +235,13 @@ ${ElseIf} $R1 == 2
 	MessageBox MB_OK "The version of xraylib that was found on this system is incompatible with this release of XRMC. The correct version of xraylib will now be downloaded and installed."
 	;quiet uninstall first
 	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib" "QuietUninstallString"
+	${If} $R2 == ""
+		ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_is1" "QuietUninstallString"
+		${If} $R2 == ""
+			MessageBox MB_OK "Could not find xraylib QuietUninstallString in registry. Aborting"
+			Abort "Registry error"
+		${Endif}
+	${Endif}
 	ExecWait '$R2'	
 	Goto xraylib
 ${Else}
@@ -258,7 +269,7 @@ ${Endif}
 
 xraylib_install:
 DetailPrint "xraylib download has succeeded. Installing..."
-ExecWait '"xraylib-${XRAYLIB_VERSION}-win32.exe" /S' $0
+ExecWait '"xraylib-${XRAYLIB_VERSION}-win32.exe" /VERYSILENT /SP-' $0
 Delete "xraylib-${XRAYLIB_VERSION}-win32.exe"
 ${If} $0 == 0
 	Goto xraylib_end
@@ -281,6 +292,15 @@ SetShellVarContext all
 
 
 
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\alloc.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\anisotropicsource.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\beamscreen.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\beamsource.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\fft.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\image_convolution.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\intensityscreen.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\phcdetector.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\phcdevice.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\randmt.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_algo.h"
@@ -295,6 +315,7 @@ SetShellVarContext all
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_math.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_photon.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_sample.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_screen.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_source.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_spectrum.h"
 
@@ -321,7 +342,7 @@ ${ElseIf} $R1 == 1
 	DetailPrint "XMI-MSIM is already installed"
 	Goto xmi_msim_end 
 ${ElseIf} $R1 == 2
-	MessageBox MB_OK "The version of XMI-MSIM that was found on this system is incompatible with this release of XRMC. The correct version of xraylib will now be downloaded and installed."
+	MessageBox MB_OK "The version of XMI-MSIM that was found on this system is incompatible with this release of XRMC. The correct version of XMI-MSIMwill now be downloaded and installed."
 	;quiet uninstall first
 	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM" "QuietUninstallString"
 	ExecWait '$R2'	
@@ -395,11 +416,30 @@ ${EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "A" "HKLM" "$INSTDIR\Plugins"
 
 with_header:
 SetOutPath "$INSTDIR\Include"
-File ${MY_HOME}include\xrmc\xrmc_detectorconvolute.h
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_detectorconvolute.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_spectrum_ebel.h"
 no_header:
 
 SectionEnd
 
+Section -
+
+;dummy section
+!insertmacro SectionFlagIsSet ${SecXMI_MSIM} ${SF_SELECTED} with_msim no_msim
+
+no_msim:
+SetOutPath "$INSTDIR\Bin"
+DetailPrint "Installing GLIB runtime libraries"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\intl.dll" "$INSTDIR\Bin\intl.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\MinGW32\bin\libgcc_s_dw2-1.dll" "$INSTDIR\Bin\libgcc_s_dw2-1.dll" "$INSTDIR"
+
+
+
+with_msim:
+
+SectionEnd
 
 
 LangString DESC_SecXRMC ${LANG_ENGLISH} "The core files and examples of XRMC. Required"
@@ -434,9 +474,24 @@ DetailPrint "Uninstalling POSIX threads runtime libraries"
 DetailPrint "Uninstalling libstdc++ runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libstdc++-6.dll" 
 
+DetailPrint "Uninstalling GLIB runtime libraries"
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libglib-2.0-0.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgmodule-2.0-0.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgcc_s_dw2-1.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\intl.dll" 
+
 RMDir "$INSTDIR\Bin"
 
 DetailPrint "Deleting development files"
+Delete "$INSTDIR\Include\alloc.h"
+Delete "$INSTDIR\Include\anisotropicsource.h"
+Delete "$INSTDIR\Include\beamscreen.h"
+Delete "$INSTDIR\Include\beamsource.h"
+Delete "$INSTDIR\Include\fft.h"
+Delete "$INSTDIR\Include\image_convolution.h"
+Delete "$INSTDIR\Include\intensityscreen.h"
+Delete "$INSTDIR\Include\phcdetector.h"
+Delete "$INSTDIR\Include\phcdevice.h"
 Delete "$INSTDIR\Include\randmt.h"
 Delete "$INSTDIR\Include\xrmc.h"
 Delete "$INSTDIR\Include\xrmc_algo.h"
@@ -452,8 +507,10 @@ Delete "$INSTDIR\Include\xrmc_loaddetector.h"
 Delete "$INSTDIR\Include\xrmc_math.h"
 Delete "$INSTDIR\Include\xrmc_photon.h"
 Delete "$INSTDIR\Include\xrmc_sample.h"
+Delete "$INSTDIR\Include\xrmc_screen.h"
 Delete "$INSTDIR\Include\xrmc_source.h"
 Delete "$INSTDIR\Include\xrmc_spectrum.h"
+Delete "$INSTDIR\Include\xrmc_spectrum_ebel.h"
 RmDir "$INSTDIR\Include"
 
 DetailPrint "Deleting plugins"
@@ -473,15 +530,12 @@ DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
 
 ;clean environment variables
 ReadRegStr $R0 HKLM "Software\XMI-MSIM" "InstallationDirectory"
-${If} $R0 == ""
-	MessageBox MB_OK "Could not find XMI-MSIM InstallationDirectory value in registry"
-	Abort "Registry error" 
+${IfNot} $R0 == ""
+	${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\Lib"
+	${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\GTK2"
+	${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\Bin"
+	${un.EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "R" "HKLM" "$INSTDIR\Plugins"
 ${Endif}
-
-${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\Lib"
-${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$R0\GTK2"
-${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\Bin"
-${un.EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "R" "HKLM" "$INSTDIR\Plugins"
 
 ;delete examples
 Delete "$INSTDIR\Examples\xmi-msim\composition.dat"
@@ -567,7 +621,7 @@ RmDir "$INSTDIR\Examples\fluor_layers"
 RmDir "$INSTDIR\Examples"
 
 ;documentation
-Delete "$INSTDIR\Doc\xrmc_6.4.1_man.pdf"
+Delete "$INSTDIR\Doc\xrmc_6.4.3_man.pdf"
 RmDir "$INSTDIR\Doc"
 
 Delete "$INSTDIR\Uninstall.exe"
@@ -575,14 +629,33 @@ RMDir "$INSTDIR"
 SectionEnd
 
 Function .onInit
-ReadRegStr $R0 HKLM ${PRODUCT_UNINST_KEY} "UninstallString"
+
+#if this is a 64-bit capable system, make sure the 64-bit version is not installed already
+${If} ${RunningX64} 
+	SetRegView 64
+	ReadRegStr $R0 HKLM ${PRODUCT_UNINST_KEY} "QuietUninstallString"
+	SetRegView 32
+	StrCmp $R0 "" to32
+	MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "${PRODUCT_NAME} 64-bit is already installed. $\n$\nClick `OK` to remove this incompatible version or `Cancel` to cancel this install." IDOK uninst64
+	Abort
+${Else}
+	Goto to32
+${EndIf}
+
+uninst64:
+ClearErrors
+ExecWait "$R0" 
+
+to32:
+
+ReadRegStr $R0 HKLM ${PRODUCT_UNINST_KEY} "QuietUninstallString"
 StrCmp $R0 "" done
 MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "${PRODUCT_NAME} is already installed. $\n$\nClick `OK` to remove the previous version or `Cancel` to cancel this upgrade." IDOK uninst
 Abort
 
 uninst:
 ClearErrors
-Exec $INSTDIR\Uninstall.exe
+ExecWait "$R0" 
 
 
 done:
