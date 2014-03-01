@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace xrmc_algo;
 
+bool geom3d::MapReduced = false;
 // destructor
 geom3d::~geom3d() {
   for (int i=0; i<NQVol; i++) {
@@ -104,6 +105,12 @@ int geom3d::LinkInputDevice(string command, xrmc_device *dev_pt)
 int geom3d::RunInit()
 {
 
+  //clean up the phases
+  if (!MapReduced) {
+  	Comp->ReduceMap(used_phases);
+	MapReduced = true;
+  }
+
   for(int iqv=0; iqv<NQVol; iqv++) { // loop on 3d objects
     for(int iq=0; iq<QVol[iqv].NQuadr; iq++) { // loop on quadrics delimiting
                                                // the 3d object
@@ -123,6 +130,7 @@ int geom3d::RunInit()
 
     }
     string s_ph_in = QVol[iqv].PhaseInName;
+
     // check if the phase name is present in phase map
     phase_map::iterator it = Comp->PhaseMap.find(s_ph_in);
     // if not display error and exit

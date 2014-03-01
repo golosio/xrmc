@@ -178,3 +178,29 @@ int composition::SetRng(randmt_t *rng)
 
   return 0;
 }
+int composition::ReduceMap(vector<string> used_phases) {
+	phase *Ph_new = new phase[used_phases.size()];
+	phase_map PhaseMap_new;
+	phase_map::iterator it;
+
+	NPhases = used_phases.size();
+
+	for (int i = 0 ; i < used_phases.size() ; i++) {
+		it = PhaseMap.find(used_phases.at(i));
+		if (it==PhaseMap.end()) {
+      			throw xrmc_exception(string("Phase ") + used_phases.at(i)
+                           + " not found in phase map\n");
+		}
+		
+		Ph_new[i] = Ph[it->second];
+		PhaseMap_new.insert(phase_map_pair(used_phases.at(i), i));
+	}
+
+	delete []Ph;
+	Ph = Ph_new;
+	PhaseMap.clear();
+	
+	for (it = PhaseMap_new.begin(); it != PhaseMap_new.end() ; it++) {
+		PhaseMap.insert(phase_map_pair(it->first, it->second));
+	}
+}
