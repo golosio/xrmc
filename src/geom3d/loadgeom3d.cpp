@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include "xrmc.h"
 #include "xrmc_geom3d.h"
 #include "xrmc_exception.h"
@@ -88,7 +89,14 @@ int geom3d::Load(istream &fs)
       cout << "\tPhase Inside: " << QVol[NQVol].PhaseInName << endl;
       cout << "\tPhase Outside: " << QVol[NQVol].PhaseOutName << endl;
       cout << "\tNum. of quadrics: " << QVol[NQVol].NQuadr << endl;
-      
+     
+      if (find(used_phases.begin(), used_phases.end(), s_ph_in) == used_phases.end()) {
+      	used_phases.push_back(s_ph_in);
+      }
+      if (find(used_phases.begin(), used_phases.end(), s_ph_out) == used_phases.end()) {
+      	used_phases.push_back(s_ph_out);
+      }
+
       for(i=0; i<n_quadr; i++) { // loop on quadrics delimiting the 3d object
 	GetToken(fs, s);
 	qname = s; // quadric name

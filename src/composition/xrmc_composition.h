@@ -87,6 +87,7 @@ class composition : public xrmc_device
   int Delta(double E); // Evaluates the delta coefficient of each phase
   virtual composition *Clone(string dev_name);
   virtual int SetRng(randmt_t *rng);
+  int ReduceMap(vector<string> used_phases);
 };
 
 #endif

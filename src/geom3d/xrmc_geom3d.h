@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef GEOM3DH
 #define GEOM3DH
 #include <string>
+#include <vector>
 #include "xrmc_device.h"
 #include "xrmc_math.h"
 #include "xrmc_composition.h"
@@ -120,6 +121,8 @@ class geom3d : public xrmc_device
   std::string QArrName;
   composition *Comp; // input composition device
   std::string CompName;
+  vector<string> used_phases;
+  static bool MapReduced;
 
   int NQVol; // number of 3d objects used in the geometric description
   int MaxNQVol; // maximum number of 3d objects in the geometric description
