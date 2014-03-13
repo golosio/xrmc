@@ -427,7 +427,7 @@ int path::StepMuDelta(composition *comp)
 double path::StepLength(int *step_idx, double *p_abs)
 {
   double logargmin = 1e-10;
-  double sum_mu_s, sum_s, step_length, R, mu_s_length, logarg;
+  double sum_mu_s, sum_s, step_length, R, mu_s_length, log1parg;
   int i, m;
 
   SumMuS[0] = SumS[0] = sum_mu_s = sum_s = 0;
@@ -437,17 +437,17 @@ double path::StepLength(int *step_idx, double *p_abs)
     SumMuS[i+1] = sum_mu_s; // cumulative sum of mu * steplength
     SumS[i+1] = sum_s; // cumulative sum of steplengths
   }
-  *p_abs = 1. - exp(-sum_mu_s); // total absorption probability
+  *p_abs = -expm1(-sum_mu_s); // total absorption probability
   
   do {
     // DELETE if (Rng == NULL)
     //R = Rnd(); // random number 0-1
     //else
-      R = Rnd_r(Rng);
-    logarg = 1 - R*(*p_abs); // use the inverse cumulative distribution
-  } while (logarg<logargmin); // check for logarith underflow
+    R = Rnd_r(Rng);
+    log1parg = R*(*p_abs); // use the inverse cumulative distribution
+  } while ((1.-log1parg)<logargmin); // check for logarith underflow
   
-  mu_s_length = -log(logarg); // sum of mu*L up to the interaction position
+  mu_s_length = -log1p(-log1parg); // sum of mu*L up to the interaction position
   Locate(mu_s_length, SumMuS, NSteps, &m); // locate the step index
   *step_idx = m;
   double num = mu_s_length - SumMuS[m];

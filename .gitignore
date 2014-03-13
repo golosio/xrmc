@@ -30,5 +30,8 @@ stamp-h1
 libtool
 .deps
 output.dat
+image.dat
 *.xmso
 *.spe
+convolved_spectrum.dat
+detector_response
