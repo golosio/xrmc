@@ -167,7 +167,9 @@ int detectorconvolute::CastInputDevices() {
 			+ " not found in composition map\n");
 
 	int i_phase = (*it2).second;
-	CrystalPhase = &(Composition->Ph[i_phase]);
+	//CrystalPhase = &(Composition->Ph[i_phase]);
+	CrystalPhase = new phase;
+	CrystalPhase[0] = Composition->Ph[i_phase];
 
 	//and then the window phase
 	if (WindowPhaseName != "Vacuum") {
@@ -177,7 +179,9 @@ int detectorconvolute::CastInputDevices() {
 				+ " not found in composition map\n");
 
 		i_phase = (*it2).second;
-		WindowPhase = &(Composition->Ph[i_phase]);
+		//WindowPhase = &(Composition->Ph[i_phase]);
+		WindowPhase = new phase;
+		WindowPhase[0] = Composition->Ph[i_phase];
 	}
 	else {
 		WindowPhase = NULL;
