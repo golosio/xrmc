@@ -100,8 +100,13 @@ int Banner()
   cout << "Software for X-ray imaging and spectroscopy experiment simulation\n";
   cout << "based on Monte Carlo method with variance reduction techniques\n";
   cout << "Authors:\n";
-  cout << "B. Golosio, A. Brunetti, G. L. Masala, P. Oliva, T. Schoonjans\n";
+  cout << "B. Golosio, T. Schoonjans, A. Brunetti, P. Oliva, G. L. Masala\n";
   cout << "Università degli Studi di Sassari\n";
+  cout << "\n";
+  cout << "Please cite our manuscript \"Monte Carlo simulation of X-ray imaging\n";
+  cout << "and spectroscopy experiments using quadric geometry and variance\n";
+  cout << "reduction techniques\", Computer Physics Communications, 185:1044-1052, 2013.\n";
+  cout << "DOI: http://dx.doi.org/10.1016/j.cpc.2013.10.034\n\n";
   cout << "Please refer to the manual for usage conditions and instructions\n";
   cout << "-----------------------------------------------------------------\n";
   cout << endl;
