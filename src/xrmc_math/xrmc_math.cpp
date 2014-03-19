@@ -49,13 +49,37 @@ double Angle(double x, double y)
 }
 
 //////////////////////////////////////////////////////////////////////
+// generates a unit vector with random direction
+//////////////////////////////////////////////////////////////////////
+/*
+vect3 RandomDirection()
+{
+  vect3 v;
+  do {
+    v.Elem[0] = Rnd_r(Rng)-0.5; // random direction
+    v.Elem[1] = Rnd_r(Rng)-0.5; // elements between -0.5
+    v.Elem[2] = Rnd_r(Rng)-0.5; // and +0.5
+    double r = v.Mod();
+  } while (r>0.5 || r==0); // uniform distribution inside a r=1/2 sphere
+  v = v/r; // normalize v to 1
+
+  return v;
+}
+*/
+
+//////////////////////////////////////////////////////////////////////
 // build a othonormal basis from the two vectors vk, vi
 //////////////////////////////////////////////////////////////////////
 int OrthoNormal(vect3 &vi, vect3 &vj, vect3 &vk)
 {
   vk.Normalize();
   vj=vk^vi;
-  vj.Normalize();
+  if(vj.Normalize()!=0) {
+    if (fabs(vk.Elem[0])<fabs(vk.Elem[1])) vi.Set(1,0,0);
+    else vi.Set(0,1,0);
+    vj=vk^vi;
+    vj.Normalize();
+  }
   vi=vj^vk;
 
   return 0;
