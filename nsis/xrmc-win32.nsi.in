@@ -26,8 +26,8 @@
 !define XRAYLIB_VERSION "3.0.0"
 !define XRAYLIB_VERSION_MIN "3.0.0"
 
-!define XMI_MSIM_VERSION "3.0"
-!define XMI_MSIM_VERSION_MIN "3.0"
+!define XMI_MSIM_VERSION "3.1"
+!define XMI_MSIM_VERSION_MIN "3.1"
 
 
 
