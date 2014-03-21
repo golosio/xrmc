@@ -1,4 +1,4 @@
-AC_INIT([xrmc],[6.4.3],[golosio@uniss.it])
+AC_INIT([xrmc],[6.4.4],[golosio@uniss.it])
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([src/main/xrmc_main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -61,7 +61,9 @@ AC_LANG_PUSH(C++)
 AC_OPENMP
 AC_LANG_POP(C++)
 
-
+AC_CHECK_LIB([m], [exp], [], [AC_MSG_ERROR([math library does not contain exp])])
+AC_CHECK_FUNC(expm1,,[AC_MSG_ERROR([Required libc function not found])])
+AC_CHECK_FUNC(log1p,,[AC_MSG_ERROR([Required libc function not found])])
 
 
 #look for xraylib
@@ -77,7 +79,7 @@ PKG_CHECK_MODULES([xraylib],libxrl >= 3.0.0)
 AC_ARG_ENABLE([xmi-msim], AS_HELP_STRING([--disable-xmi-msim],[build without XMI-MSIM support]), [enable_xmi_msim=$enableval], [enable_xmi_msim=check])
 
 if test x$enable_xmi_msim != "xno" ; then 
-	PKG_CHECK_MODULES(xmi_msim, libxmimsim > 2.0, [XMIMSIM_FOUND=yes], [XMIMSIM_FOUND=no])
+	PKG_CHECK_MODULES(xmi_msim, libxmimsim >= 3.1, [XMIMSIM_FOUND=yes], [XMIMSIM_FOUND=no])
 	PKG_CHECK_MODULES(gmodule, gmodule-2.0, [GMODULE_FOUND=yes],[GMODULE_FOUND=no])
 
 	if test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes ; then

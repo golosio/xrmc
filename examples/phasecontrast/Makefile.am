@@ -2,9 +2,9 @@ xrmc_exampledir = $(datadir)/examples/xrmc/phasecontrast
 
 dist_xrmc_example_DATA = composition.dat phcdetector.dat geom3d.dat input.dat quadric.dat sample.dat source.dat spectrum.dat
 
-check_SCRIPTS = xrmc.sh
+#check_SCRIPTS = xrmc.sh
 
-TESTS = $(check_SCRIPTS)
+#TESTS = $(check_SCRIPTS)
 
 xrmc.sh:
 if !ABS_SRC_BUILD_EQUAL

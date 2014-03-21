@@ -26,8 +26,8 @@
 !define XRAYLIB_VERSION "3.0.0"
 !define XRAYLIB_VERSION_MIN "3.0.0"
 
-!define XMI_MSIM_VERSION "3.0"
-!define XMI_MSIM_VERSION_MIN "3.0"
+!define XMI_MSIM_VERSION "3.1"
+!define XMI_MSIM_VERSION_MIN "3.1"
 
 
 
@@ -185,7 +185,7 @@ File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
 
 ;documentation
 SetOutPath "$INSTDIR\Doc"
-File "${MY_HOME}share\doc\xrmc\xrmc_6.4.3_man.pdf"
+File "${MY_HOME}share\doc\xrmc\xrmc_${VERSION}_man.pdf"
 
 ;registry modifications
 WriteRegStr HKLM "Software\${PRODUCT_NAME}" "InstallationDirectory" "$INSTDIR"
@@ -621,7 +621,7 @@ RmDir "$INSTDIR\Examples\fluor_layers"
 RmDir "$INSTDIR\Examples"
 
 ;documentation
-Delete "$INSTDIR\Doc\xrmc_6.4.3_man.pdf"
+Delete "$INSTDIR\Doc\xrmc_${VERSION}_man.pdf"
 RmDir "$INSTDIR\Doc"
 
 Delete "$INSTDIR\Uninstall.exe"

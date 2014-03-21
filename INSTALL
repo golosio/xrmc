@@ -15,15 +15,15 @@ ANSI-C Compiler and Build System
 ================================
 Make sure you have an ANSI-C compiler installed. The GNU C compiler (GCC) from the Free Software Foundation (FSF) is recommended. If you don't have GCC then at least make sure your vendor's compiler is ANSI compliant. In addition, your PATH must contain basic build tools such as make.
 
-xraylib (version >= 2.15.0)
+xraylib (version >= 3.0.0)
 ===========================
-To compile XRMC you need the xraylib shared library version >= 2.15.0 .
+To compile XRMC you need the xraylib shared library version >= 3.0.0 .
 xraylib is a library of x-ray interaction parameters, freely available for several platforms at the following URL:
 
  http://github.com/tschoonj/xraylib
 
 Note that only the xraylib shared library is needed for XRMC installation. The command line tool and the bindings are not necessary, although they can be valuable tools for  researcher working with x-rays.
-This version of XRMC was tested with xraylib v2.16.0
+This version of XRMC was tested with xraylib v3.0.0
 
 ---------------------------------------------------
 Extracting the source
