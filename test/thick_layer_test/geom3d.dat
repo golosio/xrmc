@@ -1,0 +1,9 @@
+Newdevice geom3d
+Geom3D
+QArrName QuadricArray
+CompName Composition
+Object Box_0
+Comp_0 Vacuum
+6
+Upside Downside Rightside Leftside Lower_0 Higher_0
+End

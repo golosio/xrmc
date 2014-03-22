@@ -1,0 +1,9 @@
+Newdevice source
+Source
+SpectrumName Spectrum
+X 0.0 0.0 0.0
+uk 0.0 1.0 0.0
+ui 1.0 0.0 0.0
+Divergence 5e-06 5e-06
+Size 0.0 0.0 0.0
+End

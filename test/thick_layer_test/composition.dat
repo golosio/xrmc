@@ -1,0 +1,17 @@
+Newdevice composition
+Composition
+Phase Comp_0
+NElem 3
+8 17.7644
+48 31.2027
+74 51.0329
+Rho 7.900000
+Phase Crystal
+NElem 1
+14 100
+Rho 2.330000
+Phase Window
+NElem 1
+4 100
+Rho 1.850000
+End

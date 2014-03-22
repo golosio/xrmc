@@ -1,0 +1,35 @@
+Newdevice detectorarray
+Detector
+SourceName Sample
+NPixels 1 1
+PixelSize 0.618039 0.618039
+Shape 1
+X -1 100 0
+uk 1 0 0
+ui 0 0 0
+ExpTime 1
+PhotonNum 100000
+RandomPixelFlag 1
+PoissonFlag 0
+RoundFlag 0
+HeaderFlag 0
+ForceDetectFlag 1
+AsciiFlag 1
+PixelType 2
+Emin 0
+Emax 40.94
+NBins 2048
+SaturateEmin 0
+SaturateEmax 0
+Seeds 10                        ; Seeds for random number generation
+123450                          ; 1st seed
+123451                          ; ...
+123452                          ; ...
+123453                          ; ...
+123454                          ; ...
+123455                          ; ...
+123456                          ; ...
+123457                          ; ...
+123458                          ; ...
+123459                          ; last seed
+End

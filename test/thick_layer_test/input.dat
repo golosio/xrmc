@@ -1,0 +1,12 @@
+; XRMC input-file
+;
+Load source.dat
+Load spectrum.dat
+Load sample.dat
+Load quadric.dat
+Load geom3d.dat
+Load composition.dat
+Load detector.dat
+Run Detector
+Save Detector Image output.dat
+End

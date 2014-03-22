@@ -1,0 +1,21 @@
+Test of 1st order scattering from a thick layer
+
+//////////////////////////////////////////////////////////////////////
+// Compiling  and runningthe program for theoretical calculation
+//////////////////////////////////////////////////////////////////////
+
+Go to the directory theor and run 
+ ./make.sh
+then execute
+./theor
+to get the number of detected x-ray photon from scattering (Stot)
+
+//////////////////////////////////////////////////////////////////////
+// Running the xrmc simulation
+//////////////////////////////////////////////////////////////////////
+Run
+ xrmc input.dat
+To get the number of detected x-ray photon from scattering,
+you can use octave (or matlab), wher you can run
+ oct_plot
+

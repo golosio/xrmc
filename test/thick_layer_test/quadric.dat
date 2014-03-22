@@ -1,0 +1,15 @@
+Newdevice quadricarray
+QuadricArray
+Plane Upside
+0 0 10000 0 0 1
+Plane Downside
+0 0 -10000 0 0 -1
+Plane Rightside
+10000 0 0 0.707107 -0.707107 0
+Plane Leftside
+-10000 0 0 -0.707107 0.707107 0
+Plane Lower_0
+0 100 0 -0.707107 -0.707107 -0
+Plane Higher_0
+0.707107 100.707 0 0.707107 0.707107 0
+End
