@@ -35,8 +35,23 @@ is complete.
 To execute the simulation, run:
  xrmc input.dat
 The output files will be stored in the directory output
+Each output file contains a raw array of 800 real numbers (64 bit).
+The first 400 elements are not used as they refer to transmission.
+The elements from 400 to 799 are the 1st scattering order signal.
+There are 400 energy bins from 0 to 40 keV.
+The Ka line of Sn is at  25.192 keV, which corresponds to
+the element n. 400+252=652
+We can evaluate the Sn Ka signal by summing the elements in a region
+around the Sn Ka line, e.g. from 640 to 660 
 
 //////////////////////////////////////////////////////////////////////
+// Visualizing the map of the Sn signal using matlab or octave
+//////////////////////////////////////////////////////////////////////
+from matlab or octave command line, run
+ oct_plot
+
+//////////////////////////////////////////////////////////////////////
+// NOT RECOMMENDED!!!!
 // Visualizing the map of the Sn signal using ImageJ
 //////////////////////////////////////////////////////////////////////
 It's a bit tricky, but it is possible to visualize the map of the Sn signal
