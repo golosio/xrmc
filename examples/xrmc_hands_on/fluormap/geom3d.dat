@@ -1,0 +1,33 @@
+; 3D object geometric description file
+;
+Newdevice geom3d				; Device type
+Geom3D				; Device name
+QArrName QuadricArray		; Quadric array input device name
+CompName Composition		; Composition input device name
+
+Object Parallelepiped		; Top beam
+Iron Vacuum			; Phase in, phase out
+6				; Number of quadrics for object 0
+PZ1 PZ2 PX1 PX2 PY1 PY2		; Quadric names
+
+Object Cyl1
+Alloy1 Iron			; Phase in, phase out
+3				; Number of quadrics for object 0
+C1 BZ1 BZ2			; Quadric names
+
+Object Cyl2
+Alloy2 Iron			; Phase in, phase out
+3				; Number of quadrics for object 0
+C2 BZ1 BZ2			; Quadric names
+
+Object Cyl3
+Alloy3 Iron			; Phase in, phase out
+3				; Number of quadrics for object 0
+C3 BZ1 BZ2			; Quadric names
+
+Object Cyl4
+Alloy4 Iron			; Phase in, phase out
+3				; Number of quadrics for object 0
+C4 BZ1 BZ2			; Quadric names
+
+End

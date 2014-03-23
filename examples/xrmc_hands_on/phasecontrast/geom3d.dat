@@ -1,0 +1,20 @@
+; 3D object geometric description file
+;
+Newdevice geom3d				; Device type
+Geom3D				; Device name
+QArrName QuadricArray		; Quadric array input device name
+CompName Composition            ; Composition input device name
+
+;Object: parallelepiped
+Object Par1
+Tissue,\ Soft\ (ICRU\ four-component) Vacuum
+6				; Number of quadrics
+PZ1 PZ2 PY1 PY2 PX1 PX2
+
+; Object: cilinder
+Object Cyl1
+Tumor Tissue,\ Soft\ (ICRU\ four-component)
+1				; Number of quadrics
+E1			; Quadric names
+
+End

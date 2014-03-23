@@ -1,0 +1,48 @@
+; Quadric array file
+;
+Newdevice quadricarray				; Device type
+QuadricArray				; Device name
+
+; External parallelepiped
+Plane PZ1
+0 0 -0.05 0 0 -1
+Plane PZ2
+0 0 0.05 0 0 1
+Plane PX1
+-0.05 0 0 -1 0 0
+Plane PX2
+0.05 0 0 1 0 0
+Plane PY1
+0 -0.006 0 0 -1 0
+Plane PY2
+0 0.006 0 0 1 0
+
+;cylinder bases
+Plane BZ1
+0 0 -0.04 0 0 -1
+Plane BZ2
+0 0 0.04 0 0 1
+
+;1st cylinder
+CylinderZ C1
+-0.03 0 0.005 0.005
+
+;2nd cylinder
+CylinderZ C2
+-0.01 0 0.005 0.005
+
+;3rd cylinder
+CylinderZ C3
+0.01 0 0.005 0.005
+
+;4th cylinder
+CylinderZ C4
+0.03 0 0.005 0.005
+
+; Rotation of all previous quadrics:
+RotateAll 0 0 0 0 0 1 -20 ; x0, y0, z0, ux, uy, uz, theta (20 deg around z)
+RotateAll 0 0 0 1 0 0 -20 ; x0, y0, z0, ux, uy, uz, theta (20 deg around x)
+;TranslateAll -0.04 0 0
+
+End
+

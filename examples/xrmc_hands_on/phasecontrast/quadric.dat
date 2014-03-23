@@ -1,0 +1,27 @@
+; Quadric array file
+;
+Newdevice quadricarray				; Device type
+QuadricArray				; Device name
+
+; parallelepiped
+Plane PZ1		
+0  0 -10  0  0 -1	
+Plane PZ2		
+0  0  10  0  0  1	
+Plane PX1		
+-10  0 0  -1  0 0	
+Plane PX2		
+10  0  0  1  0  0	
+Plane PY1		
+0  -0.1 0  0  -1 0	
+Plane PY2		
+0  0.1  0  0  1  0	
+
+
+Ellipsoid E1		; sphere:
+0 0 0 0.05 0.05 0.05			; axis x0, y0, z0 rx, ry, rz
+
+; Rotation of all previous quadrics:
+;RotateAll 0 0 0 0 1 0 20 ; rotation axis x0, u, theta (20 deg around y)
+;RotateAll 0 0 0 1 0 0 30 ; rotation axis x0, u, theta (30 deg around x)
+End

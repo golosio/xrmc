@@ -1,0 +1,262 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+Load source.dat			; Source position, orientation
+
+Load detector.dat		; Detector position, orientation, size file
+
+Load spectrum.dat		; Energy Spectrum and Polarization file
+
+Load sample.dat			; Sample file
+
+Load quadric.dat		; Quadric file
+
+Load geom3d.dat			; Qvolume file
+
+Load composition.dat		; Composition file
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_0.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_1.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_2.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_3.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_4.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_5.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_6.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_7.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_8.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_9.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_10.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_11.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_12.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_13.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_14.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_15.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_16.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_17.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_18.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_19.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_20.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_21.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_22.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_23.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_24.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_25.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_26.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_27.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_28.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_29.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_30.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_31.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_32.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_33.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_34.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_35.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_36.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_37.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_38.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_39.dat
+
+Load translate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image output/output_40.dat
+

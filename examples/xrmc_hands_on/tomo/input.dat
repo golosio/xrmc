@@ -1,0 +1,58 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+Load source.dat			; Source position, orientation
+
+Load detector.dat		; Detector position, orientation, size file
+
+Load spectrum.dat		; Energy Spectrum and Polarization file
+
+Load sample.dat			; Sample file
+
+Load quadric.dat		; Quadric file
+
+Load geom3d.dat			; Qvolume file
+
+Load composition.dat		; Composition file
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image image/image_0.dat
+
+Load rotate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image image/image_30.dat
+
+Load rotate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image image/image_60.dat
+
+Load rotate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image image/image_90.dat
+
+Load rotate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image image/image_120.dat
+
+Load rotate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image image/image_150.dat
+
+Load rotate.dat
+
+Run DetectorArray		; Run device
+
+Save DetectorArray Image image/image_180.dat
+
