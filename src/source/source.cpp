@@ -47,6 +47,13 @@ source::source(string dev_name) {
   SetDevice(dev_name, "source");
 }
 
+source::~source() {
+	if (Spectrum != NULL) {
+		delete Spectrum;
+		Spectrum = NULL;
+	}
+}
+
 int source::SetRng(randmt_t *rng)
 {
   Rng = rng;

@@ -141,9 +141,11 @@ int detectorarray::Acquisition()
     Poisson(rngs[0]);
   }
 
+  dynamic_cast<sample*>(SourceClones[0])->clear_doppler();
   //free rngs
   for (int i=0; i<THREAD_MAXNUM; i++) {
     free_randmt(rngs[i]);
+    delete SourceClones[i];
   }
   delete [] rngs;
 

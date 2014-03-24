@@ -70,6 +70,7 @@ class source : public basesource
 
   // Constructor
   source(std::string dev_name);
+  virtual ~source();
 
   virtual int Load(istream &fs); // loads source parameters from file
   // method for casting input device to type spectrum

@@ -115,7 +115,7 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
     }
   }
   //cout << "n_inters: " << *n_inters << "\n";
-
+  delete [] inside;
   return 0;
 }
 
