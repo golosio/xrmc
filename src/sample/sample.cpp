@@ -43,6 +43,22 @@ sample::~sample() { // destructor
     delete[] PhotonNum;
   }
   if (Path!=NULL) delete Path;
+  if (Geom3D!=NULL) delete Geom3D;
+  if (Source!=NULL) delete Source;
+}
+
+void sample::clear_doppler() {
+  if (doppler_pz!=NULL) {
+    for (int i = 0 ; i < compZ.size() ; i++) {
+	delete [] doppler_pz[compZ[i]];
+    }
+    delete [] doppler_pz;
+    doppler_pz = NULL;
+  }
+  if (rs != NULL) {
+    delete [] rs;
+    rs = NULL;	
+  }
 }
 
 // constructor
@@ -207,6 +223,8 @@ int sample::RunInit()
 	doppler_pz[compZ[i]][NINTERVALS_R-1] = maxpz;
 	doppler_pz[compZ[i]][0] = 0.0;
   }
+  delete [] pzs;
+  delete [] trapez2;
   return 0;
 }
 

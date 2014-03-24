@@ -39,6 +39,14 @@ geom3d::~geom3d() {
   }
   if (QVolMap!=NULL) delete[] QVolMap;
   if (QVol!=NULL) delete[] QVol;
+  if (QArr!=NULL) {
+	delete QArr;
+	QArr = NULL;
+  }
+  if (Comp!=NULL) {
+	delete Comp;
+	Comp = NULL;
+  }
 }
 
 // constructor
