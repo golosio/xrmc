@@ -39,7 +39,7 @@ using namespace std;
 class xrmc
 {
  public:
-  ~xrmc() { DeleteDevices(); }// destructor
+  //~xrmc() { DeleteDevices(); }// destructor
   int Run(string file_name); // method for running the simulation
  private:
   xrmc_device_map DeviceMap; // map of devices used by the simulation
