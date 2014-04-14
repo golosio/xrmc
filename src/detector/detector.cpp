@@ -145,7 +145,8 @@ int detectorarray::Acquisition()
   //free rngs
   for (int i=0; i<THREAD_MAXNUM; i++) {
     free_randmt(rngs[i]);
-    delete SourceClones[i];
+    if (THREAD_MAXNUM > 1)
+      delete SourceClones[i];
   }
   delete [] rngs;
 
