@@ -143,7 +143,8 @@ class sample : public basesource
   virtual int SetRng(randmt_t *rng);
   virtual vect3 SourceX();
   virtual basesource *Clone(string dev_name);
-  void clear_doppler();
+  void DopplerClear();
+  void DopplerInit();
  private:
   geom3d *Geom3D; // input geom3d device
 

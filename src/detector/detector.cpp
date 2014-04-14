@@ -108,6 +108,15 @@ int detectorarray::Acquisition()
   basesource **SourceClones = new basesource*[THREAD_MAXNUM];
   photon *PhotonArray = new photon[THREAD_MAXNUM];
 
+  if (PrevCompZ != dynamic_cast<sample*>(Source)->compZ) {
+  	//new elements found -> recalculate
+	//this could be done in a better way, for example by recalculating only those elements
+	//that were not present before
+  	dynamic_cast<sample*>(Source)->DopplerClear();
+  	dynamic_cast<sample*>(Source)->DopplerInit();
+	PrevCompZ = dynamic_cast<sample*>(Source)->compZ;
+  }
+
   cout << "Maximum number of threads: "  << THREAD_MAXNUM << endl;
   if (THREAD_MAXNUM==1) {
     SourceClones[0] = Source;
@@ -141,7 +150,6 @@ int detectorarray::Acquisition()
     Poisson(rngs[0]);
   }
 
-  dynamic_cast<sample*>(SourceClones[0])->clear_doppler();
   //free rngs
   for (int i=0; i<THREAD_MAXNUM; i++) {
     free_randmt(rngs[i]);
