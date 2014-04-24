@@ -96,6 +96,7 @@ class detectorarray : public xrmc_screen
   std::vector<gauss_vect> GaussSourceYBin; // energy-dependent source y size
   int EfficiencyFlag; // flag for using efficiency before image convolution
   std::vector<double> Efficiency; //  energy-dependent efficiency
+  std::vector<int> PrevCompZ;
 
   virtual int RunInit(); // detectorarray initialization before run
   //vect3 RandomPointOnPixel(int i); // Generates a random point
