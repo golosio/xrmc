@@ -35,7 +35,7 @@ G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 	if (xmi_xmlLoadCatalog() == 0) {
 		return 0;
 	}
-	g_fprintf(stdout,"XML catalog loaded\n");
+	g_fprintf(stdout,"XMI-MSIM XML catalog loaded\n");
 
 	SetErrorMessages(0);
 	return 1;
@@ -72,6 +72,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	options.extra_verbose = 0;
 	options.omp_num_threads = omp_get_max_threads();
 	options.nchannels = NBins;
+	options.use_escape_peaks = 1;
 
 	if (xd->pulse_width > 0.0)
 		options.use_sum_peaks = 1;
