@@ -2,8 +2,11 @@ xrmc_exampledir = $(datadir)/examples/xrmc/radionuclide
 
 dist_xrmc_example_DATA = composition.dat detector.dat geom3d.dat input.dat quadric.dat sample.dat source.dat radionuclide.dat
 
+if ENABLE_XMIMSIM
 check_SCRIPTS = xrmc.sh
+TESTS_ENVIRONMENT = XRMC_XMIMSIM_MODULE="${top_builddir}/src/xmi-msim/.libs"
 TESTS = $(check_SCRIPTS)
+endif
 
 xrmc.sh:
 if !ABS_SRC_BUILD_EQUAL
