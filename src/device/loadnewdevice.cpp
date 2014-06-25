@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_geom3d.h"
 #include "xrmc_sample.h"
 #include "xrmc_detector.h"
+#include "xrmc_radionuclide.h"
 #include "beamsource.h"
 #include "beamscreen.h"
 #include "anisotropicsource.h"
@@ -109,6 +110,9 @@ int xrmc_device::LoadNewDevice(istream &dev_fs,  xrmc_device*& dev_pt)
 #else
     throw xrmc_exception(string("Device type ") + dev_type + " not supported.\nRecompile XRMC with the XMI-MSIM plug-in\n");
 #endif
+  }
+  else if (dev_type=="radionuclide") {
+    dev_pt = new radionuclide(dev_name);
   }
   else // unknown device type
     throw xrmc_exception(string("Device type ") + dev_type + " not known.\n");

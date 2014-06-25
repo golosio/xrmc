@@ -9,4 +9,5 @@ SUBDIRS = cylind_shell \
 	  xmi-msim2 \
 	  anisotropicsource \
 	  beamsource \
-	  phasecontrast
+	  phasecontrast \
+	  radionuclide

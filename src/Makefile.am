@@ -15,7 +15,8 @@ SUBDIRS = \
 	xrmc_math \
 	beamsource \
 	phasecontrast \
-	fft
+	fft \
+	radionuclide
 
 SUBLIBS = \
 	arrayNd/libarrayNd.la \
@@ -33,7 +34,8 @@ SUBLIBS = \
 	xrmc_math/libxrmcmath.la \
 	beamsource/libbeamsource.la \
 	phasecontrast/libphcdetector.la \
-	fft/libfft.la
+	fft/libfft.la \
+	radionuclide/libradionuclide.la
 lib_LTLIBRARIES = libxrmc.la
 libxrmc_la_SOURCES = 
 libxrmc_la_LIBADD = $(SUBLIBS) @xraylib_LIBS@ -lm

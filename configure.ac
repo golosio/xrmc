@@ -1,4 +1,4 @@
-AC_INIT([xrmc],[6.4.5],[golosio@uniss.it])
+AC_INIT([xrmc],[6.5.0],[golosio@uniss.it])
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([src/main/xrmc_main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -72,7 +72,7 @@ PKG_PROG_PKG_CONFIG
 
 
 #search for xraylib and other modules
-PKG_CHECK_MODULES([xraylib],libxrl >= 3.0.0)
+PKG_CHECK_MODULES([xraylib],libxrl >= 3.1.0)
 
 
 #determine if the xmi-msim should be built
@@ -116,6 +116,7 @@ AC_CONFIG_FILES([	Makefile
 			src/randmt/Makefile
 			src/fft/Makefile
 			src/xmi-msim/Makefile
+			src/radionuclide/Makefile
 			doc/Makefile
 			examples/Makefile
 			examples/cylind_shell/Makefile
@@ -130,6 +131,7 @@ AC_CONFIG_FILES([	Makefile
 			examples/anisotropicsource/Makefile
 			examples/beamsource/Makefile
 			examples/phasecontrast/Makefile
+			examples/radionuclide/Makefile
 			libxrmc.pc
 			xrmc.spec
 			nsis/Makefile

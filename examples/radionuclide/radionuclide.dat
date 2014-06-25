@@ -1,0 +1,13 @@
+; Radionuclide file
+;
+Newdevice radionuclide
+Radionuclide
+LoopFlag 0              ; 0: extract random energies on the whole spectrum
+                        ; 1: loop on all lines and sampling points
+LinePhotonNum 1		; Multiplicity of events for each line in the spectrum
+Unit mCi
+Activity 100
+RadioNuclideSource 55Fe
+
+
+End
