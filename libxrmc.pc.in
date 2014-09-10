@@ -6,7 +6,7 @@ includedir=@includedir@/xrmc
 Name: xrmc
 Description: open source Monte Carlo simulation tool for X-ray--matter interactions
 Version: @VERSION@
-Requires: libxrl >= 3.0.0
+Requires: libxrl >= 3.1.0
 Conflicts:
 Libs: -L${libdir} -lxrmc
 Cflags: -I${includedir} @HAVE_XMIMSIM@

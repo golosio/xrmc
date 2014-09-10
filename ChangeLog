@@ -1,3 +1,8 @@
+XRMC v6.5.0
+	- added radionuclide device.
+	- requirements bumped for xraylib and XMI-MSIM
+	- bugfixes: many thanks to Wout De Nolf for the bugreports
+
 XRMC v6.3.3
 	- Improved tutorial. Small changes in input file commands. Improved examples. Included test for second order scattering, directory 'test'. New fluorescence spectroscopy example, directory 'examples/fluor_layers'.
 	

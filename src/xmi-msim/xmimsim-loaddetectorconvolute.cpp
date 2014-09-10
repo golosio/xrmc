@@ -251,7 +251,6 @@ int detectorconvolute::SetDefault() {
 	xd->pulse_width = 0.0;
 	xd->fano = 0.12;
 	xd->noise = 0.1;
-	xd->max_convolution_energy = 200.0;
 	xd->n_crystal_layers = 1;
 	xd->crystal_layers = (struct xmi_layer *) malloc(sizeof(struct xmi_layer)); 
 	xd->crystal_layers[0].n_elements = 1;

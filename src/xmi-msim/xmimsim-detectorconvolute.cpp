@@ -74,7 +74,6 @@ detectorconvolute::detectorconvolute(string dev_name)
   xd->zero = 0.0;
   xd->fano = 0.0;
   xd->noise = 0.0;
-  xd->max_convolution_energy = 0.0;
   xd->n_crystal_layers = 0;
   xd->crystal_layers = NULL;
   ConvolutedImage = NULL;

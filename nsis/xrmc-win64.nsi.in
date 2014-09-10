@@ -23,11 +23,11 @@
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define MY_HOME "C:\msys\1.0\home\schoon\"
 !define MY_MINGW "C:\TDM-GCC-64\"
-!define XRAYLIB_VERSION "3.0.0"
-!define XRAYLIB_VERSION_MIN "3.0.0"
+!define XRAYLIB_VERSION "3.1.0"
+!define XRAYLIB_VERSION_MIN "3.1.0"
 
-!define XMI_MSIM_VERSION "4.0"
-!define XMI_MSIM_VERSION_MIN "4.0"
+!define XMI_MSIM_VERSION "5.0"
+!define XMI_MSIM_VERSION_MIN "5.0"
 
 
 
@@ -184,6 +184,8 @@ File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
 !insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\source_20deg.dat"
 !insertmacro unix2dos "$INSTDIR\Examples\fluor_layers" "${MY_HOME}share\examples\xrmc\fluor_layers\spectrumAg40kV.dat"
 
+
+
 ;documentation
 SetOutPath "$INSTDIR\Doc"
 File "${MY_HOME}share\doc\xrmc\xrmc_${VERSION}_man.pdf"
@@ -312,10 +314,12 @@ SetShellVarContext all
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_screen.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_source.h"
 !insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_spectrum.h"
+!insertmacro unix2dos "$INSTDIR\Include" "${MY_HOME}include\xrmc\xrmc_radionuclide.h"
+
 
 SectionEnd
 Section /o "XMI-MSIM" SecXMI_MSIM
-AddSize 1200000
+AddSize 1900000
 
 SetAutoClose false
 SetShellVarContext all
@@ -404,6 +408,24 @@ ${EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "A" "HKLM" "$INSTDIR\Plugins"
 !insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\sample.dat"
 !insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\source.dat"
 !insertmacro unix2dos "$INSTDIR\Examples\xmi-msim" "${MY_HOME}share\examples\xrmc\xmi-msim\spectrum.dat"
+
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}share\examples\xrmc\xmi-msim2\spectrum_ebel.dat"
+
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\composition.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\detector.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\geom3d.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\input.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\quadric.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\sample.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\source.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}share\examples\xrmc\radionuclide\radionuclide.dat"
 
 
 !insertmacro SectionFlagIsSet ${SecXRMCHeaders} ${SF_SELECTED} with_header no_header
@@ -504,6 +526,7 @@ Delete "$INSTDIR\Include\xrmc_sample.h"
 Delete "$INSTDIR\Include\xrmc_screen.h"
 Delete "$INSTDIR\Include\xrmc_source.h"
 Delete "$INSTDIR\Include\xrmc_spectrum.h"
+Delete "$INSTDIR\Include\xrmc_radionuclide.h"
 Delete "$INSTDIR\Include\xrmc_spectrum_ebel.h"
 RmDir "$INSTDIR\Include"
 
@@ -541,6 +564,24 @@ Delete "$INSTDIR\Examples\xmi-msim\sample.dat"
 Delete "$INSTDIR\Examples\xmi-msim\source.dat"
 Delete "$INSTDIR\Examples\xmi-msim\spectrum.dat"
 RmDir "$INSTDIR\Examples\xmi-msim"
+Delete "$INSTDIR\Examples\xmi-msim2\composition.dat"
+Delete "$INSTDIR\Examples\xmi-msim2\detector.dat"
+Delete "$INSTDIR\Examples\xmi-msim2\geom3d.dat"
+Delete "$INSTDIR\Examples\xmi-msim2\input.dat"
+Delete "$INSTDIR\Examples\xmi-msim2\quadric.dat"
+Delete "$INSTDIR\Examples\xmi-msim2\sample.dat"
+Delete "$INSTDIR\Examples\xmi-msim2\source.dat"
+Delete "$INSTDIR\Examples\xmi-msim2\spectrum_ebel.dat"
+RmDir "$INSTDIR\Examples\xmi-msim2"
+Delete "$INSTDIR\Examples\radionuclide\composition.dat"
+Delete "$INSTDIR\Examples\radionuclide\detector.dat"
+Delete "$INSTDIR\Examples\radionuclide\geom3d.dat"
+Delete "$INSTDIR\Examples\radionuclide\input.dat"
+Delete "$INSTDIR\Examples\radionuclide\quadric.dat"
+Delete "$INSTDIR\Examples\radionuclide\sample.dat"
+Delete "$INSTDIR\Examples\radionuclide\source.dat"
+Delete "$INSTDIR\Examples\radionuclide\spectrum_ebel.dat"
+RmDir "$INSTDIR\Examples\radionuclide"
 Delete "$INSTDIR\Examples\cylind_cell\composition.dat"
 Delete "$INSTDIR\Examples\cylind_cell\detector.dat"
 Delete "$INSTDIR\Examples\cylind_cell\geom3d.dat"

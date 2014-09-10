@@ -61,21 +61,23 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	g_fprintf(stdout,"NX: %i\n", NY);
 
 
+	xmi_init_hdf5();
+
 	options.use_M_lines = 1;
 	options.use_cascade_auger = 1;
 	options.use_cascade_radiative = 1;
 	options.use_variance_reduction = 1;
-	options.use_optimizations = 1;
 	options.use_sum_peaks = 0;
 	options.use_poisson = 0;
 	options.verbose = 1;
 	options.extra_verbose = 0;
 	options.omp_num_threads = omp_get_max_threads();
-	options.nchannels = NBins;
 	options.use_escape_peaks = 1;
 
 	if (xd->pulse_width > 0.0)
 		options.use_sum_peaks = 1;
+
+	xd->nchannels = NBins;
 
 	input = xmi_init_empty_input();
 
@@ -139,7 +141,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 		if (xmi_write_input_xml_to_string(&xmi_input_string,input) == 0) {
 			return 0;
 		}
-		xmi_escape_ratios_calculation(input, &escape_ratios_def, xmi_input_string,hdf5_file,options);
+		xmi_escape_ratios_calculation(input, &escape_ratios_def, xmi_input_string,hdf5_file,options, xmi_get_default_escape_ratios_options());
 		//update hdf5 file
 		if( xmi_update_escape_ratios_hdf5_file(xmimsim_hdf5_escape_ratios , escape_ratios_def) == 0)
 			return 0;
