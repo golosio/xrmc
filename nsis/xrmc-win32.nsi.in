@@ -107,9 +107,6 @@ File "${MY_HOME}bin\xrmc.exe"
 DetailPrint "Installing OpenMP runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libgomp-1.dll" "$INSTDIR\Bin\libgomp-1.dll" "$INSTDIR"
 
-DetailPrint "Installing POSIX threads runtime libraries"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\pthreadGC2.dll" "$INSTDIR\Bin\pthreadGC2.dll" "$INSTDIR"
-
 DetailPrint "Installing libstdc++ runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "${MY_MINGW}bin\libstdc++-6.dll" "$INSTDIR\Bin\libstdc++-6.dll" "$INSTDIR"
 
@@ -235,16 +232,6 @@ ${ElseIf} $R1 == 1
 	Goto xraylib_end 
 ${ElseIf} $R1 == 2
 	MessageBox MB_OK "The version of xraylib that was found on this system is incompatible with this release of XRMC. The correct version of xraylib will now be downloaded and installed."
-	;quiet uninstall first
-	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib" "QuietUninstallString"
-	${If} $R2 == ""
-		ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_is1" "QuietUninstallString"
-		${If} $R2 == ""
-			MessageBox MB_OK "Could not find xraylib QuietUninstallString in registry. Aborting"
-			Abort "Registry error"
-		${Endif}
-	${Endif}
-	ExecWait '$R2'	
 	Goto xraylib
 ${Else}
 	MessageBox MB_OK "Invalid value in VersionCompare. Aborting"
@@ -330,7 +317,7 @@ AddSize 1900000
 SetAutoClose false
 SetShellVarContext all
 DetailPrint "Checking XMI-MSIM presence..."
-ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM" "DisplayVersion"
+ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM_is1" "DisplayVersion"
 
 ${If} $R0 == ""
 	MessageBox MB_OK "XMI-MSIM was not found on the system. It will now be downloaded and installed."
@@ -347,9 +334,6 @@ ${ElseIf} $R1 == 1
 	Goto xmi_msim_end 
 ${ElseIf} $R1 == 2
 	MessageBox MB_OK "The version of XMI-MSIM that was found on this system is incompatible with this release of XRMC. The correct version of XMI-MSIMwill now be downloaded and installed."
-	;quiet uninstall first
-	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM" "QuietUninstallString"
-	ExecWait '$R2'	
 	Goto xmi_msim
 ${Else}
 	MessageBox MB_OK "Invalid value in VersionCompare. Aborting"
@@ -376,7 +360,7 @@ ${Endif}
 
 xmi_msim_install:
 DetailPrint "XMI-MSIM download has succeeded. Installing... This will take several minutes"
-ExecWait '"XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe" /S' $0
+ExecWait '"XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe" /VERYSILENT /SP-' $0
 Delete "XMI-MSIM-${XMI_MSIM_VERSION}-win32.exe"
 ${If} $0 == 0
 	Goto xmi_msim_end
@@ -455,7 +439,7 @@ DetailPrint "Installing GLIB runtime libraries"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\intl.dll" "$INSTDIR\Bin\intl.dll" "$INSTDIR"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\MinGW32\bin\libgcc_s_dw2-1.dll" "$INSTDIR\Bin\libgcc_s_dw2-1.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\MinGW32\bin\libgcc_s_sjlj-1.dll" "$INSTDIR\Bin\libgcc_s_sjlj-1.dll" "$INSTDIR"
 
 
 
@@ -490,16 +474,13 @@ Delete "$INSTDIR\Bin\xrmc.exe"
 DetailPrint "Uninstalling OpenMP runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgomp-1.dll" 
 
-DetailPrint "Uninstalling POSIX threads runtime libraries"
-!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\pthreadGC2.dll" 
-
 DetailPrint "Uninstalling libstdc++ runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libstdc++-6.dll" 
 
 DetailPrint "Uninstalling GLIB runtime libraries"
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libglib-2.0-0.dll" 
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgmodule-2.0-0.dll" 
-!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgcc_s_dw2-1.dll" 
+!insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\libgcc_s_sjlj-1.dll" 
 !insertmacro UnInstallLib DLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\Bin\intl.dll" 
 
 RMDir "$INSTDIR\Bin"
@@ -586,7 +567,7 @@ Delete "$INSTDIR\Examples\radionuclide\input.dat"
 Delete "$INSTDIR\Examples\radionuclide\quadric.dat"
 Delete "$INSTDIR\Examples\radionuclide\sample.dat"
 Delete "$INSTDIR\Examples\radionuclide\source.dat"
-Delete "$INSTDIR\Examples\radionuclide\spectrum_ebel.dat"
+Delete "$INSTDIR\Examples\radionuclide\radionuclide.dat"
 RmDir "$INSTDIR\Examples\radionuclide"
 Delete "$INSTDIR\Examples\cylind_cell\composition.dat"
 Delete "$INSTDIR\Examples\cylind_cell\detector.dat"
