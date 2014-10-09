@@ -232,13 +232,6 @@ ${ElseIf} $R1 == 1
 	Goto xraylib_end 
 ${ElseIf} $R1 == 2
 	MessageBox MB_OK "The version of xraylib that was found on this system is incompatible with this release of XRMC. The correct version of xraylib will now be downloaded and installed."
-	;quiet uninstall first
-	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\xraylib_64_is1" "QuietUninstallString"
-	${If} $R2 == ""
-		MessageBox MB_OK "Could not find xraylib QuietUninstallString in registry. Aborting"
-		Abort "Registry error"
-	${Endif}
-	ExecWait '$R2'	
 	Goto xraylib
 ${Else}
 	MessageBox MB_OK "Invalid value in VersionCompare. Aborting"
@@ -324,7 +317,7 @@ AddSize 1900000
 SetAutoClose false
 SetShellVarContext all
 DetailPrint "Checking XMI-MSIM presence..."
-ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM" "DisplayVersion"
+ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM_is1" "DisplayVersion"
 
 ${If} $R0 == ""
 	MessageBox MB_OK "XMI-MSIM was not found on the system. It will now be downloaded and installed."
@@ -341,9 +334,6 @@ ${ElseIf} $R1 == 1
 	Goto xmi_msim_end 
 ${ElseIf} $R1 == 2
 	MessageBox MB_OK "The version of XMI-MSIM that was found on this system is incompatible with this release of XRMC. The correct version of XMI-MSIMwill now be downloaded and installed."
-	;quiet uninstall first
-	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XMI-MSIM" "QuietUninstallString"
-	ExecWait '$R2'	
 	Goto xmi_msim
 ${Else}
 	MessageBox MB_OK "Invalid value in VersionCompare. Aborting"
@@ -370,7 +360,7 @@ ${Endif}
 
 xmi_msim_install:
 DetailPrint "XMI-MSIM download has succeeded. Installing... This will take several minutes"
-ExecWait '"XMI-MSIM-${XMI_MSIM_VERSION}-win64.exe" /S' $0
+ExecWait '"XMI-MSIM-${XMI_MSIM_VERSION}-win64.exe" /VERYSILENT /SP-' $0
 Delete "XMI-MSIM-${XMI_MSIM_VERSION}-win64.exe"
 ${If} $0 == 0
 	Goto xmi_msim_end
@@ -446,9 +436,9 @@ Section -
 no_msim:
 SetOutPath "$INSTDIR\Bin"
 DetailPrint "Installing GLIB runtime libraries"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
-!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\bin\libintl-8.dll" "$INSTDIR\Bin\libintl-8.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\msys\1.0\local\bin\libglib-2.0-0.dll" "$INSTDIR\Bin\libglib-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\msys\1.0\local\bin\libgmodule-2.0-0.dll" "$INSTDIR\Bin\libgmodule-2.0-0.dll" "$INSTDIR"
+!insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\msys\1.0\local\bin\libintl-8.dll" "$INSTDIR\Bin\libintl-8.dll" "$INSTDIR"
 !insertmacro InstallLib DLL NOTSHARED NOREBOOT_PROTECTED "C:\TDM-GCC-64\bin\libgcc_s_seh_64-1.dll" "$INSTDIR\Bin\libgcc_s_seh_64-1.dll" "$INSTDIR"
 
 
@@ -580,7 +570,7 @@ Delete "$INSTDIR\Examples\radionuclide\input.dat"
 Delete "$INSTDIR\Examples\radionuclide\quadric.dat"
 Delete "$INSTDIR\Examples\radionuclide\sample.dat"
 Delete "$INSTDIR\Examples\radionuclide\source.dat"
-Delete "$INSTDIR\Examples\radionuclide\spectrum_ebel.dat"
+Delete "$INSTDIR\Examples\radionuclide\radionuclide.dat"
 RmDir "$INSTDIR\Examples\radionuclide"
 Delete "$INSTDIR\Examples\cylind_cell\composition.dat"
 Delete "$INSTDIR\Examples\cylind_cell\detector.dat"
