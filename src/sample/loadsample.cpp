@@ -74,10 +74,10 @@ int sample::Load(istream &fs)
       break;
     }
     else if(comm=="") {
-      cout << "Empy string\n";
+      cout << "Empty string\n";
     }
     else {
-      throw xrmc_exception("syntax error in detectorarray input file"); 
+      throw xrmc_exception("syntax error in sample input file"); 
     }
   }
 
