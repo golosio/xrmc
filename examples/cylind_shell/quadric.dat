@@ -4,7 +4,7 @@ Newdevice quadricarray				; Device type
 QuadricArray				; Device name
 
 ;external cylinder
-CylinderZ CZ1		; cylinder:
+CylinderZ CZ1 BlockTransformAll		; cylinder:
 0 0 3 3			; axis x0, y0, ellipt. section semiaxes Rx, Ry
 Plane  P1		; upper base plane:
 0 0  4.001 0 0  1	; point x0, y0, z0, normal vect. ux, uy, uz

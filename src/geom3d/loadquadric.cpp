@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <cmath>
 #include "xrmc.h"
@@ -176,7 +177,10 @@ int quadricarray::Load(istream &fs)
       }
       printf("\tdx: %g\t%g\t%g\n", xc[0], xc[1], xc[2]);
       for (int iq=0; iq<NQuadr; iq++) { // loop on previous quadrics
-	Quadr[iq].Transform(T); // congruence transform
+        if (!Quadr[iq].BlockTransformAll) // skip if no transformations are allowed for this object
+	  Quadr[iq].Transform(T); // congruence transform
+	else
+	  cout << "TranslateAll blocked" << endl;
       }
     }
     else if (comm=="RotateAll" && NQuadr>0) { //rotate all previous quadrics
@@ -198,9 +202,13 @@ int quadricarray::Load(istream &fs)
       R = matr4::RotMatr(u, theta); // build rotation matrix
 
       for (int iq=0; iq<NQuadr; iq++) { // loop on previous quadrics
-	Quadr[iq].Transform(T1); // translate: rotation axis-> origin
-	Quadr[iq].Transform(R); // congruence transform: rotate
-	Quadr[iq].Transform(T); // translate back
+        if (!Quadr[iq].BlockTransformAll) {// skip if no transformations are allowed for this object
+	  Quadr[iq].Transform(T1); // translate: rotation axis-> origin
+	  Quadr[iq].Transform(R); // congruence transform: rotate
+	  Quadr[iq].Transform(T); // translate back
+	}
+	else
+	  cout << "RotateAll blocked" << endl;
       }
     }
     else {
@@ -228,7 +236,14 @@ int quadricarray::MapQuadric(istream &fs)
 
   GetToken(fs, qname);
   cout << qname << endl;
-  
+ 
+  int pos = fs.tellg();
+  string block_transform_all;
+  if (GetToken(fs, block_transform_all) && block_transform_all == "BlockTransformAll")
+    Quadr[NQuadr].BlockTransformAll = true;
+  else
+    fs.seekg(pos);
+
   // insert name and pointer to the quadric in the quadric map
   insert_pair = QuadricMap.insert(quadric_map_pair(qname, &Quadr[NQuadr]));
   if(insert_pair.second == false) // check that it was not already inserted

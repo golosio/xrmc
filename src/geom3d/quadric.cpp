@@ -56,6 +56,7 @@ quadric::quadric()
   NInters=0;
   tInters[0]=tInters[1]=0;
   Enter[0]=Enter[1]=0;
+  BlockTransformAll = false;
 }
 
 //////////////////////////////////////////////////////////////////////

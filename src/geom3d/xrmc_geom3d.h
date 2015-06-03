@@ -39,6 +39,7 @@ public:
   int NInters; // number of intersection of a trajectory with the quadric
   double tInters[2]; // parametric coordinates of the intersections
   int Enter[2]; // crossing directions: from outside to inside or viceversa
+  bool BlockTransformAll; // block RotateAll and TranslateAll for this object
 
   quadric(); // constructor
   int Print(); // display matrix elements method

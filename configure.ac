@@ -1,4 +1,4 @@
-AC_INIT([xrmc],[6.5.0],[golosio@uniss.it])
+AC_INIT([xrmc],[6.6.0],[golosio@uniss.it])
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([src/main/xrmc_main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
