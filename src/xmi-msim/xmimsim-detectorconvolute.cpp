@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "xrmc_math.h"
 #include "xrmc_detector.h"
 #include "xrmc_photon.h"
@@ -53,6 +53,10 @@ detectorconvolute::~detectorconvolute() {
     free(xd);
   //if (ConvolutedImage != NULL)
   //  free(ConvolutedImage);
+  if (CrystalPhase != NULL)
+  	delete CrystalPhase;
+  if (WindowPhase != NULL)
+  	delete WindowPhase;
 }
 
 //constructor
@@ -159,19 +163,22 @@ int detectorconvolute::CastInputDevices() {
 		throw xrmc_exception(string("Device ") + InputDeviceName[1]
 			 + " cannot be casted to type composition\n");
 
+
+	phase_map::iterator it2;
+	int i_phase;
 	//now get the crystal phase
-	phase_map::iterator it2 = Composition->PhaseMap.find(CrystalPhaseName);
-	if (it2 == Composition->PhaseMap.end())
-		throw xrmc_exception(string("Phase ") + CrystalPhaseName
-			+ " not found in composition map\n");
+	if (CrystalPhase == NULL) {
+		it2 = Composition->PhaseMap.find(CrystalPhaseName);
+		if (it2 == Composition->PhaseMap.end())
+			throw xrmc_exception(string("Phase ") + CrystalPhaseName
+				+ " not found in composition map\n");
 
-	int i_phase = (*it2).second;
-	//CrystalPhase = &(Composition->Ph[i_phase]);
-	CrystalPhase = new phase;
-	CrystalPhase[0] = Composition->Ph[i_phase];
-
+		i_phase = (*it2).second;
+		CrystalPhase = new phase;
+		*CrystalPhase = Composition->Ph[i_phase];
+	}
 	//and then the window phase
-	if (WindowPhaseName != "Vacuum") {
+	if (WindowPhase == NULL) {
 		it2 = Composition->PhaseMap.find(WindowPhaseName);
 		if (it2 == Composition->PhaseMap.end())
 			throw xrmc_exception(string("Phase ") + WindowPhaseName
@@ -180,9 +187,9 @@ int detectorconvolute::CastInputDevices() {
 		i_phase = (*it2).second;
 		//WindowPhase = &(Composition->Ph[i_phase]);
 		WindowPhase = new phase;
-		WindowPhase[0] = Composition->Ph[i_phase];
+		*WindowPhase = Composition->Ph[i_phase];
 	}
-	else {
+	else if (WindowPhaseName == "Vacuum") {
 		WindowPhase = NULL;
 	}
 

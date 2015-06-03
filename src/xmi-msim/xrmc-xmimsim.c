@@ -219,9 +219,9 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	
 	//xmi_free_input_F(&inputFPtr);
 	//xmi_free_input(input);
-	if (xmi_end_random_acquisition() == 0) {
-	  return 0;
-	}
+	//if (xmi_end_random_acquisition() == 0) {
+	//  return 0;
+	//}
 	return 1;
 }
 
