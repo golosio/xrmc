@@ -216,7 +216,10 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 
 	free(abscorrImage);
 	free(blbs);
+	xmi_free_escape_ratios(escape_ratios_def);
 	
+	//these next two lines need to see fixes first in XMI-MSIM
+	//before they can be used again
 	//xmi_free_input_F(&inputFPtr);
 	//xmi_free_input(input);
 	//if (xmi_end_random_acquisition() == 0) {
