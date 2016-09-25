@@ -228,7 +228,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	return 1;
 }
 
-int xmi_msim_tube_ebel(struct xmi_layer *tube_anode, struct xmi_layer *tube_window,
+G_MODULE_EXPORT int xmi_msim_tube_ebel(struct xmi_layer *tube_anode, struct xmi_layer *tube_window,
                   struct xmi_layer *tube_filter, double tube_voltage,
                   double tube_current, double tube_angle_electron,
                   double tube_angle_xray, double tube_delta_energy,
