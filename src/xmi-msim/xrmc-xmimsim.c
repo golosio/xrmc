@@ -45,7 +45,7 @@ G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***ConvolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX) {
 
 
-	struct xmi_main_options options;
+	struct xmi_main_options options = xmi_get_default_main_options();
 	struct xmi_escape_ratios *escape_ratios_def=NULL;
 	char *xmi_input_string;
 	char *xmimsim_hdf5_escape_ratios = NULL;
@@ -143,7 +143,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 		}
 		xmi_escape_ratios_calculation(input, &escape_ratios_def, xmi_input_string,hdf5_file,options, xmi_get_default_escape_ratios_options());
 		//update hdf5 file
-		if( xmi_update_escape_ratios_hdf5_file(xmimsim_hdf5_escape_ratios , escape_ratios_def) == 0)
+		if (xmi_update_escape_ratios_hdf5_file(xmimsim_hdf5_escape_ratios , escape_ratios_def) == 0)
 			return 0;
 		else if (options.verbose)
 			g_fprintf(stdout,"%s was successfully updated with new escape peak ratios\n",xmimsim_hdf5_escape_ratios);
@@ -157,31 +157,6 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 		return 0;
 	}
 
-
-	//apply detector window absorption if necessary	
-	double *blbs = (double * ) malloc(sizeof(double)*NBins);
-	for (i = 0 ; i < NBins ; i++) 
-		blbs[i] = 1.0;
-
-	double sum;
-	if (det_absorber != NULL) {
-		for (i = 0 ; i < NBins ; i++) {
-			sum = 0.0;
-			for (j = 0 ; j < det_absorber[0].n_elements ; j++)
-				sum += CS_Total_Kissel(det_absorber[0].Z[j], i*xd->gain)*det_absorber[0].weight[j];
-			blbs[i] *= exp(-1.0 * det_absorber[0].density * det_absorber[0].thickness * sum);
-
-		}
-	}
-
-
-	for (i = 0 ; i < NBins ; i++) { 
-		sum = 0.0;
-		for (j = 0 ; j < xd->crystal_layers[0].n_elements ; j++)
-			sum += CS_Total_Kissel(xd->crystal_layers[0].Z[j], i*xd->gain)*xd->crystal_layers[0].weight[j];
-		blbs[i] *= (1.0 - exp(-1.0*xd->crystal_layers[0].thickness*xd->crystal_layers[0].density*sum));
-	}
-
 	double *abscorrImage = (double *) malloc(sizeof(double)*NBins);
 	int ix, iy;
 
@@ -192,9 +167,9 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	    }
 	    for (i = 0 ; i < ModeNum ; i++) {
 	      for (k = 0 ; k < NBins ; k++) {
-		abscorrImage[k] += Image[i*NBins+k][iy][ix] * blbs[k];
+		abscorrImage[k] += Image[i*NBins+k][iy][ix];
 	      }
-	      xmi_detector_convolute(inputFPtr, abscorrImage, &channels_conv_temp, options, escape_ratios_def, i);
+	      xmi_detector_convolute_spectrum(inputFPtr, abscorrImage, &channels_conv_temp, options, escape_ratios_def, i);
 	      for (k = 0 ; k < NBins ; k++) {
 	        ConvolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
 	      }
@@ -215,7 +190,6 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 
 
 	free(abscorrImage);
-	free(blbs);
 	xmi_free_escape_ratios(escape_ratios_def);
 	
 	//these next two lines need to see fixes first in XMI-MSIM
