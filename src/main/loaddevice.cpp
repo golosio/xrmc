@@ -55,7 +55,7 @@ int xrmc::LoadDevice(istream &fs)
 
   GetToken(fs, file_name); // read from fs the name of the device input file
   cout << "Device file: " << file_name << "\n";
-  ifstream dev_fs(file_name.c_str());
+  ifstream dev_fs(file_name.c_str(), ifstream::binary);
   if (!dev_fs)
     throw xrmc_exception("Device file can not be opened.");
   GetToken(dev_fs, comm); // read the command
