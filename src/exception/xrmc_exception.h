@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef XRMCEXCEPTIONH
 #define XRMCEXCEPTIONH
 #include <string>
+#include <cstring>
 #include <exception>
 using namespace std;
 
@@ -39,8 +40,8 @@ class xrmc_exception: public exception
   
  public:
   // constructors
-  xrmc_exception(const char *ch)  {Message=ch;}
-  xrmc_exception(string s)  {Message=s.c_str();}
+  xrmc_exception(const char *ch)  {Message=strdup(ch);}
+  xrmc_exception(string s)  {Message=strdup(s.c_str());}
   // throw method
   virtual const char* what() const throw()
   {
