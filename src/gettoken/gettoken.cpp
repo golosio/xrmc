@@ -93,8 +93,11 @@ bool gettoken::GetLongToken(istream &fs, long *l)
  string s;
  GetToken(fs, s); // get string token
  istringstream buffer(s);
- if (!(buffer >> (*l))) // convert it to long integer
-   throw xrmc_exception("Cannot convert token to long integer.\n");
+ if (!(buffer >> (*l))) { // convert it to long integer
+   std::ostringstream msg;
+   msg << "Cannot convert token " << buffer.str() << " to long" << std::endl;
+   throw xrmc_exception(msg.str());
+ }
 
  return true;
 }
@@ -107,8 +110,11 @@ bool gettoken::GetIntToken(istream &fs, int *i)
  string s;
  GetToken(fs, s); // get string token
  istringstream buffer(s);
- if (!(buffer >> (*i))) // convert it to integer
-   throw xrmc_exception("Cannot convert token to integer.\n");
+ if (!(buffer >> (*i))) { // convert it to integer
+   std::ostringstream msg;
+   msg << "Cannot convert token " << buffer.str() << " to int" << std::endl;
+   throw xrmc_exception(msg.str());
+ }
 
  return true;
 }
@@ -120,11 +126,11 @@ bool gettoken::GetDoubleToken(istream &fs, double *d)
 {
  string s;
  GetToken(fs, s); // get string token
- std::istringstream buffer(s);
- if (!(buffer >> (*d))) { // convert it to integer
-   std::ostringstream *msg = new std::ostringstream();
-   *msg << "Cannot convert token " << buffer.str() << " to double" << std::endl;
-   throw xrmc_exception(msg->str());
+ istringstream buffer(s);
+ if (!(buffer >> (*d))) { // convert it to double
+   std::ostringstream msg;
+   msg << "Cannot convert token " << buffer.str() << " to double" << std::endl;
+   throw xrmc_exception(msg.str());
  }
 
  return true;
