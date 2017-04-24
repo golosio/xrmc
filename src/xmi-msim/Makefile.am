@@ -36,7 +36,7 @@ libxrmc_xmimsim_la_CPPFLAGS = -I${srcdir}/../device \
 
 plugindir = $(libdir)/xrmc
 plugin_LTLIBRARIES = xrmc-xmimsim.la
-xrmc_xmimsim_la_CFLAGS = @xmi_msim_CFLAGS@ @gmodule_CFLAGS@ 
+xrmc_xmimsim_la_CFLAGS = @xmi_msim_CFLAGS@ @gmodule_CFLAGS@ @OPENMP_CFLAGS@
 xrmc_xmimsim_la_LIBADD = @xmi_msim_LIBS@ @gmodule_LIBS@
 xrmc_xmimsim_la_SOURCES = xrmc-xmimsim.c
 xrmc_xmimsim_la_LDFLAGS = -module -avoid-version -shared @LDFLAGS_EXTRA@
