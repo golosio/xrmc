@@ -1,3 +1,9 @@
+XRMC v6.6.0
+	- add support for XMI-MSIM 6.0 and xraylib 3.2.0
+	- xrmc-xmimsim.c: export xmi_msim_tube_ebel (necessary for Windows)
+	- memory leaks and bugs fixed
+	- added BlockTransformAll keyword to quadrics: blocks RotateAll and TransformAll from operating on these quadrics
+
 XRMC v6.5.0
 	- added radionuclide device.
 	- requirements bumped for xraylib and XMI-MSIM
