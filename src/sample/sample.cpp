@@ -379,6 +379,46 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
   return Path->MuL; // return the cumulative sum of Mu * steplength
 }
 
+//////////////////////////////////////////////////////////////////////
+// Analogous to the previous functio, also returns mu of end-point
+//////////////////////////////////////////////////////////////////////
+double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax, double *mu_tmax)
+{
+  int imax;
+  // find the intersections of the trajectory with the 3d objects
+  Geom3D->Intersect(x0, u, Path->t, Path->iPh0, Path->iPh1, 
+		    &Path->NSteps);
+
+  if (Path->NSteps>0 && tmax>=0) {
+    if (tmax<Path->t[0]) {
+      Path->NSteps = 1;
+      Path->t[0] = tmax;
+      Path->iPh1[0] = Path->iPh0[0];
+      Path->StepMu(Comp); // evaluate the absorption coefficient in each step
+      *mu_tmax = Path->Mu[0]; // only 1 step => end point in the 1st interval 
+    }
+    else {
+      Locate(tmax, Path->t, Path->NSteps, &imax); // locate tmax in the inters.
+      if (imax < Path->NSteps-1) { // and eventually reduce the number of
+	Path->NSteps = imax + 2;   // intersections and limit them to tmax
+	Path->t[imax+1] = tmax;
+	Path->iPh1[imax+1] = Path->iPh0[imax+1];
+	Path->StepMu(Comp); // evaluate the absorption coefficient in each step
+	*mu_tmax = Path->Mu[Path->NSteps-1]; // mu of end point
+      }
+      else {
+	Path->StepMu(Comp); // evaluate the absorption coefficient in each step
+	*mu_tmax = 0; // end point is after the last interval
+      }
+    }
+    return Path->MuL; // return the cumulative sum of Mu * steplength
+  }
+  else { // no intersections or tmax<0
+    *mu_tmax = 0; // end point is after the last interval
+    return 0;
+  }
+}
+
 int sample::LinearMuDelta(vect3 x0, vect3 u)
 {
   // find the intersections of the trajectory with the 3d objects
@@ -578,6 +618,53 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
   Photon->w /= PhotonNum[ScattOrderIdx];
   // weight the event with the survival probability
   PhotonSurvivalWeight(Photon, tmax);
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// generate an event with a photon forced to end on the point x1
+// and evaluates the energy deposition in x1
+//////////////////////////////////////////////////////////////////////
+int sample::Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1, double *Edep)
+{
+  int Z, interaction_type;
+  vect3 vr;
+  double tmax=0;
+
+  if (PhotonNum[ScattOrderIdx]==0) {
+    Photon->w = 0;
+    return 0;
+  }
+  if (ScattOrderIdx == 0) { // transmission
+    // ask the source to generate photon directed torward the point x1
+    Source->Out_Photon_x1(Photon, x1);
+    vr = x1 - Photon->x; // end position relative to photon starting position
+    tmax = vr.Mod(); // maximum intersection distance
+    vr.Normalize(); // normalized direction
+    Comp->Mu(Photon->E); // absorption coefficients at photon energy
+  }
+  else {
+    PhotonHistory(Photon, Z, interaction_type);
+    if (Photon->w != 0) {
+      vr = x1 - Photon->x; //end position relative to last interaction position
+      tmax = vr.Mod(); // maximum intersection distance
+      vr.Normalize(); // normalized direction
+      // update the photon direction, polarization and energy
+      // the photon is forced to go in the direction v_r
+      Photon->Scatter(Z, interaction_type, vr);
+      // update absorption coefficients using the new energy value
+      if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+    }
+  }
+  Photon->uk = vr; // update the photon direction
+  // divide the event weight by the multiplicity
+  Photon->w /= PhotonNum[ScattOrderIdx];
+  *mu_x1 = 0;
+  // weight the event with the survival probability
+  if (Photon->w>0) {
+    Photon->w *= exp(-LinearAbsorption(Photon->x, Photon->uk, tmax, mu_x1));
+  }
 
   return 0;
 }
