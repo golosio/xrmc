@@ -195,10 +195,12 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 	    SourceClones[THREAD_IDX]->Out_Photon_x1(&PhotonArray[THREAD_IDX],
 						    Rp, &mode_idx);
 	    if (PhotonArray[THREAD_IDX].w != 0) { // check that weight is not 0
-	    
+	      // if voxel is not parallelepiped, correct the weight
+	      if (Shape==1) PhotonArray[THREAD_IDX].w *= PI/6; // sphere
+	      else if (Shape>1) PhotonArray[THREAD_IDX].w *= PI/4; // cylinder
+
 	      DRp = Rp - PhotonArray[THREAD_IDX].x;
-	      Pgeom = dOmega(DRp);// evaluates the factor dOmega, related to
-	      // the probability that the last photon trajectory crosses the pixel
+	      Pgeom = fG(DRp);// evaluates the geometric factor fG
 	      signal = PhotonArray[THREAD_IDX].w*Pgeom*ExpTime/PhotonNum;
 	      // evaluate the signal associated to the single event
 
@@ -331,7 +333,7 @@ int detectorarray3d::Init()
 
   OrthoNormal(ui, uj, uk);  // evaluates uj to form a orthonormal basis
 
-  //PixelSurf = PixelSizeX*PixelSizeY; // pixel surface
+  VoxelVol = VoxelSizeX*VoxelSizeY*VoxelSizeZ; // voxel volume
   N = NX*NY*NZ; // number of voxels
   if (VoxelX!=NULL) delete[] VoxelX;
   VoxelX = new vect3[N]; // array of voxel coordinates 
@@ -368,9 +370,15 @@ vect3 detectorarray3d::RandomPointInVoxel(int i, randmt_t *rng)
   vect3 p;
 
   if (RandomVoxelFlag == 1) { // check if random position in voxel is enabled
-    rx=2.*Rnd_r(rng)-1; // random real numbers between -1 and 1
-    ry=2.*Rnd_r(rng)-1;
-    rz=2.*Rnd_r(rng)-1;
+    do {
+      rx=2.*Rnd_r(rng)-1; // random real numbers between -1 and 1
+      ry=2.*Rnd_r(rng)-1;
+      rz=2.*Rnd_r(rng)-1;
+    } while ( // if shape is not parallelepiped check that the point is inside
+	     ( Shape==1 && (rx*rx+ry*ry+rz*rz>1) ) || //sphere
+	     ( Shape==2 && (ry*ry+rz*rz>1) ) || // cylinder, x axis
+	     ( Shape==3 && (rx*rx+rz*rz>1) ) || // cylinder, y axis
+	     ( Shape==4 && (rx*rx+ry*ry>1) ));    // cylinder, z axis
 
     x = VoxelSizeX*rx/2; // x,y,z coordinates of the point in voxel volume
     y = VoxelSizeY*ry/2;
@@ -386,3 +394,20 @@ vect3 detectorarray3d::RandomPointInVoxel(int i, randmt_t *rng)
   return p;
 }
 
+//////////////////////////////////////////////////////////////////////
+// evaluates the geometric factor fG, related to
+// the probability that the last photon trajectory crosses the voxel
+//////////////////////////////////////////////////////////////////////
+double detectorarray3d::fG(vect3 DRp)
+{
+  double r = DRp.Mod();        // distance from previous interaction point to
+                               // the photon end point
+  double denom = r*r; // denominator
+  if (VoxelVol+denom == VoxelVol) {
+    return fGLim; // check for overflow in the ratio
+  }
+  double fact = VoxelVol/denom;
+  if (fact>fGLim) return fGLim; // threshold to fGLim
+
+  return fact;
+}

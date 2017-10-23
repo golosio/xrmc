@@ -35,3 +35,10 @@ image.dat
 *.spe
 convolved_spectrum.dat
 detector_response
+*.la
+.libs
+libxrmc.pc
+xrmc-win32.nsi
+xrmc-win64.nsi
+xrmc.spec
+xrmc

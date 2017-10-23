@@ -104,6 +104,7 @@ AC_CONFIG_FILES([	Makefile
 			src/arrayNd/Makefile
 			src/composition/Makefile
 			src/detector/Makefile
+			src/detector3d/Makefile
 			src/device/Makefile
 			src/geom3d/Makefile
 			src/gettoken/Makefile

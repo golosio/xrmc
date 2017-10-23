@@ -66,6 +66,19 @@ int detectorarray3d::Load(istream &fs)
       cout << "Voxel size (Sx x Sy x Sz) (cm): " << VoxelSizeX << " x "
 	   <<  VoxelSizeY << " x " <<  VoxelSizeZ << "\n";
     }
+    else if(comm=="Shape") { // detector elements shape
+                             // (parallelepiped, sphere or cylinder(x,y,z))
+      GetIntToken(fs, &Shape);
+      cout << "Detector elements shape (0 parallelepiped, "
+	"1 sphere, 2,3,4 cylinder (x,y,z axis)): "
+	   << Shape << "\n";
+    }
+    else if(comm=="fGLim") { // set the cut on geometric factor
+      GetDoubleToken(fs, &fGLim);
+      if (fGLim==0) fGLim=100; // if 0 set it to the default value
+      cout << "Cut on geometric factor fG: "
+	   << fGLim << "\n";
+    }
     else if(comm=="X") { // set the detector center coordinates
       cout << "3D detector array center position :\t"; 
       for (i=0; i<3; i++) {
@@ -310,6 +323,9 @@ int detectorarray3d::SetDefault()
   NX = NY = NZ = 1; // number of voxels
 
   VoxelSizeX = VoxelSizeY = VoxelSizeZ = 1; // Voxel size (Sx,Sy,Sz in cm)
+  Shape = 0; // parallelepiped voxel shape
+  fGLim=100; //Cut on geometric factor
+
   X.Set(0, 50, 0); // Detector center position 
   // Detector array orientation :
   uk.Set(0,-1,0); // uk has direction opposite to y axis

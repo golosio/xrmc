@@ -2,6 +2,7 @@ SUBDIRS = \
 	arrayNd \
 	composition \
 	detector \
+	detector3d \
 	device \
 	exception \
 	geom3d \
@@ -22,6 +23,7 @@ SUBLIBS = \
 	arrayNd/libarrayNd.la \
 	composition/libcomposition.la \
 	detector/libdetector.la \
+	detector3d/libdetector3d.la \
 	device/libdevice.la \
 	geom3d/libgeom3d.la \
 	gettoken/libgettoken.la \
