@@ -115,6 +115,86 @@ int photon::MoveForward(double step_length)
   return 0;
 }
 
+int photon::EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
+			     double *Edep)
+{
+  double weight;
+  phase *ph_compound;
+  int step_idx, interaction_type, Z;
+  double mu_atom, cs_interaction[3], cs_tot; 
+  
+  mySample = Sample;
+
+  if (Sample->Path->NSteps==0) { // check if it does not intersect any object
+    w = 0;
+    *Edep = 0;
+    *mu_x1 = 0;
+    return 0; 
+  }
+
+  // remove, put it in Out_photon_x1
+  //// move the photon in the direction uk by a distance step_length
+  //MoveForward(step_length);
+
+  int iph = Sample->Path->iPh1[Path->NSteps-1]; // phase index of end point
+  if (iph==0) { // vacuum
+    w = 0;
+    *Edep = 0;
+    *mu_x1 = 0;
+    return 0;
+  }
+
+  // phase where the interaction will occur
+  ph_compound = &Sample->Comp->Ph[iph];
+  *mu_x1 = ph_compound.LastMu; // absorption coefficient of the phase
+  // extract the atomic species that the photon will interact with
+  ph_compound->AtomType(&Z, &mu_atom);
+  // cross sections of the interaction types with the extracted element
+  CSInteractionsEdep(Z, cs_interaction, &cs_tot);
+  if (cs_tot+mu_atom == cs_tot) { // check for division overflow
+    w = 0;
+    *Edep = 0;
+    return 0;
+  }
+  // cs_tot includes all interactions excluding Rayleigh.
+  // Basically, the photon is forced to deposit energy in x1
+  w *= cs_tot / mu_atom; // update the event weight
+  // extract interaction type (Compton scattering, photoelectric without
+  // fluorescence, or photoelectric followed by fluorescence) 
+  interaction_type = InteractionType(cs_interaction, cs_tot);
+
+  double E0 = E;
+  // evaluate the energy for fluorescence emission
+  if (interaction_type == FLUORESCENCE) {
+    SetFluorescenceEnergy(Z);
+    *Edep = E0 - E;
+  }
+  else if (interaction_type == INCOHERENT) {
+    Incoherent(Z);
+    *Edep = E0 - E;
+  }
+  else { // photoelectric without fluorescence emission
+    *Edep = E;
+  }
+  if (*Edep<0) {
+    w = 0;
+    *Edep=0;
+  }
+
+  *iZ = Z; // atomic species that the photon interact with
+  *iType = interaction_type;
+
+  return 0;
+}
+
+// move the photon in the direction uk by a distance step_length
+int photon::MoveForward(double step_length)
+{
+  x += uk*step_length;
+
+  return 0;
+}
+
 //////////////////////////////////////////////////////////////////////
 // cross sections of the three interaction types with the extracted element
 //////////////////////////////////////////////////////////////////////

@@ -119,6 +119,8 @@ class sample : public basesource
   double LinearAbsorption(vect3 x0, vect3 u);
   // Analogous to the previous function for t<tmax
   double LinearAbsorption(vect3 x0, vect3 u, double tmax);
+  // Analogous to the previous function, but also returns mu of end-point
+  double LinearAbsorption(vect3 x0, vect3 u, double tmax, double *mu_tmax);
   //evaluate absorption and delta coefficient at each step of the intersections
   int LinearMuDelta(vect3 x0, vect3 u);
 
