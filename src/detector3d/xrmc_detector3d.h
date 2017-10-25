@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_photon.h"
 #include <vector>
 
-//  detectorarray class definition, member variables and functions
+//  detectorarray3d class definition, member variables and functions
 class detectorarray3d : public bodydevice
 {
  public:

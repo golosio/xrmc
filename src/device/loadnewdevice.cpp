@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_geom3d.h"
 #include "xrmc_sample.h"
 #include "xrmc_detector.h"
+#include "xrmc_detector3d.h"
 #include "xrmc_radionuclide.h"
 #include "beamsource.h"
 #include "beamscreen.h"
@@ -81,6 +82,9 @@ int xrmc_device::LoadNewDevice(istream &dev_fs,  xrmc_device*& dev_pt)
   }
   else if (dev_type=="detectorarray") {
     dev_pt = new detectorarray(dev_name);
+  }
+  else if (dev_type=="detectorarray3d") {
+    dev_pt = new detectorarray3d(dev_name);
   }
   else if (dev_type=="beamsource") {
     dev_pt = new beamsource(dev_name);

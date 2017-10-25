@@ -129,6 +129,10 @@ class sample : public basesource
   // generate an event with a photon forced to end on the point x1
   virtual int Out_Photon_x1(photon *Photon, vect3 x1);
   virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1,
+			    double *Edep);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
+			    double *mu_x1, double *Edep);
   // simulates an event up to the last interaction point
   virtual int Out_Photon(photon *Photon);
   virtual int Out_Photon(photon *Photon, int *ModeIdx);

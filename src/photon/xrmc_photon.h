@@ -33,6 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define COHERENT 1
 #define INCOHERENT 2
 
+#define PHOTO_NO_FLUOR 1
+
 class sample;
 
 //////////////////////////////////////////////////////////////////////
@@ -59,8 +61,16 @@ class photon
   // Evaluates the photon next interaction type and position
   int MonteCarloStep(sample *Sample, int *iZ, int *iType);
 
+  // Evaluates energy deposition and mu at photon end point
+  int EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
+		       double *Edep);
+
   // cross sections of the three interaction types with the extracted element
   int CSInteractions(int Z, double *mu_interaction, double *cs_tot);
+
+  // cross sections of the interaction types with energy deposition
+  int CSInteractionsEdep(int Z, double *cs_interaction,
+			 double *cs_tot_Edep);
 
   // extract interaction type (elastic/inelastic scattering or fluorescence) 
   int InteractionType(double *cs_interaction, double cs_tot);

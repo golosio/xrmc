@@ -167,6 +167,7 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
   int ibin, mode_idx;
   vect3 Rp, DRp;
   double Pgeom, signal;
+  double mu_x1, Edep;
   const int ProgrUpdate=100000;
   long long event_idx=0, event_tot=EventMulti();
   if (event_tot>ProgrUpdate) {
@@ -176,7 +177,7 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 
   int ivox, ix, iy, iz, iph;
 #ifdef _OPENMP
-#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, ibin, ivox, ix, iy, iz, iph) collapse(4)
+#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, mu_x1, Edep, ibin, ivox, ix, iy, iz, iph) collapse(4)
 #endif
   for (iz=0; iz<NZ; iz++) { // loop on detector voxels
     for (iy=0; iy<NY; iy++) { // loop on detector voxels
@@ -193,7 +194,7 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 	    // get a photon from the source forcing it to terminate on the voxel
 	    // volume: 
 	    SourceClones[THREAD_IDX]->Out_Photon_x1(&PhotonArray[THREAD_IDX],
-						    Rp, &mode_idx);
+					    Rp, &mode_idx, &mu_x1, &Edep);
 	    if (PhotonArray[THREAD_IDX].w != 0) { // check that weight is not 0
 	      // if voxel is not parallelepiped, correct the weight
 	      if (Shape==1) PhotonArray[THREAD_IDX].w *= PI/6; // sphere
@@ -201,17 +202,17 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 
 	      DRp = Rp - PhotonArray[THREAD_IDX].x;
 	      Pgeom = fG(DRp);// evaluates the geometric factor fG
-	      signal = PhotonArray[THREAD_IDX].w*Pgeom*ExpTime/PhotonNum;
+	      signal = PhotonArray[THREAD_IDX].w*mu_x1*Pgeom*ExpTime/PhotonNum;
+	      //signal = mu_x1; //Pgeom*ExpTime/PhotonNum;
 	      // evaluate the signal associated to the single event
-
 	      // Depending on voxel content type, multiply it by the energy
 	      if (VoxelType == 1 || VoxelType == 3)
-		signal *= PhotonArray[THREAD_IDX].E;
+		signal *= Edep;
 	      ibin = 0;
 	      // check if energy binning is used
 	      if ((VoxelType==2 || VoxelType==3) && NBins > 1) {
 		// evaluate the energy bin
-		ibin = ((int)trunc((PhotonArray[THREAD_IDX].E-Emin)
+		ibin = ((int)trunc((Edep-Emin)
 				  /(Emax-Emin)*NBins));
 		if (ibin >= NBins) { // check for saturation
 		  if (SaturateEmax == 1) ibin = NBins - 1;

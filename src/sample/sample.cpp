@@ -314,7 +314,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
 			  double *mu_x1, double *Edep)
 {
   *ModeIdx = ScattOrderIdx; // set the scattering order
-  return Out_Photon_x1(Photon, x1), mu_x1, Edep; // generate the event
+  return Out_Photon_x1(Photon, x1, mu_x1, Edep); // generate the event
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -367,6 +367,7 @@ double sample::LinearAbsorption(vect3 x0, vect3 u)
 double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
 {
   int imax;
+
   // find the intersections of the trajectory with the 3d objects
   Geom3D->Intersect(x0, u, Path->t, Path->iPh0, Path->iPh1, 
 		    &Path->NSteps);
@@ -384,7 +385,11 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
 	Path->t[imax+1] = tmax;
 	Path->iPh1[imax+1] = Path->iPh0[imax+1];
       }
-      else Path->iPh1[Path->NSteps-1] = 0; // end point is in vacuum
+      //else {
+      //cout << "check that this is vacuum: "
+      //     << Path->iPh1[Path->NSteps-1] << endl; // end point is in vacuum
+      //Path->iPh1[Path->NSteps-1] = 1; // remove
+      //}
     }
   }
 
@@ -436,7 +441,6 @@ int path::StepMu(composition *comp)
     Step[i] = (i!=0) ? (t[i] - t[i-1]) : t[0]; // steplength of intersection
     Mu[i] = comp->Ph[iPh0[i]].LastMu; // absorption coefficient of the phase
     MuL += Mu[i]*Step[i]; // cumulative sum of Mu * steplength
-
   }
 
   return 0;
@@ -605,9 +609,10 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1, double *Edep)
 {
   int Z, interaction_type;
 
-  Out_Photon_x1(photon *Photon, vect3 x1);
+  Out_Photon_x1(Photon, x1);
   // it would be better to update photon position...
   Photon->EnergyDeposition(this, &Z, &interaction_type, mu_x1, Edep);
+  //throw xrmc_exception(string("Breakpoint\n"));
 
   return 0;
 }

@@ -1,0 +1,39 @@
+; Quadric array file
+;
+Newdevice quadricarray				; Device type
+QuadricArray				; Device name
+
+;external parallelepiped
+Plane  P1		; upper plane:
+0 0  4 0 0  1	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P2    		; lower plane:
+0 0 -4 0 0 -1	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P3		; upper plane:
+4 0 0 1 0 0	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P4    		; lower plane:
+-4 0 0 -1 0 0	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P5		; upper plane:
+0 5 0 0 1 0	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P6    		; lower plane:
+0 -5 0 0 -1 0	; point x0, y0, z0, normal vect. ux, uy, uz
+
+
+;detail
+Plane  P7		; upper plane:
+0 0  0.25 0 0  1	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P8    		; lower plane:
+0 0 -0.25 0 0 -1	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P9		; upper plane:
+0.25 0 0 1 0 0		; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P10    		; lower plane:
+-0.25 0 0 -1 0 0	; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P11		; upper plane:
+0 0.25 0 0 1 0	        ; point x0, y0, z0, normal vect. ux, uy, uz
+Plane  P12    		; lower plane:
+0 -0.25 0 0 -1 0	; point x0, y0, z0, normal vect. ux, uy, uz
+
+
+; Rotation of all previous quadrics:
+;RotateAll 0 0 0 0 1 0 20 ; rotation axis x0, u, theta (20 deg around y)
+;RotateAll 0 0 0 1 0 0 30 ; rotation axis x0, u, theta (30 deg around x)
+End

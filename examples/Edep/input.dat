@@ -1,0 +1,21 @@
+; X-ray Monte Carlo (xrmc) input file
+; Files used by the simulation
+;
+
+Load source.dat			; Source position, orientation
+
+Load detector3d.dat		; Detector position, orientation, size file
+
+Load spectrum.dat		; Energy Spectrum and Polarization file
+
+Load sample.dat			; Sample file
+
+Load quadric.dat		; Quadric file
+
+Load geom3d.dat			; Qvolume file
+
+Load composition.dat		; Composition file
+
+Run DetectorArray3D		; Run device
+
+Save DetectorArray3D Image image.dat    ; Output file : transmission image
