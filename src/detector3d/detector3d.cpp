@@ -208,6 +208,7 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 	      // Depending on voxel content type, multiply it by the energy
 	      if (VoxelType == 1 || VoxelType == 3)
 		signal *= Edep;
+
 	      ibin = 0;
 	      // check if energy binning is used
 	      if ((VoxelType==2 || VoxelType==3) && NBins > 1) {

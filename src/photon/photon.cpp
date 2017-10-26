@@ -504,5 +504,7 @@ int photon::ComptonEnergyDoppler(int Z, double theta) {
 	} while(energy > E);
 
 	E = energy;
+	if (E<0) E=0;
+
 	return 0;
 }
