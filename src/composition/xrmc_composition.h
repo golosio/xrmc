@@ -42,11 +42,13 @@ class phase
   static const double KD; // constant used for computing Delta
   randmt_t *Rng;
 
+  /*
   ~phase() { // destructor
     if (W!=NULL) free(W);
     if (Z!=NULL) free(Z);
     if (MuAtom!=NULL) free(MuAtom);
   }
+  */
   phase() { // constructor
     W = NULL;
     Z = NULL;
@@ -71,9 +73,8 @@ typedef pair<phase_map::iterator, bool> phase_map_insert_pair;
 class composition : public xrmc_device
 {
  public:
-  int NPhases; // number of phases (materials)
   int MaxNPhases; // maximum number of phases (materials)
-  phase *Ph;   // phase array
+  vector<phase> Ph;   // phase array
   phase_map PhaseMap; // map of phases with their names
 
   virtual ~composition(); // destructor
@@ -81,7 +82,7 @@ class composition : public xrmc_device
   virtual int Load(istream &fs); // Loads sample phases composition and density
   virtual int SetDefault(); // Set default values for composition parameters
   // insert name and index of the phase in the phase map
-  int MapPhase(istream &fs);
+  int MapPhase(istream &fs, int i_phase);
 
   int Mu(double E); // Evaluates the absorption coefficient of each phase
   int Delta(double E); // Evaluates the delta coefficient of each phase

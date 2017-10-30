@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "image_convolution.h"
 				    //#include "fft.h"
 
-#ifdef _OPENMP
+#ifdef s_OPENMP
 #include <omp.h>
 #define THREAD_MAXNUM omp_get_max_threads()
 #define THREAD_IDX omp_get_thread_num()

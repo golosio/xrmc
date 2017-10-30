@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     composition.cpp           //
-//        31/01/2013             //
+//        31/10/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Methods of the classes composition and phase
@@ -34,22 +34,24 @@ const double phase::KD=4.15179082788e-4; // constant for computing Delta
 
  // destructor
 composition::~composition() {
-  if (Ph!=NULL) delete[] Ph;
+  for (unsigned int i=0; i<Ph.size(); i++) {
+    if (Ph[i].W!=NULL) free(Ph[i].W);
+    if (Ph[i].Z!=NULL) free(Ph[i].Z);
+    if (Ph[i].MuAtom!=NULL) free(Ph[i].MuAtom);
+  }
 }
 
 // constructor
 composition::composition(string dev_name) {
   Runnable = false;
   NInputDevices=0;
-  Ph = NULL;
-  NPhases = 0;
   SetDevice(dev_name, std::string("composition"));
 }
 
 // Evaluates the absorption coefficient Mu of each phase at energy E
 int composition::Mu(double E)
 {
-  for (int i=0; i<NPhases; i++) {
+  for (unsigned int i=0; i<Ph.size(); i++) {
     Ph[i].Mu(E);
   }
 
@@ -60,7 +62,7 @@ int composition::Mu(double E)
 // 1-delta is the real part of the refractive index
 int composition::Delta(double E)
 {
-  for (int i=0; i<NPhases; i++) {
+  for (unsigned int i=0; i<Ph.size(); i++) {
     Ph[i].Delta(E);
   }
 
@@ -126,11 +128,17 @@ int phase::AtomType(int *Zelem, double *mu_atom)
 composition *composition::Clone(string dev_name) {
 	//cout << "Entering composition::Clone\n";
 	composition *clone = new composition(dev_name);
-	clone->NPhases = NPhases;
-	clone->MaxNPhases = MaxNPhases;
-	clone->Ph = new phase[NPhases];
-	for (int i = 0 ; i < NPhases ; i++) {
-		clone->Ph[i] = Ph[i];
+
+	cout << "Clone " << dev_name << endl;
+	for (unsigned int i = 0 ; i < Ph.size(); i++) {
+	  clone->Ph.push_back(Ph[i]);
+	  cout << "ph " << i << endl; 
+	  cout << "N " << clone->Ph[i].NElem << endl;
+	  for (int j=0; j<clone->Ph[i].NElem; j++) {
+	    cout << "j " << j << " " << clone->Ph[i].Z[j] << " "
+		 << clone->Ph[i].W[j] << endl;
+	  }
+
 	}
 	//PhaseMap
 	//typedef map<string, int> phase_map;
@@ -140,6 +148,7 @@ composition *composition::Clone(string dev_name) {
 
 	for (it = PhaseMap.begin(); it != PhaseMap.end() ; it++) {
 		clone->PhaseMap.insert(phase_map_pair(it->first, it->second));
+		cout << "pm " << it->first << " " << it->second << endl;
 	}
 
 
@@ -172,35 +181,82 @@ int composition::SetRng(randmt_t *rng)
 {
   Rng = rng;
 
-  for (int i=0; i<NPhases; i++) {
+  for (unsigned int i=0; i<Ph.size(); i++) {
     Ph[i].Rng = rng;
   }
 
   return 0;
 }
 int composition::ReduceMap(vector<string> used_phases) {
-	phase *Ph_new = new phase[used_phases.size()];
-	phase_map PhaseMap_new;
-	phase_map::iterator it;
 
-	NPhases = used_phases.size();
+  vector <phase> Ph_new;
+  phase_map PhaseMap_new;
+  phase_map::iterator it;
 
-	for (int i = 0 ; i < used_phases.size() ; i++) {
-		it = PhaseMap.find(used_phases.at(i));
-		if (it==PhaseMap.end()) {
-      			throw xrmc_exception(string("Phase ") + used_phases.at(i)
+  cout << "Begin inside reduce Ph " << endl;
+  for (unsigned int i = 0 ; i < Ph.size(); i++) {
+    cout << "ph " << i << endl; 
+    cout << "N " << Ph[i].NElem << endl;
+    for (int j=0; j<Ph[i].NElem; j++) {
+      cout << "j " << j << " " << Ph[i].Z[j] << " "
+	   << Ph[i].W[j] << endl;
+    }  
+  }
+
+  for (int i=0 ; i<used_phases.size() ; i++) {
+    it = PhaseMap.find(used_phases.at(i));
+    if (it==PhaseMap.end()) {
+      throw xrmc_exception(string("Phase ") + used_phases.at(i)
                            + " not found in phase map\n");
-		}
-		
-		Ph_new[i] = Ph[it->second];
-		PhaseMap_new.insert(phase_map_pair(used_phases.at(i), i));
-	}
+    }
 
-	delete []Ph;
-	Ph = Ph_new;
-	PhaseMap.clear();
+    cout << "ok ph " << it->second << endl; 
+    cout << "N " << Ph[it->second].NElem << endl;
+    for (int j=0; j<Ph[it->second].NElem; j++) {
+      cout << "j " << j << " " << Ph[it->second].Z[j] << " "
+	   << Ph[it->second].W[j] << endl;
+    }  
+
+    
+    Ph_new.push_back(Ph[it->second]);
+    cout << "ok ph_new " << i << endl; 
+    cout << used_phases.at(i) << endl;
+    cout << "N " << Ph_new[i].NElem << endl;
+    for (int j=0; j<Ph_new[i].NElem; j++) {
+      cout << "j " << j << " " << Ph_new[i].Z[j] << " "
+	   << Ph_new[i].W[j] << endl;
+    }  
+
+    PhaseMap_new.insert(phase_map_pair(used_phases.at(i), i));
+  }
+
+  cout << "Reduce " << endl;
+  for (unsigned int i = 0 ; i < Ph_new.size(); i++) {
+    cout << "ph " << i << endl; 
+    cout << used_phases.at(i) << endl;
+    cout << "N " << Ph_new[i].NElem << endl;
+    for (int j=0; j<Ph_new[i].NElem; j++) {
+      cout << "j " << j << " " << Ph_new[i].Z[j] << " "
+	   << Ph_new[i].W[j] << endl;
+    }  
+  }
+  cout << "Ph " << endl;
+  for (unsigned int i = 0 ; i < Ph.size(); i++) {
+    cout << "ph " << i << endl; 
+    cout << "N " << Ph[i].NElem << endl;
+    for (int j=0; j<Ph[i].NElem; j++) {
+      cout << "j " << j << " " << Ph[i].Z[j] << " "
+	   << Ph[i].W[j] << endl;
+    }  
+  }
+
+  //delete []Ph;
+  Ph = Ph_new;
+  PhaseMap.clear();
 	
-	for (it = PhaseMap_new.begin(); it != PhaseMap_new.end() ; it++) {
-		PhaseMap.insert(phase_map_pair(it->first, it->second));
-	}
+  for (it = PhaseMap_new.begin(); it != PhaseMap_new.end() ; it++) {
+    PhaseMap.insert(phase_map_pair(it->first, it->second));
+  }
+
+  return 0;
 }

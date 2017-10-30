@@ -79,6 +79,16 @@ int geom3d::CastInputDevices()
     throw xrmc_exception(string("Device ") + InputDeviceName[1] +
               " cannot be casted to type composition\n");
 
+  cout << "G3D Ph " << endl;
+  for (unsigned int i = 0 ; i < Comp->Ph.size(); i++) {
+    cout << "ph " << i << endl; 
+    cout << "N " << Comp->Ph[i].NElem << endl;
+    for (int j=0; j<Comp->Ph[i].NElem; j++) {
+      cout << "j " << j << " " << Comp->Ph[i].Z[j] << " "
+	   << Comp->Ph[i].W[j] << endl;
+    }  
+  }
+
   return 0;
 }
 
@@ -115,8 +125,18 @@ int geom3d::RunInit()
 
   //clean up the phases
   if (!MapReduced) {
-  	Comp->ReduceMap(used_phases);
-	MapReduced = true;
+    cout << "Before reduce G3D Ph " << endl;
+    for (unsigned int i = 0 ; i < Comp->Ph.size(); i++) {
+      cout << "ph " << i << endl; 
+      cout << "N " << Comp->Ph[i].NElem << endl;
+      for (int j=0; j<Comp->Ph[i].NElem; j++) {
+	cout << "j " << j << " " << Comp->Ph[i].Z[j] << " "
+	     << Comp->Ph[i].W[j] << endl;
+      }  
+    }
+
+    Comp->ReduceMap(used_phases);
+    MapReduced = true;
   }
 
   for(int iqv=0; iqv<NQVol; iqv++) { // loop on 3d objects

@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     loadcomposition.cpp       //
-//        31/01/2013             //
+//        31/10/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Load sample phases composition and density
@@ -51,26 +51,19 @@ int composition::Load(istream &fs)
   while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     if (comm=="End") break;
-    else if(comm=="MaxNPhases") { // set the maximum number of phases    
-      GetIntToken(fs, &MaxNPhases);
-      cout << "Maximum number of phases: " << MaxNPhases << "\n";
-      delete[] Ph;
-      Ph = new phase[MaxNPhases+1]; // allocate phase array
-      NPhases = 1;
-      // initializes phase 0 as vacuum
-      Ph[0].NElem = 0;
-      Ph[0].Rho = 0;
-    }
     else if(comm=="Phase") { // read parameters for a new phase
-      MapPhase(fs);
+      phase *new_ph = new phase;
+      int i_phase = Ph.size();
+      Ph.push_back(*new_ph);
+      MapPhase(fs, i_phase);
       GetToken(fs, comm);
       if (comm != "NElem")
 	throw xrmc_exception("NElem variable initialization not found"); 
       GetIntToken(fs, &n_comp); // read number of elements in the phase
-      //Ph[NPhases].NElem = n_elem;
-      //Ph[NPhases].W = new double[n_elem];  // initializes weight fraction,
-      //Ph[NPhases].Z = new int[n_elem];     // atomic numbers and absorption
-      //Ph[NPhases].MuAtom = new double[n_elem]; // coefficient arrays
+      //Ph[i_phase].NElem = n_elem;
+      //Ph[i_phase].W = new double[n_elem];  // initializes weight fraction,
+      //Ph[i_phase].Z = new int[n_elem];     // atomic numbers and absorption
+      //Ph[i_phase].MuAtom = new double[n_elem]; // coefficient arrays
       
       n_elem = 0;
       int elem;
@@ -84,20 +77,20 @@ int composition::Load(istream &fs)
 		//classic mode: integer found
 		elem_found = 0;
 		for (Z = 0 ; Z < n_elem ; Z++) {
-			if (elem == Ph[NPhases].Z[Z]) {
+			if (elem == Ph[i_phase].Z[Z]) {
 				elem_found = 1;
 				break;
 			}
 		}
 		if (elem_found) {
-			Ph[NPhases].Z[Z] = elem;
-			Ph[NPhases].W[Z] += w/100.0;
+			Ph[i_phase].Z[Z] = elem;
+			Ph[i_phase].W[Z] += w/100.0;
 		}
 		else {
-			Ph[NPhases].Z = (int*) realloc(Ph[NPhases].Z, sizeof(int)*++n_elem);
-			Ph[NPhases].W = (double *) realloc(Ph[NPhases].W, sizeof(double)*n_elem);
-			Ph[NPhases].Z[n_elem-1] = elem;
-			Ph[NPhases].W[n_elem-1] = w/100.0;
+			Ph[i_phase].Z = (int*) realloc(Ph[i_phase].Z, sizeof(int)*++n_elem);
+			Ph[i_phase].W = (double *) realloc(Ph[i_phase].W, sizeof(double)*n_elem);
+			Ph[i_phase].Z[n_elem-1] = elem;
+			Ph[i_phase].W[n_elem-1] = w/100.0;
 		}
 	}
 	else {
@@ -109,51 +102,42 @@ int composition::Load(istream &fs)
 		for (Zcd = 0 ; Zcd < cd->nElements ; Zcd++) {
 			elem_found = 0;
 			for (Z = 0 ; Z < n_elem ; Z++) {
-				if (cd->Elements[Zcd] == Ph[NPhases].Z[Z]) {
+				if (cd->Elements[Zcd] == Ph[i_phase].Z[Z]) {
 					elem_found = 1;
 					break;
 				}	
 			}
 			if (elem_found) {
-				Ph[NPhases].W[Z] += w*cd->massFractions[Zcd]/100.0;
+				Ph[i_phase].W[Z] += w*cd->massFractions[Zcd]/100.0;
 			}
 			else {
-				Ph[NPhases].Z = (int *) realloc(Ph[NPhases].Z, sizeof(int)*++n_elem);
-				Ph[NPhases].W = (double *) realloc(Ph[NPhases].W, sizeof(double)*n_elem);
-				Ph[NPhases].Z[n_elem-1] = cd->Elements[Zcd];
-				Ph[NPhases].W[n_elem-1] = w*cd->massFractions[Zcd]/100.0;
+				Ph[i_phase].Z = (int *) realloc(Ph[i_phase].Z, sizeof(int)*++n_elem);
+				Ph[i_phase].W = (double *) realloc(Ph[i_phase].W, sizeof(double)*n_elem);
+				Ph[i_phase].Z[n_elem-1] = cd->Elements[Zcd];
+				Ph[i_phase].W[n_elem-1] = w*cd->massFractions[Zcd]/100.0;
 			}
 		}
 		FreeCompoundData(cd);
 	}	
       }
-      Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*n_elem);
-      Ph[NPhases].NElem = n_elem;
+      Ph[i_phase].MuAtom = (double *) malloc(sizeof(double)*n_elem);
+      Ph[i_phase].NElem = n_elem;
       cout << "Num. of compounds: " << n_elem << endl;
       cout << "\tZ\tweight fract.\n";
       for (int elem_idx = 0 ; elem_idx < n_elem ; elem_idx++) {
-		cout << "\t" << Ph[NPhases].Z[elem_idx] << "\t"
-	     	<< Ph[NPhases].W[elem_idx] << endl;
+		cout << "\t" << Ph[i_phase].Z[elem_idx] << "\t"
+	     	<< Ph[i_phase].W[elem_idx] << endl;
       }
       GetToken(fs, comm);
       if (comm != "Rho")
 	throw xrmc_exception("Rho variable initialization not found"); 
       GetDoubleToken(fs, &rho); // read mass density of the phase in g/c3
-      Ph[NPhases].Rho = rho;
-      cout << "\tRho: " << Ph[NPhases].Rho << endl;    
-      NPhases++;
+      Ph[i_phase].Rho = rho;
+      cout << "\tRho: " << Ph[i_phase].Rho << endl;    
     }
     else {
       throw xrmc_exception("Syntax error in composition file\n");
       // unrecognized command
-    }
-    if (NPhases>MaxNPhases) {
-      char i2ch[MAXSTRLEN];
-      sprintf(i2ch, "%d", MaxNPhases);
-      string s_err="Number of phases greater than maximum: ";
-      s_err = s_err + i2ch + "\nUse the command MaxNPhases to "
-	"increase the maximum number of phases";
-      throw xrmc_exception(s_err);
     }
   }
 
@@ -161,7 +145,7 @@ int composition::Load(istream &fs)
 }
 
 // insert name and pointer to the phase in the phase map
-int composition::MapPhase(istream &fs)
+int composition::MapPhase(istream &fs, int i_phase)
 {
   string ph_name;
   phase_map_insert_pair insert_pair;
@@ -169,7 +153,7 @@ int composition::MapPhase(istream &fs)
   if (!GetToken(fs, ph_name))
     throw xrmc_exception(string("Syntax error reading phase name\n"));
   // insert name and pointer to the phase in the phase map
-  insert_pair = PhaseMap.insert(phase_map_pair(ph_name, NPhases));
+  insert_pair = PhaseMap.insert(phase_map_pair(ph_name, i_phase));
   if(insert_pair.second == false) // check that it was not already inserted
     throw xrmc_exception(string("Phase ") + ph_name + 
 			 " already inserted in phase map\n");
@@ -184,10 +168,11 @@ int composition::SetDefault()
 {
   phase_map_insert_pair insert_pair;
 
-  MaxNPhases = 10000; // maximum num. of phases
-  Ph = new phase[MaxNPhases+1];
-  NPhases = 1;
+  Ph.clear();
+
   // initializes phase 0 as vacuum
+  phase *new_phase = new phase;
+  Ph.push_back(*new_phase);
   Ph[0].NElem = 0;
   Ph[0].Rho = 0;
   string ph_name="Vacuum";
@@ -199,15 +184,21 @@ int composition::SetDefault()
 
   for (int i = 0 ; list[i] != NULL ; i++) {
 	cdn = GetCompoundDataNISTByIndex(i);
+	cout << cdn->name << endl;
   	xrlFree(list[i]);
-	Ph[NPhases].NElem = cdn->nElements;
-	Ph[NPhases].Z = (int *) malloc(sizeof(int)*cdn->nElements);
-	memcpy(Ph[NPhases].Z, cdn->Elements, sizeof(int)*cdn->nElements);
-	Ph[NPhases].W = (double *) malloc(sizeof(double)*cdn->nElements);
-	memcpy(Ph[NPhases].W, cdn->massFractions, sizeof(double)*cdn->nElements);
-	Ph[NPhases].Rho = cdn->density;
-	Ph[NPhases].MuAtom = (double *) malloc(sizeof(double)*cdn->nElements);
-  	insert_pair = PhaseMap.insert(phase_map_pair(cdn->name, NPhases++));
+	int i_phase = Ph.size();
+	cout << i_phase << endl;
+	/*
+	Ph.push_back(*new_phase);
+	Ph[i_phase].NElem = cdn->nElements;
+	Ph[i_phase].Z = (int *) malloc(sizeof(int)*cdn->nElements);
+	memcpy(Ph[i_phase].Z, cdn->Elements, sizeof(int)*cdn->nElements);
+	Ph[i_phase].W = (double *) malloc(sizeof(double)*cdn->nElements);
+	memcpy(Ph[i_phase].W, cdn->massFractions, sizeof(double)*cdn->nElements);
+	Ph[i_phase].Rho = cdn->density;
+	Ph[i_phase].MuAtom = (double *) malloc(sizeof(double)*cdn->nElements);
+  	insert_pair = PhaseMap.insert(phase_map_pair(cdn->name, i_phase));
+	*/
 	FreeCompoundDataNIST(cdn);	
   }
   xrlFree(list);
