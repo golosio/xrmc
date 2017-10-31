@@ -42,20 +42,10 @@ class phase
   static const double KD; // constant used for computing Delta
   randmt_t *Rng;
 
-  /*
-  ~phase() { // destructor
-    if (W!=NULL) free(W);
-    if (Z!=NULL) free(Z);
-    if (MuAtom!=NULL) free(MuAtom);
-  }
-  */
   phase() { // constructor
-    //W = NULL;
-    //Z = NULL;
-    //MuAtom = NULL;
-    //NElem = 0;
     Rho = LastMu = LastDelta = 0;
   }
+
   inline int NElem() { // number of elements in the phase
     return Z.size();
   }
@@ -63,8 +53,20 @@ class phase
   int Delta(double E); // Evaluates the delta coefficient at energy E
   int AtomType(int *Z, double *mu_atom);// extract the atomic species with
                                         // which the interaction will occur
+};
 
-  //phase& operator= (const phase &Phase);
+
+// structure defining a material (compound or mixture) 
+class material
+{
+ public:
+  vector<int> iPhase;
+  vector<double> Rho;
+
+  inline int NPhases() { // number of compounds in the material
+    return iPhase.size();
+  }
+
 };
 
 typedef map<string, int> phase_map;
@@ -79,18 +81,25 @@ class composition : public xrmc_device
   vector<phase> Ph;   // phase array
   phase_map PhaseMap; // map of phases with their names
 
+  vector<material> Mater; // material array
+  phase_map MaterMap; // map of materials with their names
+
   virtual ~composition(); // destructor
   composition(std::string dev_name);  // constructor
   virtual int Load(istream &fs); // Loads sample phases composition and density
   virtual int SetDefault(); // Set default values for composition parameters
   // insert name and index of the phase in the phase map
-  int MapPhase(istream &fs, int i_phase);
+  std::string MapPhase(istream &fs, int i_phase);
+  int MapMater(std::string mater_name, int i_mater);
+  std::string MapMater(istream &fs, int i_mater);
 
   int Mu(double E); // Evaluates the absorption coefficient of each phase
   int Delta(double E); // Evaluates the delta coefficient of each phase
   virtual composition *Clone(string dev_name);
   virtual int SetRng(randmt_t *rng);
   int ReduceMap(vector<string> used_phases);
+  int ReduceMaterMap(vector<string> used_mater);
+
 };
 
 #endif

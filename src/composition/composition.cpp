@@ -139,21 +139,82 @@ int composition::SetRng(randmt_t *rng)
 
   return 0;
 }
-int composition::ReduceMap(vector<string> used_phases) {
 
+int composition::ReduceMap(vector<string> used_phases)
+{
   vector<phase> Ph_new;
   phase_map PhaseMap_new;
   phase_map::iterator it;
 
-  for (unsigned int i=0 ; i<used_phases.size() ; i++) {
-    it = PhaseMap.find(used_phases.at(i));
+  vector<material> Mater_new = Mater;
+  phase_map MaterMap_new;
+
+  for (unsigned int iph=0 ; iph<used_phases.size() ; iph++) {
+    it = PhaseMap.find(used_phases.at(iph));
     if (it==PhaseMap.end()) {
-      throw xrmc_exception(string("Phase ") + used_phases.at(i)
+      throw xrmc_exception(string("Phase ") + used_phases.at(iph)
                            + " not found in phase map\n");
     }
     Ph_new.push_back(Ph[it->second]);
-    PhaseMap_new.insert(phase_map_pair(used_phases.at(i), i));
+    PhaseMap_new.insert(phase_map_pair(used_phases.at(iph), iph));
+    //int iph_old = it->first;
   }
+
+  Ph = Ph_new;
+  PhaseMap = PhaseMap_new;
+
+  return 0;
+}
+
+int composition::ReduceMaterMap(vector<string> used_mater)
+{
+  vector<phase> Ph_new;
+  phase_map PhaseMap_new;
+  phase_map::iterator it;
+
+  vector<int> ph_old_index;
+
+  vector<material> Mater_new = Mater;
+  phase_map MaterMap_new;
+
+  for (unsigned int imat=0 ; imat<used_mater.size() ; imat++) {
+    it = MaterMap.find(used_mater[imat]);
+    if (it==MaterMap.end()) {
+      throw xrmc_exception(string("Material ") + used_mater[imat]
+			   + " not found in material map\n");
+    }
+    Mater_new.push_back(Mater[it->second]);
+    MaterMap_new.insert(phase_map_pair(used_mater[imat], imat));
+    for (int i_comp=0 ; i_comp<Mater_new[imat].NPhases(); i_comp++) {
+      int i_ph_old = Mater_new[imat].iPhase[i_comp];
+
+      string comp_name="";
+      for (phase_map::iterator it=PhaseMap.begin();
+	   it!=PhaseMap.end(); ++it) {
+	if (it->second==i_ph_old) {
+	  comp_name = it->first;
+	  break;
+	}
+      }
+      if (comp_name=="") {
+	throw xrmc_exception("Compound index not found in composition map\n");
+      }
+
+      phase_map::iterator it = PhaseMap_new.find(comp_name);
+      if (it==PhaseMap_new.end()) { // phase not yet remapped
+	int i_ph_new = Ph_new.size();
+	Ph_new.push_back(Ph[i_ph_old]);
+	PhaseMap_new.insert(phase_map_pair(comp_name, i_ph_new));
+	Mater_new[imat].iPhase[i_comp] = i_ph_new;
+      }
+      else {
+	Mater_new[imat].iPhase[i_comp] = it->second;
+      }
+    }
+  }
+
+  Mater = Mater_new;
+  MaterMap = MaterMap_new;
 
   Ph = Ph_new;
   PhaseMap = PhaseMap_new;
