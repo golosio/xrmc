@@ -34,11 +34,6 @@ const double phase::KD=4.15179082788e-4; // constant for computing Delta
 
  // destructor
 composition::~composition() {
-  for (unsigned int i=0; i<Ph.size(); i++) {
-    if (Ph[i].W!=NULL) free(Ph[i].W);
-    if (Ph[i].Z!=NULL) free(Ph[i].Z);
-    if (Ph[i].MuAtom!=NULL) free(Ph[i].MuAtom);
-  }
 }
 
 // constructor
@@ -73,7 +68,7 @@ int composition::Delta(double E)
 int phase::Mu(double E)
 {
   double mu = 0;
-  for (int i=0; i<NElem; i++) { // loop on all elements of the phase
+  for (int i=0; i<NElem(); i++) { // loop on all elements of the phase
     MuAtom[i] = CS_Total(Z[i], E); // total cross section  for atomic num. Z
     mu += W[i]*MuAtom[i]; // sum of C.S. weighted by the weight fractions
   }
@@ -86,7 +81,7 @@ int phase::Mu(double E)
 int phase::Delta(double E)
 {
   double delta = 0;
-  for (int i=0; i<NElem; i++) {
+  for (int i=0; i<NElem(); i++) {
     // for details about the calculation see references in the documentation
     double num = W[i]*KD*(Z[i]+Fi(Z[i],E));
     double denom = AtomicWeight(Z[i])*E*E;
@@ -116,7 +111,7 @@ int phase::AtomType(int *Zelem, double *mu_atom)
     sum += W[i]*MuAtom[i];
     i++;
   }
-  if (i > NElem) i = NElem;
+  if (i > NElem()) i = NElem();
   i--;
   *Zelem = Z[i]; // atomic number of the element
   *mu_atom = MuAtom[i]; // total cross section for the element
@@ -129,52 +124,9 @@ composition *composition::Clone(string dev_name) {
 	//cout << "Entering composition::Clone\n";
 	composition *clone = new composition(dev_name);
 
-	cout << "Clone " << dev_name << endl;
-	for (unsigned int i = 0 ; i < Ph.size(); i++) {
-	  clone->Ph.push_back(Ph[i]);
-	  cout << "ph " << i << endl; 
-	  cout << "N " << clone->Ph[i].NElem << endl;
-	  for (int j=0; j<clone->Ph[i].NElem; j++) {
-	    cout << "j " << j << " " << clone->Ph[i].Z[j] << " "
-		 << clone->Ph[i].W[j] << endl;
-	  }
-
-	}
-	//PhaseMap
-	//typedef map<string, int> phase_map;
-	//typedef pair<string, int> phase_map_pair;
-	//typedef pair<phase_map::iterator, bool> phase_map_insert_pair;
-	phase_map::iterator it;
-
-	for (it = PhaseMap.begin(); it != PhaseMap.end() ; it++) {
-		clone->PhaseMap.insert(phase_map_pair(it->first, it->second));
-		cout << "pm " << it->first << " " << it->second << endl;
-	}
-
-
+	*clone = *this;
 
 	return clone;
-}
-
-
-phase& phase::operator= (const phase &Phase) {
-	//cout << "Entering phase assignment operator\n";
-
-	if (this == &Phase)
-		return *this;
-
-	NElem = Phase.NElem;
-	Rho = Phase.Rho;
-	Z = (int *) malloc(sizeof(int)*NElem); 
-	memcpy(Z, Phase.Z, sizeof(int)*NElem);
-	W = (double *) malloc(sizeof(double)*NElem); 
-	memcpy(W, Phase.W, sizeof(double)*NElem);
-	MuAtom = (double *) malloc(sizeof(double)*NElem);
-	memcpy(MuAtom, Phase.MuAtom, sizeof(double)*NElem);
-	LastMu = Phase.LastMu;
-	LastDelta = Phase.LastDelta;
-	
-	return *this;
 }
 
 int composition::SetRng(randmt_t *rng)
@@ -189,74 +141,22 @@ int composition::SetRng(randmt_t *rng)
 }
 int composition::ReduceMap(vector<string> used_phases) {
 
-  vector <phase> Ph_new;
+  vector<phase> Ph_new;
   phase_map PhaseMap_new;
   phase_map::iterator it;
 
-  cout << "Begin inside reduce Ph " << endl;
-  for (unsigned int i = 0 ; i < Ph.size(); i++) {
-    cout << "ph " << i << endl; 
-    cout << "N " << Ph[i].NElem << endl;
-    for (int j=0; j<Ph[i].NElem; j++) {
-      cout << "j " << j << " " << Ph[i].Z[j] << " "
-	   << Ph[i].W[j] << endl;
-    }  
-  }
-
-  for (int i=0 ; i<used_phases.size() ; i++) {
+  for (unsigned int i=0 ; i<used_phases.size() ; i++) {
     it = PhaseMap.find(used_phases.at(i));
     if (it==PhaseMap.end()) {
       throw xrmc_exception(string("Phase ") + used_phases.at(i)
                            + " not found in phase map\n");
     }
-
-    cout << "ok ph " << it->second << endl; 
-    cout << "N " << Ph[it->second].NElem << endl;
-    for (int j=0; j<Ph[it->second].NElem; j++) {
-      cout << "j " << j << " " << Ph[it->second].Z[j] << " "
-	   << Ph[it->second].W[j] << endl;
-    }  
-
-    
     Ph_new.push_back(Ph[it->second]);
-    cout << "ok ph_new " << i << endl; 
-    cout << used_phases.at(i) << endl;
-    cout << "N " << Ph_new[i].NElem << endl;
-    for (int j=0; j<Ph_new[i].NElem; j++) {
-      cout << "j " << j << " " << Ph_new[i].Z[j] << " "
-	   << Ph_new[i].W[j] << endl;
-    }  
-
     PhaseMap_new.insert(phase_map_pair(used_phases.at(i), i));
   }
 
-  cout << "Reduce " << endl;
-  for (unsigned int i = 0 ; i < Ph_new.size(); i++) {
-    cout << "ph " << i << endl; 
-    cout << used_phases.at(i) << endl;
-    cout << "N " << Ph_new[i].NElem << endl;
-    for (int j=0; j<Ph_new[i].NElem; j++) {
-      cout << "j " << j << " " << Ph_new[i].Z[j] << " "
-	   << Ph_new[i].W[j] << endl;
-    }  
-  }
-  cout << "Ph " << endl;
-  for (unsigned int i = 0 ; i < Ph.size(); i++) {
-    cout << "ph " << i << endl; 
-    cout << "N " << Ph[i].NElem << endl;
-    for (int j=0; j<Ph[i].NElem; j++) {
-      cout << "j " << j << " " << Ph[i].Z[j] << " "
-	   << Ph[i].W[j] << endl;
-    }  
-  }
-
-  //delete []Ph;
   Ph = Ph_new;
-  PhaseMap.clear();
-	
-  for (it = PhaseMap_new.begin(); it != PhaseMap_new.end() ; it++) {
-    PhaseMap.insert(phase_map_pair(it->first, it->second));
-  }
+  PhaseMap = PhaseMap_new;
 
   return 0;
 }

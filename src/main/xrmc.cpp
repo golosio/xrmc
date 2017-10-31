@@ -73,6 +73,8 @@ int xrmc::Run(string file_name)
   }
   fs.close();
 
+  //DeleteDevices();
+
   return 0;
 }
 

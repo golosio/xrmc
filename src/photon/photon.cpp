@@ -118,9 +118,8 @@ int photon::MoveForward(double step_length)
 int photon::EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
 			     double *Edep)
 {
-  double weight;
   phase *ph_compound;
-  int step_idx, interaction_type, Z;
+  int interaction_type, Z;
   double mu_atom, cs_interaction[3], cs_tot_Edep; 
   
   mySample = Sample;
@@ -478,14 +477,13 @@ int photon::Incoherent(int Z)
 
 //
 int photon::ComptonEnergyDoppler(int Z, double theta) {
-	double K0K, pz, r;
+	double pz, r;
 	int pos;
 	const double c = 1.2399E-6;
 	const double c0 = 4.85E-12;
 	const double c1 = 1.456E-2;
 	double c_lamb0, dlamb, c_lamb;
 	double energy, sth2;
-	int np;
 
 	energy = E*1000.0;
 	c_lamb0 = c/energy;

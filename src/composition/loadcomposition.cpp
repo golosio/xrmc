@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_exception.h"
 #include <xraylib.h>
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 using namespace gettoken;
@@ -39,22 +40,19 @@ int composition::Load(istream &fs)
 {
   /* Loads sample phases composition and density */
   int n_comp;
-  int n_elem;
-  int z_elem;
   double w, rho;
   string comm, comp;
   struct compoundData *cd;
 
   cout << "Composition file\n";
 
- // get a command/variable name from input file
+  // get a command/variable name from input file
   while (GetToken(fs, comm)) {
     // parse the command and decide what to do
     if (comm=="End") break;
     else if(comm=="Phase") { // read parameters for a new phase
-      phase *new_ph = new phase;
       int i_phase = Ph.size();
-      Ph.push_back(*new_ph);
+      Ph.push_back(phase());
       MapPhase(fs, i_phase);
       GetToken(fs, comm);
       if (comm != "NElem")
@@ -65,68 +63,52 @@ int composition::Load(istream &fs)
       //Ph[i_phase].Z = new int[n_elem];     // atomic numbers and absorption
       //Ph[i_phase].MuAtom = new double[n_elem]; // coefficient arrays
       
-      n_elem = 0;
-      int elem;
-      int elem_found;
-      int Z;
-      for(int comp_idx=0; comp_idx<n_comp; comp_idx++) { //read element Z and w
+      int Zelem;
+      for(int i_comp=0; i_comp<n_comp; i_comp++) { //read element Z and w
 	GetToken(fs, comp);
 	GetDoubleToken(fs, &w);
 	istringstream buffer(comp);
-	if ((buffer >> elem)) {
-		//classic mode: integer found
-		elem_found = 0;
-		for (Z = 0 ; Z < n_elem ; Z++) {
-			if (elem == Ph[i_phase].Z[Z]) {
-				elem_found = 1;
-				break;
-			}
-		}
-		if (elem_found) {
-			Ph[i_phase].Z[Z] = elem;
-			Ph[i_phase].W[Z] += w/100.0;
-		}
-		else {
-			Ph[i_phase].Z = (int*) realloc(Ph[i_phase].Z, sizeof(int)*++n_elem);
-			Ph[i_phase].W = (double *) realloc(Ph[i_phase].W, sizeof(double)*n_elem);
-			Ph[i_phase].Z[n_elem-1] = elem;
-			Ph[i_phase].W[n_elem-1] = w/100.0;
-		}
+	if ((buffer >> Zelem)) {
+	  //classic mode: integer found
+	  vector<int>::iterator it=find(Ph[i_phase].Z.begin(),
+					Ph[i_phase].Z.end(), Zelem);
+	  int i_elem = distance(Ph[i_phase].Z.begin(), it);
+	  if (i_elem<Ph[i_phase].NElem()) {
+	    Ph[i_phase].Z[i_elem] = Zelem;
+	    Ph[i_phase].W[i_elem] += w/100.0;
+	  }
+	  else {
+	    Ph[i_phase].Z.push_back(Zelem);
+	    Ph[i_phase].W.push_back(w/100.0);
+	  }
 	}
 	else {
-		//modern mode: chemical formula
-		if ((cd = CompoundParser(comp.c_str())) == NULL){
-   			throw xrmc_exception("Cannot parse compound\n");
-		}
-		int Zcd;
-		for (Zcd = 0 ; Zcd < cd->nElements ; Zcd++) {
-			elem_found = 0;
-			for (Z = 0 ; Z < n_elem ; Z++) {
-				if (cd->Elements[Zcd] == Ph[i_phase].Z[Z]) {
-					elem_found = 1;
-					break;
-				}	
-			}
-			if (elem_found) {
-				Ph[i_phase].W[Z] += w*cd->massFractions[Zcd]/100.0;
-			}
-			else {
-				Ph[i_phase].Z = (int *) realloc(Ph[i_phase].Z, sizeof(int)*++n_elem);
-				Ph[i_phase].W = (double *) realloc(Ph[i_phase].W, sizeof(double)*n_elem);
-				Ph[i_phase].Z[n_elem-1] = cd->Elements[Zcd];
-				Ph[i_phase].W[n_elem-1] = w*cd->massFractions[Zcd]/100.0;
-			}
-		}
-		FreeCompoundData(cd);
+	  //modern mode: chemical formula
+	  if ((cd = CompoundParser(comp.c_str())) == NULL){
+	    throw xrmc_exception("Cannot parse compound\n");
+	  }
+	  int Zcd;
+	  for (Zcd=0 ; Zcd<cd->nElements; Zcd++) {
+	    vector<int>::iterator it=find(Ph[i_phase].Z.begin(),
+					  Ph[i_phase].Z.end(), Zcd);
+	    int i_elem = distance(Ph[i_phase].Z.begin(), it);
+	    if (i_elem<Ph[i_phase].NElem()) {
+	      Ph[i_phase].W[i_elem] += w*cd->massFractions[Zcd]/100.0;
+	    }
+	    else {
+	      Ph[i_phase].Z.push_back(cd->Elements[Zcd]);
+	      Ph[i_phase].W.push_back(w*cd->massFractions[Zcd]/100.0);
+	    }
+	  }
+	  FreeCompoundData(cd);
 	}	
       }
-      Ph[i_phase].MuAtom = (double *) malloc(sizeof(double)*n_elem);
-      Ph[i_phase].NElem = n_elem;
-      cout << "Num. of compounds: " << n_elem << endl;
+      Ph[i_phase].MuAtom.assign (Ph[i_phase].NElem(),0);
+      cout << "Num. of compounds: " << Ph[i_phase].NElem() << endl;
       cout << "\tZ\tweight fract.\n";
-      for (int elem_idx = 0 ; elem_idx < n_elem ; elem_idx++) {
-		cout << "\t" << Ph[i_phase].Z[elem_idx] << "\t"
-	     	<< Ph[i_phase].W[elem_idx] << endl;
+      for (int i_elem=0 ; i_elem<Ph[i_phase].NElem(); i_elem++) {
+	cout << "\t" << Ph[i_phase].Z[i_elem] << "\t"
+	     << Ph[i_phase].W[i_elem] << endl;
       }
       GetToken(fs, comm);
       if (comm != "Rho")
@@ -144,36 +126,34 @@ int composition::Load(istream &fs)
   return 0;
 }
 
-// insert name and pointer to the phase in the phase map
-int composition::MapPhase(istream &fs, int i_phase)
-{
-  string ph_name;
-  phase_map_insert_pair insert_pair;
-
-  if (!GetToken(fs, ph_name))
-    throw xrmc_exception(string("Syntax error reading phase name\n"));
   // insert name and pointer to the phase in the phase map
-  insert_pair = PhaseMap.insert(phase_map_pair(ph_name, i_phase));
-  if(insert_pair.second == false) // check that it was not already inserted
-    throw xrmc_exception(string("Phase ") + ph_name + 
-			 " already inserted in phase map\n");
-  cout << "Phase: " << ph_name << endl; 
+  int composition::MapPhase(istream &fs, int i_phase)
+  {
+    string ph_name;
+    phase_map_insert_pair insert_pair;
 
-  return 0;
-}
+    if (!GetToken(fs, ph_name))
+      throw xrmc_exception(string("Syntax error reading phase name\n"));
+    // insert name and pointer to the phase in the phase map
+    insert_pair = PhaseMap.insert(phase_map_pair(ph_name, i_phase));
+    if(insert_pair.second == false) // check that it was not already inserted
+      throw xrmc_exception(string("Phase ") + ph_name + 
+			   " already inserted in phase map\n");
+    cout << "Phase: " << ph_name << endl; 
 
-//////////////////////////////////////////////////////////////////////
-// set default values for composition parameters
-int composition::SetDefault()
-{
-  phase_map_insert_pair insert_pair;
+    return 0;
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // set default values for composition parameters
+  int composition::SetDefault()
+  {
+    phase_map_insert_pair insert_pair;
 
   Ph.clear();
 
   // initializes phase 0 as vacuum
-  phase *new_phase = new phase;
-  Ph.push_back(*new_phase);
-  Ph[0].NElem = 0;
+  Ph.push_back(phase());
   Ph[0].Rho = 0;
   string ph_name="Vacuum";
   insert_pair = PhaseMap.insert(phase_map_pair(ph_name, 0));
@@ -184,23 +164,23 @@ int composition::SetDefault()
 
   for (int i = 0 ; list[i] != NULL ; i++) {
 	cdn = GetCompoundDataNISTByIndex(i);
-	cout << cdn->name << endl;
+	//cout << cdn->name << endl;
   	xrlFree(list[i]);
 	int i_phase = Ph.size();
-	cout << i_phase << endl;
-	/*
-	Ph.push_back(*new_phase);
-	Ph[i_phase].NElem = cdn->nElements;
-	Ph[i_phase].Z = (int *) malloc(sizeof(int)*cdn->nElements);
-	memcpy(Ph[i_phase].Z, cdn->Elements, sizeof(int)*cdn->nElements);
-	Ph[i_phase].W = (double *) malloc(sizeof(double)*cdn->nElements);
-	memcpy(Ph[i_phase].W, cdn->massFractions, sizeof(double)*cdn->nElements);
+	
+	Ph.push_back(phase());
+	Ph[i_phase].Z = vector<int>(cdn->Elements,
+				    cdn->Elements+cdn->nElements);
+	Ph[i_phase].W = vector<double>(cdn->massFractions,
+				    cdn->massFractions+cdn->nElements);
 	Ph[i_phase].Rho = cdn->density;
-	Ph[i_phase].MuAtom = (double *) malloc(sizeof(double)*cdn->nElements);
+	Ph[i_phase].MuAtom.assign (Ph[i_phase].NElem(),0);
+
   	insert_pair = PhaseMap.insert(phase_map_pair(cdn->name, i_phase));
-	*/
+	
 	FreeCompoundDataNIST(cdn);	
   }
   xrlFree(list);
+
   return 0;
 }

@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_arrayNd.h"
 #include "xrmc_sample.h"
 
-#ifdef s_OPENMP
+#ifdef _OPENMP
 #include <omp.h>
 #define THREAD_MAXNUM omp_get_max_threads()
 #define THREAD_IDX omp_get_thread_num()

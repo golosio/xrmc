@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /////////////////////////////////////////
 //          xrmc_composition.h         //
-//        31/01/2013                   //
+//        31/10/2017                   //
 //     Author : Bruno Golosio          //
 /////////////////////////////////////////
 // Definition of the classes composition and phase
@@ -32,11 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class phase
 {
  public:
-  int NElem; // number of elements in the phase
+  //int NElem; // number of elements in the phase
   double Rho; // mass density of the phase in g/cm3
-  int *Z; // atomic number array
-  double *W; // weight fraction array
-  double *MuAtom; // atomic interactions total cross section array
+  std::vector<int> Z; // atomic number array
+  std::vector<double> W; // weight fraction array
+  std::vector<double> MuAtom; // atomic interactions total cross section array
   double LastMu; // linear absorption coefficient
   double LastDelta; // delta coefficient 
   static const double KD; // constant used for computing Delta
@@ -50,19 +50,21 @@ class phase
   }
   */
   phase() { // constructor
-    W = NULL;
-    Z = NULL;
-    MuAtom = NULL;
-    NElem = 0;
+    //W = NULL;
+    //Z = NULL;
+    //MuAtom = NULL;
+    //NElem = 0;
     Rho = LastMu = LastDelta = 0;
+  }
+  inline int NElem() { // number of elements in the phase
+    return Z.size();
   }
   int Mu(double E);// Evaluates the absorption coefficient at energy E
   int Delta(double E); // Evaluates the delta coefficient at energy E
   int AtomType(int *Z, double *mu_atom);// extract the atomic species with
                                         // which the interaction will occur
 
-
-  phase& operator= (const phase &Phase);
+  //phase& operator= (const phase &Phase);
 };
 
 typedef map<string, int> phase_map;
@@ -73,7 +75,7 @@ typedef pair<phase_map::iterator, bool> phase_map_insert_pair;
 class composition : public xrmc_device
 {
  public:
-  int MaxNPhases; // maximum number of phases (materials)
+  //int MaxNPhases; // maximum number of phases (materials)
   vector<phase> Ph;   // phase array
   phase_map PhaseMap; // map of phases with their names
 

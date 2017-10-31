@@ -49,62 +49,64 @@ sample::~sample() { // destructor
 
 void sample::DopplerInit() {
   //Doppler calculation
-  int i,j,k,l,m;
 
   doppler_pz = new double*[100];
-  for (i = 0 ; i < compZ.size() ; i++)
-  	doppler_pz[compZ[i]] = new double[NINTERVALS_R];
+  for (unsigned int i=0 ; i<compZ.size() ; i++) {
+    doppler_pz[compZ[i]] = new double[NINTERVALS_R];
+  }
 
   rs = new double[NINTERVALS_R];
-  for (i = 0 ; i < NINTERVALS_R ; i++)
-  	rs[i] = i/(NINTERVALS_R-1.0);
+  for (int i=0 ; i<NINTERVALS_R; i++) {
+    rs[i] = i/(NINTERVALS_R-1.0);
+  }
 
   const int maxpz = 100;
   const int nintervals_pz = 1000000;
   double *pzs = new double[nintervals_pz];
-  for (i = 0 ; i < nintervals_pz ; i++) {
-  	pzs[i]= maxpz * (i)/(nintervals_pz-1.0);
+  for (int i=0 ; i<nintervals_pz ; i++) {
+    pzs[i]= maxpz*(i)/(nintervals_pz-1.0);
   }
   double *trapez2 = new double[nintervals_pz-1];
   double trapez2_sum, temp_sum;
-  for (i = 0 ; i < compZ.size() ; i++) {
-  	cout << "Compton profile icdf for element: " << compZ[i] << endl;
-  	trapez2_sum = 0.0;
-	for (j = 0 ; j < nintervals_pz-1 ; j++) {
-		trapez2[j] = (ComptonProfile(compZ[i], pzs[j])+ComptonProfile(compZ[i],pzs[j+1]))*(pzs[1]-pzs[0])/2.0/compZ[i];
-		trapez2_sum += trapez2[j];
-	}
-
-	for (j = 0 ; j < nintervals_pz-1 ; j++) {
-		trapez2[j] /= trapez2_sum;
-	}
+  for (unsigned int i=0 ; i<compZ.size(); i++) {
+    cout << "Compton profile icdf for element: " << compZ[i] << endl;
+    trapez2_sum = 0.0;
+    for (int j = 0 ; j<nintervals_pz-1; j++) {
+      trapez2[j] = (ComptonProfile(compZ[i], pzs[j])
+		    +ComptonProfile(compZ[i],pzs[j+1]))
+	*(pzs[1]-pzs[0])/2.0/compZ[i];
+      trapez2_sum += trapez2[j];
+    }
+    for (int j=0 ; j<nintervals_pz-1; j++) {
+      trapez2[j] /= trapez2_sum;
+    }
 	
-  	temp_sum = 0.0;
-  	l=0;
-	m=0;
-	while (l != nintervals_pz-1) {
-		temp_sum += trapez2[l];
-		if (temp_sum >= rs[m]) {
-			doppler_pz[compZ[i]][m] = pzs[l];
-			if (m == NINTERVALS_R-1)
-				break;
-			m++;
-		}
-		if (l == nintervals_pz-2)
-			break;
-		l++;
-	}
-	doppler_pz[compZ[i]][NINTERVALS_R-1] = maxpz;
-	doppler_pz[compZ[i]][0] = 0.0;
+    temp_sum = 0.0;
+    int l=0;
+    int m=0;
+    while (l != nintervals_pz-1) {
+      temp_sum += trapez2[l];
+      if (temp_sum >= rs[m]) {
+	doppler_pz[compZ[i]][m] = pzs[l];
+	if (m == NINTERVALS_R-1)
+	  break;
+	m++;
+      }
+      if (l == nintervals_pz-2)
+	break;
+      l++;
+    }
+    doppler_pz[compZ[i]][NINTERVALS_R-1] = maxpz;
+    doppler_pz[compZ[i]][0] = 0.0;
   }
   delete [] pzs;
   delete [] trapez2;
-
+  
 }
 
 void sample::DopplerClear() {
   if (doppler_pz!=NULL) {
-    for (int i = 0 ; i < compZ.size() ; i++) {
+    for (unsigned int i=0 ; i<compZ.size() ; i++) {
 	delete [] doppler_pz[compZ[i]];
     }
     delete [] doppler_pz;
@@ -224,11 +226,11 @@ int sample::RunInit()
   for (i = 0 ; i < Geom3D->NQVol ; i++) {
   	//iterate over all qvolumes
 	phase myPh = Geom3D->Comp->Ph[Geom3D->QVol[i].iPhaseIn];
-	for (j = 0 ; j < myPh.NElem ; j++) {
+	for (j = 0 ; j < myPh.NElem() ; j++) {
 		compZ.push_back(myPh.Z[j]);	
 	}
 	myPh = Geom3D->Comp->Ph[Geom3D->QVol[i].iPhaseOut];
-	for (j = 0 ; j < myPh.NElem ; j++) {
+	for (j = 0 ; j < myPh.NElem() ; j++) {
 		compZ.push_back(myPh.Z[j]);	
 	}
   }

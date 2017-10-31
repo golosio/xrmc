@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_sample.h"
 #include "alloc.h"
 #include "fft.h"
-#ifdef s_OPENMP
+#ifdef _OPENMP
 #include <omp.h>
 #define THREAD_MAXNUM omp_get_max_threads()
 #define THREAD_IDX omp_get_thread_num()
