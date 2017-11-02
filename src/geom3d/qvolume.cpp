@@ -30,11 +30,11 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////
 // qvolume initialization method
 //////////////////////////////////////////////////////////////////////
-int qvolume::Init(string s_ph_in, string s_ph_out, int n_quadr)
+int qvolume::Init(string s_mat_in, string s_mat_out, int n_quadr)
 {
   NQuadr = n_quadr; // set the number of quadrics
-  PhaseInName = s_ph_in; // set the phase inside
-  PhaseOutName = s_ph_out; // set the phase outside
+  MaterInName = s_mat_in; // set the material inside
+  MaterOutName = s_mat_out; // set the material outside
   Quadr = new quadric*[NQuadr]; // allocate pointer-to-quadric array
 
   return 0;
@@ -44,7 +44,7 @@ int qvolume::Init(string s_ph_in, string s_ph_out, int n_quadr)
 // Find intersections of the straight line x0 + u*t
 // with the quadrics delimiting the object
 //////////////////////////////////////////////////////////////////////
-int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
+int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1,
 			int *n_inters)
 {
   int n_inters_q=0;
@@ -103,14 +103,14 @@ int qvolume::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
     // t01max and t10min are the parametric coordinates of the intersections 
     if (t01max > 0) { // if the 1st intersection is in the forward direction
       t[*n_inters] = t01max; // store it
-      iph0[*n_inters] = iPhaseOut;
-      iph1[*n_inters] = iPhaseIn;
+      imat0[*n_inters] = iMaterOut;
+      imat1[*n_inters] = iMaterIn;
       (*n_inters)++;
     }
     if (t10min > 0) { // if the 2nd intersection is in the forward direction
       t[*n_inters] = t10min; // store it
-      iph0[*n_inters] = iPhaseIn;
-      iph1[*n_inters] = iPhaseOut;
+      imat0[*n_inters] = iMaterIn;
+      imat1[*n_inters] = iMaterOut;
       (*n_inters)++;
     }
   }
@@ -126,10 +126,10 @@ qvolume& qvolume::operator= (const qvolume &QVolume) {
 	if (this == &QVolume)
 		return *this;
 	NQuadr = QVolume.NQuadr;
-	iPhaseIn = QVolume.iPhaseIn;
-	iPhaseOut = QVolume.iPhaseOut;
-	PhaseInName = QVolume.PhaseInName;
-	PhaseOutName = QVolume.PhaseOutName;
+	iMaterIn = QVolume.iMaterIn;
+	iMaterOut = QVolume.iMaterOut;
+	MaterInName = QVolume.MaterInName;
+	MaterOutName = QVolume.MaterOutName;
 	Quadr = new quadric*[NQuadr];
 
 	//cout << "Leaving qvolume assignment operator\n";

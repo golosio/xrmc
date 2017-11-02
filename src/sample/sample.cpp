@@ -213,8 +213,10 @@ int sample::RunInit()
   Path->MaxNSteps = mns;            // (steplengths)
   Path->t = new double[mns]; // intersections (distances from starting point)
   Path->Step = new double[mns]; // steplengths between adjacent intersections
-  Path->iPh0 = new int[mns]; // index of phase before intersection
-  Path->iPh1 = new int[mns]; // index of phase after intersection
+  Path->iPh0 = new int*[mns]; // indexes of phases before intersection
+  Path->iPh1 = new int*[mns]; // indexes of phases after intersection
+  Path->iRho0 = new double*[mns]; // densities of phases before intersection
+  Path->iRho1 = new double*[mns]; // densities of phases after intersection
   Path->Mu = new double[mns]; // absorption coeff. in each step
   Path->Delta = new double[mns]; // delta coeff. in each step
   Path->SumMuS = new double[mns]; // cumulative sum of Mu * steplength
@@ -224,15 +226,19 @@ int sample::RunInit()
   
   //get list of all used elements -> will be used for the Doppler broadening profiles
   for (i = 0 ; i < Geom3D->NQVol ; i++) {
-  	//iterate over all qvolumes
-	phase myPh = Geom3D->Comp->Ph[Geom3D->QVol[i].iPhaseIn];
-	for (j = 0 ; j < myPh.NElem() ; j++) {
-		compZ.push_back(myPh.Z[j]);	
-	}
-	myPh = Geom3D->Comp->Ph[Geom3D->QVol[i].iPhaseOut];
-	for (j = 0 ; j < myPh.NElem() ; j++) {
-		compZ.push_back(myPh.Z[j]);	
-	}
+    //iterate over all qvolumes
+    material myMatIn = Geom3D->Comp->Mat[Geom3D->QVol[i].iMatIn];
+    material myMatOut = Geom3D->Comp->Mat[Geom3D->QVol[i].iMatOut];
+    for(i_comp=0; i_comp<myMat.NPhases; i_comp++) {
+      phase myPh=Geom3D->Comp->Ph[myMatIn.iPhase[i_comp]];
+      for (j=0 ; j<myPh.NElem(); j++) {
+	compZ.push_back(myPh.Z[j]);	
+      }
+      myPh = Geom3D->Comp->Ph[myMatOut.iPhase[i_comp]];
+      for (j=0; j<myPh.NElem() ; j++) {
+	compZ.push_back(myPh.Z[j]);	
+      }
+    }
   }
   sort(compZ.begin(), compZ.end());
   compZ.erase(unique(compZ.begin(), compZ.end()), compZ.end());

@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     xrmc_sample.h             //
-//        12/02/2013             //
+//        02/11/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // sample and path classes definition
@@ -48,8 +48,10 @@ class path
   double *t; // array of the intersections
              // (distances from the starting coordinate)
   double *Step; // steplength between intersections
-  int *iPh0; // array of the entrance phase indexes
-  int *iPh1; // array of the exit phase indexes
+  int **iPh0; // array of the entrance phase indexes
+  int **iPh1; // array of the exit phase indexes
+  double **iRho0; // array of the entrance phase densities
+  double **iRho1; // array of the exit phase densities
   double *Mu; // absorption coefficient at each step
   double MuL; // sum of mu * steplength
   double *Delta; // delta coefficient
@@ -63,6 +65,8 @@ class path
     if(Step!=NULL) delete[] Step;
     if(iPh0!=NULL) delete[] iPh0;
     if(iPh1!=NULL) delete[] iPh1;
+    if(iRho0!=NULL) delete[] iRho0;
+    if(iRho1!=NULL) delete[] iRho1;
     if(Mu!=NULL) delete[] Mu;
     if(Delta!=NULL) delete[] Delta;
     if(SumMuS!=NULL) delete[] SumMuS;
@@ -71,6 +75,7 @@ class path
   path() { // constructor
     t = Step = Mu = Delta = SumMuS = SumS = NULL;
     iPh0 = iPh1 = NULL;
+    iRho0 = iRho1 = NULL;
     NSteps = 0;
     Rng = NULL;
   }

@@ -149,16 +149,16 @@ int geom3d::RunInit()
     int i_mat_in = (*it).second;
     QVol[iqv].iMaterIn = i_mat_in; // set the material inside
 
-    string s_mat_out = QVol[iqv].PhaseOutName;
-    // check if the phase name is present in phase map
-    it = Comp->PhaseMap.find(s_ph_out);
+    string s_mat_out = QVol[iqv].MaterOutName;
+    // check if the material name is present in material map
+    it = Comp->MaterMap.find(s_mat_out);
     // if not display error and exit
-    if (it==Comp->PhaseMap.end())
+    if (it==Comp->MaterMap.end())
       throw xrmc_exception(string("Material ") + s_mat_out
 			   + " not found in material map\n");
     // get material index from material map
     int i_mat_out = (*it).second;
-    QVol[iqv].iPhaseOut = i_ph_out; // set the phase inside
+    QVol[iqv].iMaterOut = i_mat_out; // set the material inside
   }
  
   return 0;
@@ -171,11 +171,11 @@ int geom3d::RunInit()
 // x0 and u are the starting coordinates and direction of the trajectory
 // output:
 // t is the array of the intersections (distances from the starting coordinate)
-// iph0 is the array of the entrance phase indexes
-// iph0 is the array of the exit phase indexes
+// imat0 is the array of the entrance material indexes
+// imat1 is the array of the exit material indexes
 // n_inters is the number of intersections
  //////////////////////////////////////////////////////////////////////
-int geom3d::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
+int geom3d::Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1,
 		       int *n_inters)
 {
   int i;
@@ -186,9 +186,9 @@ int geom3d::Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1,
   *n_inters = 0;
   for (i=0; i<NQVol; i++) { // loop on 3d objects
  // evaluate intersection of the trajectory with the 3d objects
-    QVol[i].Intersect(x0, u, t, iph0, iph1, n_inters);
+    QVol[i].Intersect(x0, u, t, imat0, imat1, n_inters);
   }
-  SortInters(t, iph0, iph1, *n_inters); // sort the intersections
+  SortInters(t, imat0, imat1, *n_inters); // sort the intersections
                                         // with growing values of t
 
   return 0;
