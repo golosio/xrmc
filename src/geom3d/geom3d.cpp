@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     geom3d.cpp                //
-//        31/01/2013             //
+//        31/10/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Methods of the class geom3d
@@ -113,9 +113,9 @@ int geom3d::LinkInputDevice(string command, xrmc_device *dev_pt)
 int geom3d::RunInit()
 {
 
-  //clean up the phases
+  //clean up the materials
   if (!MapReduced) {
-    Comp->ReduceMap(used_phases);
+    Comp->ReduceMaterMap(used_mater);
     MapReduced = true;
   }
 
@@ -137,27 +137,27 @@ int geom3d::RunInit()
       QVol[iqv].Quadr[iq] = quadr_pt;
 
     }
-    string s_ph_in = QVol[iqv].PhaseInName;
+    string s_mat_in = QVol[iqv].MaterInName;
 
-    // check if the phase name is present in phase map
-    phase_map::iterator it = Comp->PhaseMap.find(s_ph_in);
+    // check if the material name is present in material map
+    phase_map::iterator it = Comp->MaterMap.find(s_mat_in);
     // if not display error and exit
-    if (it==Comp->PhaseMap.end())
-      throw xrmc_exception(string("Phase ") + s_ph_in
-			   + " not found in phase map\n");
-    // get phase index from the phase map
-    int i_ph_in = (*it).second;
-    QVol[iqv].iPhaseIn = i_ph_in; // set the phase inside
+    if (it==Comp->MaterMap.end())
+      throw xrmc_exception(string("Material ") + s_mat_in
+			   + " not found in material map\n");
+    // get material index from the material map
+    int i_mat_in = (*it).second;
+    QVol[iqv].iMaterIn = i_mat_in; // set the material inside
 
-    string s_ph_out = QVol[iqv].PhaseOutName;
+    string s_mat_out = QVol[iqv].PhaseOutName;
     // check if the phase name is present in phase map
     it = Comp->PhaseMap.find(s_ph_out);
     // if not display error and exit
     if (it==Comp->PhaseMap.end())
-      throw xrmc_exception(string("Phase ") + s_ph_out
-			   + " not found in phase map\n");
-    // get phase index from the phase map
-    int i_ph_out = (*it).second;
+      throw xrmc_exception(string("Material ") + s_mat_out
+			   + " not found in material map\n");
+    // get material index from material map
+    int i_mat_out = (*it).second;
     QVol[iqv].iPhaseOut = i_ph_out; // set the phase inside
   }
  

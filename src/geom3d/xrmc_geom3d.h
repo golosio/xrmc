@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     xrmc_geom3d.h             //
-//        31/01/2013             //
+//        31/10/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 //  geom3d, quadric, quadricarray, qvolume, qvolumearray class definitions
@@ -91,10 +91,10 @@ class qvolume
 {
  public:
   int NQuadr; // number of quadrics delimiting the object
-  int iPhaseIn; // index of the phase inside the object
-  int iPhaseOut; // index of the phase surrounding the object
-  std::string PhaseInName; // name of the phase inside the object
-  std::string PhaseOutName; // name of the phase surrounding the object
+  int iMaterIn; // index of the material inside the object
+  int iMaterOut; // index of the material surrounding the object
+  std::string MaterInName; // name of the material inside the object
+  std::string MaterOutName; // name of the material surrounding the object
   quadric **Quadr; // array of pointers to the quadrics delimiting the object
 
   ~qvolume() { // destructor
@@ -104,9 +104,10 @@ class qvolume
     Quadr = NULL;
     NQuadr = 0;
   }
-  int Init(std::string s_ph_in, std::string s_ph_out, int n_quadr); // initializ. method
+  // initializ. method
+  int Init(std::string s_mat_in, std::string s_mat_out, int n_quadr);
   // method for finding the intersections of a line with the object
-  int Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1, \
+  int Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1, \
 		 int *n_inters);
   qvolume& operator= (const qvolume &QVolume);
 };
@@ -122,7 +123,7 @@ class geom3d : public xrmc_device
   std::string QArrName;
   composition *Comp; // input composition device
   std::string CompName;
-  vector<string> used_phases;
+  vector<string> used_mater;
   static bool MapReduced;
 
   int NQVol; // number of 3d objects used in the geometric description
@@ -140,7 +141,7 @@ class geom3d : public xrmc_device
 
   // method for finding the intersections of a straight line
   //  with all quadrics and all 3d objects
-  int Intersect(vect3 x0, vect3 u, double *t, int *iph0, int *iph1, \
+  int Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1, \
 		int *n_inters);
   virtual geom3d *Clone(string dev_name);
  private:

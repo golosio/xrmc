@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     loadgeom3d.cpp            //
-//        31/01/2013             //
+//        31/10/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Load 3d geometric shapes
@@ -39,7 +39,7 @@ using namespace gettoken;
 //////////////////////////////////////////////////////////////////////
 int geom3d::Load(istream &fs)
 {
-  string comm="", s, qname, s_ph_in, s_ph_out;
+  string comm="", s, qname, s_mat_in, s_mat_out;
   int n_quadr, i;
 
   cout << "Geometric shapes file\n";
@@ -80,21 +80,23 @@ int geom3d::Load(istream &fs)
       GetToken(fs, s); // object name
       //ObjName = s;
       cout << "Object: " << s << endl;
-      GetToken(fs, s_ph_in); // set internal phase
-      GetToken(fs, s_ph_out);  // set external phase
+      GetToken(fs, s_mat_in); // set internal material
+      GetToken(fs, s_mat_out);  // set external material
       GetIntToken(fs, &n_quadr); // num. of quadrics delimiting the 3d object
-      QVol[NQVol].Init(s_ph_in, s_ph_out, n_quadr); // initialize 3d object
+      QVol[NQVol].Init(s_mat_in, s_mat_out, n_quadr); // initialize 3d object
       QVolMap[NQVol] = new string[n_quadr]; // initialize map of quadrics
       // delimiting the 3d object
-      cout << "\tPhase Inside: " << QVol[NQVol].PhaseInName << endl;
-      cout << "\tPhase Outside: " << QVol[NQVol].PhaseOutName << endl;
+      cout << "\tMaterial Inside: " << QVol[NQVol].MaterInName << endl;
+      cout << "\tMaterial Outside: " << QVol[NQVol].MaterOutName << endl;
       cout << "\tNum. of quadrics: " << QVol[NQVol].NQuadr << endl;
      
-      if (find(used_phases.begin(), used_phases.end(), s_ph_in) == used_phases.end()) {
-      	used_phases.push_back(s_ph_in);
+      if (find(used_mater.begin(), used_mater.end(), s_mat_in)
+	  == used_mater.end()) {
+      	used_mater.push_back(s_mat_in);
       }
-      if (find(used_phases.begin(), used_phases.end(), s_ph_out) == used_phases.end()) {
-      	used_phases.push_back(s_ph_out);
+      if (find(used_mater.begin(), used_mater.end(), s_mat_out)
+	  == used_mater.end()) {
+      	used_mater.push_back(s_mat_out);
       }
 
       for(i=0; i<n_quadr; i++) { // loop on quadrics delimiting the 3d object
