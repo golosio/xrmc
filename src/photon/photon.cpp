@@ -136,14 +136,15 @@ int photon::EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
   //// move the photon in the direction uk by a distance step_length
   //MoveForward(step_length);
 
-  int iph = Sample->Path->iPh1[Sample->Path->NSteps-1]; // phase index of end point
-  if (Sample->Comp->Ph[iph].Rho==0) { // vacuum
+  if (Sample->Path->NPh0[Sample->Path->NSteps]==0) { // end point is in vacuum
     w = 0;
     *Edep = 0;
     *mu_x1 = 0;
 
     return 0;
   }
+
+  int iph = Sample->Path->iPh0[Sample->Path->NSteps-1]; // phase index of end point
   // phase where the interaction will occur
   ph_compound = &Sample->Comp->Ph[iph];
   *mu_x1 = ph_compound->LastMu; // absorption coefficient of the phase

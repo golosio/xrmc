@@ -213,10 +213,9 @@ int sample::RunInit()
   Path->MaxNSteps = mns;            // (steplengths)
   Path->t = new double[mns]; // intersections (distances from starting point)
   Path->Step = new double[mns]; // steplengths between adjacent intersections
-  Path->iPh0 = new int*[mns]; // indexes of phases before intersection
-  Path->iPh1 = new int*[mns]; // indexes of phases after intersection
-  Path->iRho0 = new double*[mns]; // densities of phases before intersection
-  Path->iRho1 = new double*[mns]; // densities of phases after intersection
+  Path->NPh0 = new int[mns]; // n. of phases in materials at each step
+  Path->iPh0 = new int*[mns]; // indexes of phases at each step
+  Path->Rho0 = new double*[mns]; // densities of phases at each step
   Path->Mu = new double[mns]; // absorption coeff. in each step
   Path->Delta = new double[mns]; // delta coeff. in each step
   Path->SumMuS = new double[mns]; // cumulative sum of Mu * steplength
@@ -344,7 +343,7 @@ int sample::Intersect(vect3 x0, vect3 u)
   int i;
 
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->iPh0, Path->iPh1, 
+  Geom3D->Intersect(x0, u, Path->t, Path->NPh0, Path->iPh0, Path->Rho0, 
 		    &Path->NSteps);
   for (i=0; i<Path->NSteps; i++) { // loop on the intersections
     // evaluate the steplengths
@@ -362,7 +361,7 @@ int sample::Intersect(vect3 x0, vect3 u)
 double sample::LinearAbsorption(vect3 x0, vect3 u)
 {
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->iPh0, Path->iPh1, 
+  Geom3D->Intersect(x0, u, Path->t, Path->NPh0, Path->iPh0, Path->Rho0, 
 		    &Path->NSteps);
   Path->StepMu(Comp); // evaluate the absorption coefficient in each step
 
@@ -377,27 +376,40 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
   int imax;
 
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->iPh0, Path->iPh1, 
+  Geom3D->Intersect(x0, u, Path->t, Path->NPh0, Path->iPh0, Path->Rho0,
 		    &Path->NSteps);
 
-  if (Path->NSteps>0 && tmax>=0) {
+  if (tmax<0) {
+    Path->NSteps = 0;
+  }
+  else if (Path->NSteps>0) {
     if (tmax<Path->t[0]) {
       Path->NSteps = 1;
       Path->t[0] = tmax;
-      Path->iPh1[0] = Path->iPh0[0];
+      Path->NPh0[1] = Path->NPh0[0];
+      Path->iPh0[1] = Path->iPh0[0];
+      Path->Rho0[1] = Path->Rho0[0];
     }
     else {
       Locate(tmax, Path->t, Path->NSteps, &imax); // locate tmax in the inters.
       if (imax < Path->NSteps-1) { // and eventually reduce the number of
 	Path->NSteps = imax + 2;   // intersections and limit them to tmax
-	Path->t[imax+1] = tmax;
-	Path->iPh1[imax+1] = Path->iPh0[imax+1];
+	Path->t[Path->NSteps-1] = tmax;
+	// used to inform that the photon does not cross the whole sample
+	// => end point is not in vacuum
+	Path->NPh0[Path->NSteps] = Path->NPh0[Path->NSteps-1];
+	//Path->iPh0[Path->NSteps] = Path->iPh0[Path->NSteps-1]; // not used?
+	//Path->Rho1[Path->NSteps] = Path->Rho0[Path->NSteps-1]; // not used?
       }
       //else {
       //cout << "check that this is vacuum: "
       //     << Path->iPh1[Path->NSteps-1] << endl; // end point is in vacuum
       //Path->iPh1[Path->NSteps-1] = 1; // remove
       //}
+      else {
+	Path->NPh0[Path->NSteps] = 0; // used to inform that the photon
+	// crosses the whole sample => end point is in vacuum
+      }
     }
   }
 
@@ -410,7 +422,7 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
 int sample::LinearMuDelta(vect3 x0, vect3 u)
 {
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->iPh0, Path->iPh1, 
+  Geom3D->Intersect(x0, u, Path->t, Path->NPh0, Path->iPh0,  Path->Rho0,
 		    &Path->NSteps);
   Path->StepMuDelta(Comp); // evaluate the delta coefficient in each step
 
@@ -441,13 +453,15 @@ vect3 sample::RandomPoint()
 //////////////////////////////////////////////////////////////////////
 int path::StepMu(composition *comp)
 {
-  int i;
-
   MuL = 0;
 
-  for (i=0; i<NSteps; i++) { // loop on intersections
+  for (int i=0; i<NSteps; i++) { // loop on intersections
     Step[i] = (i!=0) ? (t[i] - t[i-1]) : t[0]; // steplength of intersection
-    Mu[i] = comp->Ph[iPh0[i]].LastMu; // absorption coefficient of the phase
+    Mu[i] = 0;
+    for(int j=0; j<NPh0[i]; j++) {
+      // absorption coefficient of the phase
+      Mu[i] += Rho0[i][j]*comp->Ph[iPh0[i][j]].LastMu;
+    }
     MuL += Mu[i]*Step[i]; // cumulative sum of Mu * steplength
   }
 
@@ -466,8 +480,14 @@ int path::StepMuDelta(composition *comp)
 
   for (i=0; i<NSteps; i++) { // loop on intersections
     Step[i] = (i!=0) ? (t[i] - t[i-1]) : t[0]; // steplength of intersection
-    Mu[i] = comp->Ph[iPh0[i]].LastMu; // absorption coefficient of the phase
-    Delta[i] = comp->Ph[iPh0[i]].LastDelta; // delta coefficient of the phase
+    Mu[i] = 0;
+    Delta[i] = 0;
+    for(int j=0; j<NPh0[i]; j++) {
+      // absorption coefficient of the phase
+      Mu[i] += Rho0[i][j]*comp->Ph[iPh0[i][j]].LastMu;
+      // delta coefficient of the phase
+      Delta[i] += Rho0[i][j]*comp->Ph[iPh0[i]].LastDelta;
+    }
     MuL += Mu[i]*Step[i]; // cumulative sum of Mu * steplength
     DeltaL += Delta[i]*Step[i]; // cumulative sum of Delta * steplength
   }
@@ -705,8 +725,9 @@ path *path::Clone() {
 	clone->MaxNSteps = MaxNSteps;
 	clone->t = new double[MaxNSteps];
 	clone->Step = new double[MaxNSteps];
-	clone->iPh0 = new int[MaxNSteps];
-	clone->iPh1 = new int[MaxNSteps];
+	clone->NPh0 = new int[MaxNSteps];
+	clone->iPh0 = new int*[MaxNSteps];
+	clone->Rho0 = new double*[MaxNSteps];
 	clone->Mu = new double[MaxNSteps];
 	clone->Delta = new double[MaxNSteps];
 	clone->SumMuS = new double[MaxNSteps];
