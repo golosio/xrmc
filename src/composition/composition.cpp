@@ -185,8 +185,8 @@ int composition::ReduceMaterMap(vector<string> used_mater)
     }
     Mater_new.push_back(Mater[it->second]);
     MaterMap_new.insert(phase_map_pair(used_mater[imat], imat));
-    for (int i_comp=0 ; i_comp<Mater_new[imat].NPhases(); i_comp++) {
-      int i_ph_old = Mater_new[imat].iPhase[i_comp];
+    for (int i_comp=0 ; i_comp<Mater_new[imat].NPh(); i_comp++) {
+      int i_ph_old = Mater_new[imat].iPh[i_comp];
 
       string comp_name="";
       for (phase_map::iterator it=PhaseMap.begin();
@@ -205,10 +205,10 @@ int composition::ReduceMaterMap(vector<string> used_mater)
 	int i_ph_new = Ph_new.size();
 	Ph_new.push_back(Ph[i_ph_old]);
 	PhaseMap_new.insert(phase_map_pair(comp_name, i_ph_new));
-	Mater_new[imat].iPhase[i_comp] = i_ph_new;
+	Mater_new[imat].iPh[i_comp] = i_ph_new;
       }
       else {
-	Mater_new[imat].iPhase[i_comp] = it->second;
+	Mater_new[imat].iPh[i_comp] = it->second;
       }
     }
   }

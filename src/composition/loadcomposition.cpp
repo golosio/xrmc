@@ -40,7 +40,7 @@ int composition::Load(istream &fs)
 {
   /* Loads sample phases composition and density */
   int n_comp;
-  double w, rho;
+  double w, rho, fact;
   string comm, comp;
   struct compoundData *cd;
 
@@ -100,7 +100,7 @@ int composition::Load(istream &fs)
 	}	
       }
       Ph[i_phase].MuAtom.assign (Ph[i_phase].NElem(),0);
-      cout << "Num. of compounds: " << Ph[i_phase].NElem() << endl;
+      cout << "Num. of elements: " << Ph[i_phase].NElem() << endl;
       cout << "\tZ\tweight fract.\n";
       for (int i_elem=0 ; i_elem<Ph[i_phase].NElem(); i_elem++) {
 	cout << "\t" << Ph[i_phase].Z[i_elem] << "\t"
@@ -114,16 +114,16 @@ int composition::Load(istream &fs)
       cout << "\tRho: " << Ph[i_phase].Rho << endl;
 
        // create a material with only one phase
-       int i_mater = Mater.size();
+       int i_mat = Mater.size();
        Mater.push_back(material());
-       Mater[i_mater].iPhase.push_back(i_phase);
-       Mater[i_mater].Rho.push_back(Ph[i_phase].Rho);
-       MapMater(ph_name, i_mater);
+       Mater[i_mat].iPh.push_back(i_phase);
+       Mater[i_mat].Fact.push_back(1);
+       MapMater(ph_name, i_mat);
     }
     else if(comm=="Mixture") { // read parameters for a new mixture
-      int i_mater = Mater.size();
+      int i_mat = Mater.size();
       Mater.push_back(material());
-      MapMater(fs, i_mater);
+      MapMater(fs, i_mat);
       GetToken(fs, comm);
       if (comm != "NComp")
 	throw xrmc_exception("NComp variable initialization not found"); 
@@ -137,19 +137,19 @@ int composition::Load(istream &fs)
 			       " not found in composition map\n");
 	}
 	// get phase index from the phase map
-	int i_phase = (*it).second;
-	GetDoubleToken(fs, &rho);
-	Mater[i_mater].iPhase.push_back(i_phase);
-	Mater[i_mater].Rho.push_back(rho);
+	int i_ph = (*it).second;
+	GetDoubleToken(fs, &w);
+	Mater[i_mat].iPh.push_back(i_ph);
+	Mater[i_mat].Fact.push_back(w);
       }
-      cout << "Num. of compounds: " << Mater[i_mater].NPhases() << endl;
-      cout << "\tcomp.\trho\n";
-      for (int i_comp=0 ; i_comp<Mater[i_mater].NPhases(); i_comp++) {
-	int i_phase = Mater[i_mater].iPhase[i_comp];
+      cout << "Num. of compounds: " << Mater[i_mat].NPh() << endl;
+      cout << "\tcomp.\tweight fract.\n";
+      for (int i_comp=0 ; i_comp<Mater[i_mat].NPh(); i_comp++) {
+	int i_ph = Mater[i_mat].iPh[i_comp];
 	string comp_name="";
 	for (phase_map::iterator it=PhaseMap.begin();
 	     it!=PhaseMap.end(); ++it) {
-	  if (it->second==i_phase) {
+	  if (it->second==i_ph) {
 	    comp_name = it->first;
 	    break;
 	  }
@@ -158,7 +158,18 @@ int composition::Load(istream &fs)
 	  throw xrmc_exception("Compound index not found in composition map\n");
 	}
 	cout << "\t" << comp_name << "\t"
-	     << Mater[i_mater].Rho[i_comp] << endl;
+	     << Mater[i_mat].Fact[i_comp] << endl;
+      }
+      GetToken(fs, comm);
+      if (comm != "Rho")
+	throw xrmc_exception("Rho variable initialization not found"); 
+      GetDoubleToken(fs, &rho); // read mass density of the mixture in g/c3
+      cout << "\tRho: " << rho << endl;
+
+      for (int i_comp=0 ; i_comp<Mater[i_mat].NPh(); i_comp++) {
+	int i_ph = Mater[i_mat].iPh[i_comp];
+	double rho_ph = Ph[i_ph].Rho;
+	Mater[i_mat].Fact[i_comp] *= rho/rho_ph;
       }
     }
     else {
@@ -171,7 +182,7 @@ int composition::Load(istream &fs)
 }
 
   // insert name and pointer to the phase in the phase map
-string composition::MapPhase(istream &fs, int i_phase)
+string composition::MapPhase(istream &fs, int i_ph)
 {
   string ph_name;
   phase_map_insert_pair insert_pair;
@@ -179,7 +190,7 @@ string composition::MapPhase(istream &fs, int i_phase)
   if (!GetToken(fs, ph_name))
     throw xrmc_exception(string("Syntax error reading phase name\n"));
   // insert name and pointer to the phase in the phase map
-  insert_pair = PhaseMap.insert(phase_map_pair(ph_name, i_phase));
+  insert_pair = PhaseMap.insert(phase_map_pair(ph_name, i_ph));
   if(insert_pair.second == false) // check that it was not already inserted
     throw xrmc_exception(string("Phase ") + ph_name + 
 			 " already inserted in phase map\n");
@@ -189,12 +200,12 @@ string composition::MapPhase(istream &fs, int i_phase)
 }
 
 // insert name and pointer to the material in the material map
-int composition::MapMater(string mater_name, int i_mater)
+int composition::MapMater(string mater_name, int i_mat)
 {
   phase_map_insert_pair insert_pair;
 
   // insert name and pointer to the material in the material map
-  insert_pair = MaterMap.insert(phase_map_pair(mater_name, i_mater));
+  insert_pair = MaterMap.insert(phase_map_pair(mater_name, i_mat));
   if(insert_pair.second == false) // check that it was not already inserted
     throw xrmc_exception(string("Material ") + mater_name + 
 			 " already inserted in material map\n");
@@ -204,7 +215,7 @@ int composition::MapMater(string mater_name, int i_mater)
 }
 
 // same function as above but reading material name from file
-string composition::MapMater(istream &fs, int i_mater)
+string composition::MapMater(istream &fs, int i_mat)
 {
   string mat_name;
   phase_map_insert_pair insert_pair;
@@ -212,7 +223,7 @@ string composition::MapMater(istream &fs, int i_mater)
   if (!GetToken(fs, mat_name))
     throw xrmc_exception(string("Syntax error reading material name\n"));
   // insert name and pointer to the material in the material map
-  insert_pair = MaterMap.insert(phase_map_pair(mat_name, i_mater));
+  insert_pair = MaterMap.insert(phase_map_pair(mat_name, i_mat));
   if(insert_pair.second == false) // check that it was not already inserted
     throw xrmc_exception(string("Material ") + mat_name + 
 			 " already inserted in material map\n");
@@ -238,8 +249,8 @@ int composition::SetDefault()
 
    // initializes material 0 as vacuum
   Mater.push_back(material());
-  Mater[0].iPhase.push_back(0);
-  Mater[0].Rho.push_back(0.0);
+  Mater[0].iPh.push_back(0);
+  Mater[0].Fact.push_back(0.0);
   MapMater(ph_name, 0);
 
   //add NIST compound database
@@ -250,24 +261,24 @@ int composition::SetDefault()
 	cdn = GetCompoundDataNISTByIndex(i);
 	//cout << cdn->name << endl;
   	xrlFree(list[i]);
-	int i_phase = Ph.size();
+	int i_ph = Ph.size();
 	
 	Ph.push_back(phase());
-	Ph[i_phase].Z = vector<int>(cdn->Elements,
+	Ph[i_ph].Z = vector<int>(cdn->Elements,
 				    cdn->Elements+cdn->nElements);
-	Ph[i_phase].W = vector<double>(cdn->massFractions,
+	Ph[i_ph].W = vector<double>(cdn->massFractions,
 				    cdn->massFractions+cdn->nElements);
-	Ph[i_phase].Rho = cdn->density;
-	Ph[i_phase].MuAtom.assign (Ph[i_phase].NElem(),0);
+	Ph[i_ph].Rho = cdn->density;
+	Ph[i_ph].MuAtom.assign (Ph[i_ph].NElem(),0);
 
-  	insert_pair = PhaseMap.insert(phase_map_pair(cdn->name, i_phase));
+  	insert_pair = PhaseMap.insert(phase_map_pair(cdn->name, i_ph));
 
 	// create a material with only one phase
-	int i_mater = Mater.size();
+	int i_mat = Mater.size();
 	Mater.push_back(material());
-	Mater[i_mater].iPhase.push_back(i_phase);
-	Mater[i_mater].Rho.push_back(Ph[i_phase].Rho);
-	MapMater(cdn->name, i_mater);
+	Mater[i_mat].iPh.push_back(i_ph);
+	Mater[i_mat].Fact.push_back(1);
+	MapMater(cdn->name, i_mat);
 
 	FreeCompoundDataNIST(cdn);	
   }

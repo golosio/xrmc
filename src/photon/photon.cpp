@@ -83,7 +83,7 @@ int photon::MonteCarloStep(sample *Sample, int *iZ, int *iType)
   MoveForward(step_length);
 
   // phase where the next interaction will occur
-  ph_compound = &Sample->Comp->Ph[Sample->Path->iPh0[step_idx]];
+  ph_compound = &Sample->Comp->Ph[Sample->Path->iPh[step_idx]];
   // extract the atomic species that the photon will interact with
   ph_compound->AtomType(&Z, &mu_atom);
   // cross sections of the three interaction types with the extracted element
@@ -136,7 +136,7 @@ int photon::EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
   //// move the photon in the direction uk by a distance step_length
   //MoveForward(step_length);
 
-  if (Sample->Path->NPh0[Sample->Path->NSteps]==0) { // end point is in vacuum
+  if (Sample->Path->NPh[Sample->Path->NSteps]==0) { // end point is in vacuum
     w = 0;
     *Edep = 0;
     *mu_x1 = 0;
@@ -144,7 +144,7 @@ int photon::EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
     return 0;
   }
 
-  int iph = Sample->Path->iPh0[Sample->Path->NSteps-1]; // phase index of end point
+  int iph = Sample->Path->iPh[Sample->Path->NSteps-1]; // phase index of end point
   // phase where the interaction will occur
   ph_compound = &Sample->Comp->Ph[iph];
   *mu_x1 = ph_compound->LastMu; // absorption coefficient of the phase

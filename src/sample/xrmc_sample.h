@@ -48,9 +48,9 @@ class path
   double *t; // array of the intersections
              // (distances from the starting coordinate)
   double *Step; // steplength between intersections
-  int *NPh0; // number of phases in entrance materials of each step
-  int **iPh0; // array of the entrance phase indexes
-  double **iRho0; // array of the entrance phase densities
+  int *NPh; // number of phases in entrance materials of each step
+  int **iPh; // array of the entrance phase indexes
+  double **Fact; // array of the entrance phase densities
   double *Mu; // absorption coefficient at each step
   double MuL; // sum of mu * steplength
   double *Delta; // delta coefficient
@@ -62,9 +62,9 @@ class path
   ~path() { // destructor
     if(t!=NULL) delete[] t;
     if(Step!=NULL) delete[] Step;
-    if(iPh0!=NULL) delete[] NPh0;
-    if(iPh0!=NULL) delete[] iPh0;
-    if(iRho0!=NULL) delete[] iRho0;
+    if(NPh!=NULL) delete[] NPh;
+    if(iPh!=NULL) delete[] iPh;
+    if(Fact!=NULL) delete[] Fact;
     if(Mu!=NULL) delete[] Mu;
     if(Delta!=NULL) delete[] Delta;
     if(SumMuS!=NULL) delete[] SumMuS;
@@ -72,9 +72,9 @@ class path
   }
   path() { // constructor
     t = Step = Mu = Delta = SumMuS = SumS = NULL;
-    NPh0 = NULL;
-    iPh0 = NULL;
-    iRho0 = NULL;
+    NPh = NULL;
+    iPh = NULL;
+    Fact = NULL;
     NSteps = 0;
     Rng = NULL;
   }

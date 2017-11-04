@@ -60,11 +60,11 @@ class phase
 class material
 {
  public:
-  vector<int> iPhase;
-  vector<double> Rho;
+  vector<int> iPh;
+  vector<double> Fact;
 
-  inline int NPhases() { // number of compounds in the material
-    return iPhase.size();
+  inline int NPh() { // number of compounds in the material
+    return iPh.size();
   }
 
 };
@@ -89,9 +89,9 @@ class composition : public xrmc_device
   virtual int Load(istream &fs); // Loads sample phases composition and density
   virtual int SetDefault(); // Set default values for composition parameters
   // insert name and index of the phase in the phase map
-  std::string MapPhase(istream &fs, int i_phase);
-  int MapMater(std::string mater_name, int i_mater);
-  std::string MapMater(istream &fs, int i_mater);
+  std::string MapPhase(istream &fs, int i_ph);
+  int MapMater(std::string mater_name, int i_mat);
+  std::string MapMater(istream &fs, int i_mat);
 
   int Mu(double E); // Evaluates the absorption coefficient of each phase
   int Delta(double E); // Evaluates the delta coefficient of each phase
