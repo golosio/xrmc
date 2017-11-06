@@ -119,6 +119,30 @@ int phase::AtomType(int *Zelem, double *mu_atom)
   return 0;
 }
 
+// extract the index of the phase with which the interaction will occur
+int phase::PhaseType(randmt_t *rng, composition *Comp, int NPh, int *iPh,
+		     double *Fact)
+{
+  double mu_tot=0;
+
+  for (int i=0; i<NPh; i++) {
+    mu_tot += Fact[i]*Comp->Ph[iPh[i]].LastMu;
+  }
+  double R = Rnd_r(rng)*mu_tot; // random num. between 0 and mu_tot
+
+
+  double sum = 0;
+  int i = 0;
+  // extract the index of the phase with which the interaction will occur
+  while (sum <= R) { // stop when the cumulative distribution is >= R
+    sum += Fact[i]*Comp->Ph[iPh[i]].LastMu;
+    i++;
+  }
+  if (i > NPh) i = NPh;
+  i--;
+
+  return iPh[i];
+}
 
 composition *composition::Clone(string dev_name) {
 	//cout << "Entering composition::Clone\n";

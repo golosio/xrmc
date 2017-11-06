@@ -141,8 +141,8 @@ class geom3d : public xrmc_device
 
   // method for finding the intersections of a straight line
   //  with all quadrics and all 3d objects
-  int Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1, \
-		int *n_inters);
+  int Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1,
+		int *NPh, int **iPh, double **Fact, int *n_inters);
   virtual geom3d *Clone(string dev_name);
  private:
   std::string **QVolMap; // map of the quadrics delimiting the objects 

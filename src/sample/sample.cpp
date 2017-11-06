@@ -213,6 +213,8 @@ int sample::RunInit()
   Path->MaxNSteps = mns;            // (steplengths)
   Path->t = new double[mns]; // intersections (distances from starting point)
   Path->Step = new double[mns]; // steplengths between adjacent intersections
+  Path->iMat0 = new int[mns]; // index of phase before intersection
+  Path->iMat1 = new int[mns]; // index of phase after intersection
   Path->NPh = new int[mns]; // n. of phases in materials at each step
   Path->iPh = new int*[mns]; // indexes of phases at each step
   Path->Fact = new double*[mns]; // mult. factor of phase density at each step
@@ -226,14 +228,16 @@ int sample::RunInit()
   //get list of all used elements -> will be used for the Doppler broadening profiles
   for (i = 0 ; i < Geom3D->NQVol ; i++) {
     //iterate over all qvolumes
-    material myMatIn = Geom3D->Comp->Mat[Geom3D->QVol[i].iMatIn];
-    material myMatOut = Geom3D->Comp->Mat[Geom3D->QVol[i].iMatOut];
-    for(i_comp=0; i_comp<myMat.NPhases; i_comp++) {
-      phase myPh=Geom3D->Comp->Ph[myMatIn.iPhase[i_comp]];
+    material myMatIn = Geom3D->Comp->Mater[Geom3D->QVol[i].iMaterIn];
+    material myMatOut = Geom3D->Comp->Mater[Geom3D->QVol[i].iMaterOut];
+    for(int i_comp=0; i_comp<myMatIn.NPh(); i_comp++) {
+      phase myPh = Geom3D->Comp->Ph[myMatIn.iPh[i_comp]];
       for (j=0 ; j<myPh.NElem(); j++) {
 	compZ.push_back(myPh.Z[j]);	
       }
-      myPh = Geom3D->Comp->Ph[myMatOut.iPhase[i_comp]];
+    }
+    for(int i_comp=0; i_comp<myMatOut.NPh(); i_comp++) {
+      phase myPh = Geom3D->Comp->Ph[myMatOut.iPh[i_comp]];
       for (j=0; j<myPh.NElem() ; j++) {
 	compZ.push_back(myPh.Z[j]);	
       }
@@ -343,8 +347,8 @@ int sample::Intersect(vect3 x0, vect3 u)
   int i;
 
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->NPh, Path->iPh, Path->Fact, 
-		    &Path->NSteps);
+  Geom3D->Intersect(x0, u, Path->t, Path->iMat0, Path->iMat1, Path->NPh,
+		    Path->iPh, Path->Fact, &Path->NSteps);
   for (i=0; i<Path->NSteps; i++) { // loop on the intersections
     // evaluate the steplengths
     Path->Step[i] = (i!=0) ? (Path->t[i] - Path->t[i-1]) : Path->t[0];
@@ -361,8 +365,8 @@ int sample::Intersect(vect3 x0, vect3 u)
 double sample::LinearAbsorption(vect3 x0, vect3 u)
 {
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->NPh, Path->iPh, Path->Fact, 
-		    &Path->NSteps);
+  Geom3D->Intersect(x0, u, Path->t, Path->iMat0, Path->iMat1, Path->NPh,
+		    Path->iPh, Path->Fact,  &Path->NSteps);
   Path->StepMu(Comp); // evaluate the absorption coefficient in each step
 
   return Path->MuL; // return the cumulative sum of Mu * steplength
@@ -376,8 +380,8 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
   int imax;
 
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->NPh, Path->iPh, Path->Fact,
-		    &Path->NSteps);
+  Geom3D->Intersect(x0, u, Path->t, Path->iMat0, Path->iMat1, Path->NPh,
+		    Path->iPh, Path->Fact, &Path->NSteps);
 
   if (tmax<0) {
     Path->NSteps = 0;
@@ -415,6 +419,7 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
 
   Path->StepMu(Comp); // evaluate the absorption coefficient in each step
 
+  cout << "mu l " << Path->MuL << endl;
   return Path->MuL; // return the cumulative sum of Mu * steplength
 }
 
@@ -422,8 +427,8 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
 int sample::LinearMuDelta(vect3 x0, vect3 u)
 {
   // find the intersections of the trajectory with the 3d objects
-  Geom3D->Intersect(x0, u, Path->t, Path->NPh, Path->iPh,  Path->Fact,
-		    &Path->NSteps);
+  Geom3D->Intersect(x0, u, Path->t, Path->iMat0, Path->iMat1, Path->NPh,
+		    Path->iPh,  Path->Fact, &Path->NSteps);
   Path->StepMuDelta(Comp); // evaluate the delta coefficient in each step
 
   return 0;
@@ -461,7 +466,10 @@ int path::StepMu(composition *comp)
     for(int j=0; j<NPh[i]; j++) {
       // absorption coefficient of the phase
       Mu[i] += Fact[i][j]*comp->Ph[iPh[i][j]].LastMu;
+      cout << "ok " << i << " " << j << " " << Fact[i][j] << " " << iPh[i][j]
+	   << " " << comp->Ph[iPh[i][j]].LastMu << endl; 
     }
+    cout << "ok2 " << Mu[i] << " " << Step[i] << endl;
     MuL += Mu[i]*Step[i]; // cumulative sum of Mu * steplength
   }
 
@@ -486,7 +494,7 @@ int path::StepMuDelta(composition *comp)
       // absorption coefficient of the phase
       Mu[i] += Fact[i][j]*comp->Ph[iPh[i][j]].LastMu;
       // delta coefficient of the phase
-      Delta[i] += Fact[i][j]*comp->Ph[iPh[i]].LastDelta;
+      Delta[i] += Fact[i][j]*comp->Ph[iPh[i][j]].LastDelta;
     }
     MuL += Mu[i]*Step[i]; // cumulative sum of Mu * steplength
     DeltaL += Delta[i]*Step[i]; // cumulative sum of Delta * steplength
@@ -725,6 +733,8 @@ path *path::Clone() {
 	clone->MaxNSteps = MaxNSteps;
 	clone->t = new double[MaxNSteps];
 	clone->Step = new double[MaxNSteps];
+	clone->iMat0 = new int[MaxNSteps];
+	clone->iMat1 = new int[MaxNSteps];
 	clone->NPh = new int[MaxNSteps];
 	clone->iPh = new int*[MaxNSteps];
 	clone->Fact = new double*[MaxNSteps];

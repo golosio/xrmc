@@ -48,6 +48,8 @@ class path
   double *t; // array of the intersections
              // (distances from the starting coordinate)
   double *Step; // steplength between intersections
+  int *iMat0; // array of the entrance material indexes
+  int *iMat1; // array of the exit material indexes
   int *NPh; // number of phases in entrance materials of each step
   int **iPh; // array of the entrance phase indexes
   double **Fact; // array of the entrance phase densities
@@ -62,6 +64,8 @@ class path
   ~path() { // destructor
     if(t!=NULL) delete[] t;
     if(Step!=NULL) delete[] Step;
+    if(iMat0!=NULL) delete[] iMat0;
+    if(iMat1!=NULL) delete[] iMat1;
     if(NPh!=NULL) delete[] NPh;
     if(iPh!=NULL) delete[] iPh;
     if(Fact!=NULL) delete[] Fact;
@@ -72,6 +76,7 @@ class path
   }
   path() { // constructor
     t = Step = Mu = Delta = SumMuS = SumS = NULL;
+    iMat0 = iMat1 = NULL;
     NPh = NULL;
     iPh = NULL;
     Fact = NULL;

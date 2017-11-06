@@ -114,10 +114,10 @@ int geom3d::RunInit()
 {
 
   //clean up the materials
-  if (!MapReduced) {
-    Comp->ReduceMaterMap(used_mater);
-    MapReduced = true;
-  }
+  //if (!MapReduced) {
+  //  Comp->ReduceMaterMap(used_mater);
+  //  MapReduced = true;
+  //}
 
   for(int iqv=0; iqv<NQVol; iqv++) { // loop on 3d objects
     for(int iq=0; iq<QVol[iqv].NQuadr; iq++) { // loop on quadrics delimiting
@@ -176,20 +176,55 @@ int geom3d::RunInit()
 // n_inters is the number of intersections
  //////////////////////////////////////////////////////////////////////
 int geom3d::Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1,
-		       int *n_inters)
+		      int *NPh, int **iPh, double **Fact, int *n_inters)
 {
-  int i;
-  for (i=0; i<QArr->NQuadr; i++) { // loop on all quadrics
+  for (int i=0; i<QArr->NQuadr; i++) { // loop on all quadrics
     QArr->Quadr[i].Intersect(x0, u); // evaluate intersection of the trajectory
                                      // with the quadric
   }
   *n_inters = 0;
-  for (i=0; i<NQVol; i++) { // loop on 3d objects
+  for (int i=0; i<NQVol; i++) { // loop on 3d objects
  // evaluate intersection of the trajectory with the 3d objects
     QVol[i].Intersect(x0, u, t, imat0, imat1, n_inters);
   }
   SortInters(t, imat0, imat1, *n_inters); // sort the intersections
                                         // with growing values of t
+
+  // Set values of NPh, iPh, Fact at each step
+  cout << "n_inters " << *n_inters << endl;
+  for (int i=0; i<(*n_inters); i++) {
+    NPh[i] = Comp->Mater[imat0[i]].NPh();
+    iPh[i] = &Comp->Mater[imat0[i]].iPh[0];
+    Fact[i] = &Comp->Mater[imat0[i]].Fact[0];
+    cout << i << " " << NPh[i] << " " << iPh[i][0] << " " << Fact[i][0] << endl;
+    cout << "        " << t[i] << " " << t[i+1] << endl;
+  }
+
+
+  cout << "start check\n";
+  cout << "imat0[0] " << imat0[0] << endl;
+  cout << "imat0[1] " << imat0[1] << endl;
+  cout << "Comp->Mater[0].NPh() " << Comp->Mater[0].NPh() << endl;
+  cout << "Comp->Mater[0].iPh[0] " << Comp->Mater[0].iPh[0] << endl;
+  cout << "Comp->Mater[0].Fact[0] " << Comp->Mater[0].Fact[0] << endl;
+
+  cout << "Comp->Mater[1].NPh() " << Comp->Mater[1].NPh() << endl;
+  cout << "Comp->Mater[1].iPh[0] " << Comp->Mater[1].iPh[0] << endl;
+  cout << "Comp->Mater[1].Fact[0] " << Comp->Mater[1].Fact[0] << endl;
+
+  cout << "Comp->Ph[0].NElem() " << Comp->Ph[0].NElem() << endl;
+  cout << "Comp->Ph[1].NElem() " << Comp->Ph[1].NElem() << endl;
+
+  cout << "Comp->Ph[0].LastMu " << Comp->Ph[0].LastMu << endl;
+  cout << "Comp->Ph[1].LastMu " << Comp->Ph[1].LastMu << endl;
+
+  cout << "QVol[0].iMaterIn " << QVol[0].iMaterIn << endl;
+  cout << "QVol[0].iMaterOut " << QVol[0].iMaterOut << endl;
+
+  cout << "end check\n";
+
+
+
 
   return 0;
 }

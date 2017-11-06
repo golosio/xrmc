@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include "xrmc_device.h"
 
+class composition;
+
 // phase class definition, member variables and functions
 class phase
 {
@@ -53,6 +55,10 @@ class phase
   int Delta(double E); // Evaluates the delta coefficient at energy E
   int AtomType(int *Z, double *mu_atom);// extract the atomic species with
                                         // which the interaction will occur
+
+  // extract the index of the phase with which the interaction will occur
+  static int PhaseType(randmt_t *rng, composition *Comp, int NPh, int *iPh,
+		       double *Fact);
 };
 
 

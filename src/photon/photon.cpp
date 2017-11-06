@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /////////////////////////////////////////
 //             photon.cpp              //
-//            08/02/1013               //
+//            06/11/1017               //
 //     Author : Bruno Golosio          //
 /////////////////////////////////////////
 // Methods of the class photon
@@ -82,8 +82,13 @@ int photon::MonteCarloStep(sample *Sample, int *iZ, int *iType)
   // move the photon in the direction uk by a distance step_length
   MoveForward(step_length);
 
+  // extract the index of the phase that the photon will interact with
+  int iph = phase::PhaseType(Rng, Sample->Comp, Sample->Path->NPh[step_idx],
+			     Sample->Path->iPh[step_idx],
+			     Sample->Path->Fact[step_idx]);
   // phase where the next interaction will occur
-  ph_compound = &Sample->Comp->Ph[Sample->Path->iPh[step_idx]];
+  ph_compound = &Sample->Comp->Ph[iph];
+
   // extract the atomic species that the photon will interact with
   ph_compound->AtomType(&Z, &mu_atom);
   // cross sections of the three interaction types with the extracted element
@@ -144,7 +149,12 @@ int photon::EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
     return 0;
   }
 
-  int iph = Sample->Path->iPh[Sample->Path->NSteps-1]; // phase index of end point
+  int step_idx = Sample->Path->NSteps-1; // index of end point
+  // extract the index of the phase that the photon will interact with
+  int iph = phase::PhaseType(Rng, Sample->Comp, Sample->Path->NPh[step_idx],
+			      Sample->Path->iPh[step_idx],
+			      Sample->Path->Fact[step_idx]);
+
   // phase where the interaction will occur
   ph_compound = &Sample->Comp->Ph[iph];
   *mu_x1 = ph_compound->LastMu; // absorption coefficient of the phase
