@@ -140,7 +140,7 @@ int composition::Load(istream &fs)
 	int i_ph = (*it).second;
 	GetDoubleToken(fs, &w);
 	Mater[i_mat].iPh.push_back(i_ph);
-	Mater[i_mat].Fact.push_back(w);
+	Mater[i_mat].Fact.push_back(w/100.0);
       }
       cout << "Num. of compounds: " << Mater[i_mat].NPh() << endl;
       cout << "\tcomp.\tweight fract.\n";

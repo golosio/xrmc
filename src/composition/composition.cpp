@@ -198,7 +198,7 @@ int composition::ReduceMaterMap(vector<string> used_mater)
 
   vector<int> ph_old_index;
 
-  vector<material> Mater_new = Mater;
+  vector<material> Mater_new;
   phase_map MaterMap_new;
 
   for (unsigned int imat=0 ; imat<used_mater.size() ; imat++) {

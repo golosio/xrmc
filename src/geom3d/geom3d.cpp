@@ -114,10 +114,10 @@ int geom3d::RunInit()
 {
 
   //clean up the materials
-  //if (!MapReduced) {
-  //  Comp->ReduceMaterMap(used_mater);
-  //  MapReduced = true;
-  //}
+  if (!MapReduced) {
+    Comp->ReduceMaterMap(used_mater);
+    MapReduced = true;
+  }
 
   for(int iqv=0; iqv<NQVol; iqv++) { // loop on 3d objects
     for(int iq=0; iq<QVol[iqv].NQuadr; iq++) { // loop on quadrics delimiting
