@@ -419,7 +419,6 @@ double sample::LinearAbsorption(vect3 x0, vect3 u, double tmax)
 
   Path->StepMu(Comp); // evaluate the absorption coefficient in each step
 
-  cout << "mu l " << Path->MuL << endl;
   return Path->MuL; // return the cumulative sum of Mu * steplength
 }
 
@@ -466,10 +465,7 @@ int path::StepMu(composition *comp)
     for(int j=0; j<NPh[i]; j++) {
       // absorption coefficient of the phase
       Mu[i] += Fact[i][j]*comp->Ph[iPh[i][j]].LastMu;
-      cout << "ok " << i << " " << j << " " << Fact[i][j] << " " << iPh[i][j]
-	   << " " << comp->Ph[iPh[i][j]].LastMu << endl; 
     }
-    cout << "ok2 " << Mu[i] << " " << Step[i] << endl;
     MuL += Mu[i]*Step[i]; // cumulative sum of Mu * steplength
   }
 

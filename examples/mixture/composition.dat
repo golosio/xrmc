@@ -1,0 +1,72 @@
+; Composition file
+;
+Newdevice composition			; Device type
+Composition			; Device name
+
+Phase PMMA_1_8
+NElem 2            ; Number of atomic species for phase 0
+1   20.12           ; Atomic number, weight percent of element 0
+8   79.88          ; Atomic number, weight percent of element 2
+Rho 12345           ; mass density of the phase (g/cm3)
+
+Phase PMMA_6
+NElem 1            ; Number of atomic species for phase 0
+6   100.0          ; Atomic number, weight percent of element 1
+Rho 56789          ; mass density of the phase (g/cm3)
+
+Mixture PMMA_Mat
+NComp 2
+PMMA_6 59.99
+PMMA_1_8 40.01
+Rho 1.19	    ; mass density of the phase (g/cm3)
+
+Phase Water_1a_8a
+NElem 2          
+1        15
+8        85
+Rho 543210
+
+Phase Water_1b_8b
+NElem 2
+1        5
+8        95
+Rho 987654
+
+Mixture Water_Mat
+NComp 2
+Water_1a_8a 61.9
+Water_1b_8b 38.1
+Rho 1              ; mass density of the phase (g/cm3)
+
+Phase Adipe	   ; Adipose Tissue
+NElem 7      	   ; Number of atomic species for phase 2
+1	11.40	   ; Atomic number, weight percent of element 0
+6 	59.80	   ; Atomic number, weight percent of element 1
+7	0.7	   ; Atomic number, weight percent of element 2
+8	27.80	   ; Atomic number, weight percent of element 3
+11 	0.1	   ; Atomic number, weight percent of element 4
+16 	0.1	   ; Atomic number, weight percent of element 5
+17 	0.1	   ; Atomic number, weight percent of element 6
+Rho 0.95	   ; mass density of the phase (g/cm3)
+
+Phase Bone_A	   ; B-100 Bone-Equivalent Plastic
+NElem 4            ; Number of atomic species for phase 3
+1	22.86213   ; Atomic number, weight percent of element 0
+7	 7.50436   ; Atomic number, weight percent of element 2
+8	11.20419   ; Atomic number, weight percent of element 3
+9	58.42932   ; Atomic number, weight percent of element 4
+Rho 2345	   ; mass density of the phase (g/cm3)
+
+Phase Bone_B	   ; B-100 Bone-Equivalent Plastic
+NElem 1            ; Number of atomic species for phase 3
+20	100	   ; Atomic number, weight percent of element 5
+Rho 5432	   ; mass density of the phase (g/cm3)
+
+Mixture Bone_Mat
+NComp 3
+Bone_A 28.65
+Bone_B 17.66
+PMMA_6 53.69
+Rho 1.45
+
+End

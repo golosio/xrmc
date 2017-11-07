@@ -191,40 +191,11 @@ int geom3d::Intersect(vect3 x0, vect3 u, double *t, int *imat0, int *imat1,
                                         // with growing values of t
 
   // Set values of NPh, iPh, Fact at each step
-  cout << "n_inters " << *n_inters << endl;
   for (int i=0; i<(*n_inters); i++) {
     NPh[i] = Comp->Mater[imat0[i]].NPh();
     iPh[i] = &Comp->Mater[imat0[i]].iPh[0];
     Fact[i] = &Comp->Mater[imat0[i]].Fact[0];
-    cout << i << " " << NPh[i] << " " << iPh[i][0] << " " << Fact[i][0] << endl;
-    cout << "        " << t[i] << " " << t[i+1] << endl;
   }
-
-
-  cout << "start check\n";
-  cout << "imat0[0] " << imat0[0] << endl;
-  cout << "imat0[1] " << imat0[1] << endl;
-  cout << "Comp->Mater[0].NPh() " << Comp->Mater[0].NPh() << endl;
-  cout << "Comp->Mater[0].iPh[0] " << Comp->Mater[0].iPh[0] << endl;
-  cout << "Comp->Mater[0].Fact[0] " << Comp->Mater[0].Fact[0] << endl;
-
-  cout << "Comp->Mater[1].NPh() " << Comp->Mater[1].NPh() << endl;
-  cout << "Comp->Mater[1].iPh[0] " << Comp->Mater[1].iPh[0] << endl;
-  cout << "Comp->Mater[1].Fact[0] " << Comp->Mater[1].Fact[0] << endl;
-
-  cout << "Comp->Ph[0].NElem() " << Comp->Ph[0].NElem() << endl;
-  cout << "Comp->Ph[1].NElem() " << Comp->Ph[1].NElem() << endl;
-
-  cout << "Comp->Ph[0].LastMu " << Comp->Ph[0].LastMu << endl;
-  cout << "Comp->Ph[1].LastMu " << Comp->Ph[1].LastMu << endl;
-
-  cout << "QVol[0].iMaterIn " << QVol[0].iMaterIn << endl;
-  cout << "QVol[0].iMaterOut " << QVol[0].iMaterOut << endl;
-
-  cout << "end check\n";
-
-
-
 
   return 0;
 }

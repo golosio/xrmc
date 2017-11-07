@@ -123,6 +123,10 @@ int phase::AtomType(int *Zelem, double *mu_atom)
 int phase::PhaseType(randmt_t *rng, composition *Comp, int NPh, int *iPh,
 		     double *Fact)
 {
+  if (NPh==1) {
+    return iPh[0];
+  }
+
   double mu_tot=0;
 
   for (int i=0; i<NPh; i++) {
