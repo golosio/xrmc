@@ -1,0 +1,35 @@
+language: generic
+
+env:
+  global:
+    - CXXFLAGS="-Wno-deprecated -Wno-deprecated-declarations -Wimplicit  -Wimplicit-function-declaration  -Wimplicit-int"
+    - CFLAGS="-Wno-deprecated -Wno-deprecated-declarations -Wimplicit  -Wimplicit-function-declaration  -Wimplicit-int"
+    - LD_LIBRARY_PATH='/usr/local/lib'
+    - PKG_CONFIG_PATH='/usr/local/lib/pkgconfig'
+
+matrix:
+  include:
+
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
+              key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
+          packages:
+            - libxrl7-dev
+
+script:
+  - autoreconf -fi || exit 1
+  - ./configure || exit 1
+  - make || exit 1
+  - make check || exit 1
+  - if [ "$TRAVIS_OS_NAME" == "linux" ] ; then make distcheck || exit 1 ; fi
+
+notifications:
+  email:
+    recipients:
+      - Tom.Schoonjans@me.com
+    on_success: never
+    on_failure: always
