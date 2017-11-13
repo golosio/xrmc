@@ -9,7 +9,6 @@ env:
 
 matrix:
   include:
-
     - os: linux
       dist: trusty
       addons:
@@ -19,6 +18,23 @@ matrix:
               key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
           packages:
             - libxrl7-dev
+    - os: osx
+      sudo: required
+      env: CC='/usr/local/opt/llvm/bin/clang' CXX='/usr/local/opt/llvm/bin/clang++'
+
+before_install:
+  - |
+    if [ "$TRAVIS_OS_NAME" == "osx" ] ; then
+      brew cask uninstall --force oclint
+      brew uninstall --force --ignore-dependencies $(brew list) || exit 1
+      brew update || exit 1
+      brew cleanup -s || exit 1
+      rm -rf $(brew --cache) || exit 1
+      brew install pkg-config gettext autoconf automake libtool homebrew/science/xraylib || exit 1
+      brew install llvm || exit 1
+      brew cleanup -s || exit 1
+      rm -rf $(brew --cache) || exit 1
+    fi
 
 script:
   - autoreconf -fi || exit 1
