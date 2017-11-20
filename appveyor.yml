@@ -1,0 +1,27 @@
+version: 1.0.{build}
+
+environment:
+  matrix:
+    - compiler: msvc_msys2
+      ARCH: x64
+      MSYS2_ARCH: x86_64
+      MSYS2_DIR: msys64
+      MSYSTEM: MINGW64
+    - compiler: msvc_msys2
+      ARCH: x86
+      MSYS2_ARCH: i686
+      MSYS2_DIR: msys64
+      MSYSTEM: MINGW32
+
+before_build:
+    - set PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%
+    - bash -lc "for i in {1..3}; do update-core && break || sleep 15; done"
+    - bash -lc "for i in {1..3}; do pacman --noconfirm -Su mingw-w64-%MSYS2_ARCH%-{gcc,libtool} automake autoconf make wget tar && break || sleep 15; done"
+    - bash -lc "wget https://xraylib.tomschoonjans.eu/xraylib-3.3.0.tar.gz && tar xvfz xraylib-3.3.0.tar.gz && cd xraylib-3.3.0 && ./configure --prefix=/usr/local --disable-all-bindings && make && make check && make install && cd .."
+
+build_script:
+    - cd %APPVEYOR_BUILD_FOLDER%
+    - echo %cd%
+    - dir
+    - bash -lc "cd $APPVEYOR_BUILD_FOLDER && exec 0</dev/null && ACLOCAL_PATH=/usr/local/share/aclocal autoreconf -fi && PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig ./configure && make && make check && make distcheck"
+
