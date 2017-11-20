@@ -16,7 +16,7 @@ PhotonNum 2000			; Multiplicity of simulated events per pixel
 RandomPixelFlag 1		; Enable random point on pixels (0/1)
 PoissonFlag 0			; Enable poisson statistic on pix. counts (0/1)
 RoundFlag 0 			; Round pixel counts to integer (0/1)
-HeaderFlag 0                    ; Use header in output file (0/1)
+HeaderFlag 1                    ; Use header in output file (0/1)
 ;AsciiFlag 0			; binary(0) or ascii(1) file format
 PixelType 2	   		; Pixel content type:
 	  			; 0: fluence, 1: energy fluence,
