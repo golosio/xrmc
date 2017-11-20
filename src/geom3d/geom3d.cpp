@@ -31,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace xrmc_algo;
 
-bool geom3d::MapReduced = false;
 // destructor
 geom3d::~geom3d() {
   for (int i=0; i<NQVol; i++) {
@@ -61,6 +60,9 @@ geom3d::geom3d(string dev_name) {
   QVolMap = NULL;
   QVol = NULL;
   NQVol = 0;
+
+  MapReduced = false;
+
   SetDevice(dev_name, "geom3d");
 }
 
@@ -213,6 +215,8 @@ geom3d *geom3d::Clone(string dev_name) {
 	  for (int j = 0 ; j < QVol[i].NQuadr ; j++)
 	    clone->QVolMap[i][j] = QVolMap[i][j];
 	}
+	clone->used_phases = used_phases;
+	clone->MapReduced = MapReduced;
 	clone->RunInit();
 	
 	return clone;

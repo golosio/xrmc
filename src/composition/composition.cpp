@@ -198,9 +198,7 @@ int composition::ReduceMap(vector<string> used_phases) {
 
 	delete []Ph;
 	Ph = Ph_new;
-	PhaseMap.clear();
+	PhaseMap = PhaseMap_new;
 	
-	for (it = PhaseMap_new.begin(); it != PhaseMap_new.end() ; it++) {
-		PhaseMap.insert(phase_map_pair(it->first, it->second));
-	}
+	return 0;
 }

@@ -123,7 +123,7 @@ class geom3d : public xrmc_device
   composition *Comp; // input composition device
   std::string CompName;
   vector<string> used_phases;
-  static bool MapReduced;
+  bool MapReduced;
 
   int NQVol; // number of 3d objects used in the geometric description
   int MaxNQVol; // maximum number of 3d objects in the geometric description
