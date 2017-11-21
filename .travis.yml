@@ -18,6 +18,17 @@ matrix:
               key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
           packages:
             - libxrl7-dev
+    - os: linux
+      dist: trusty
+      env: WITH_XMI_MSIM='yes' EXTRA_ARGS='--enable-xmi-msim'
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
+              key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
+          packages:
+            - libxmimsim0-dev
+            - libgsl0-dev # this line shouldn't be here and is an error in the fgsl debbuild files...
     - os: osx
       sudo: required
       env: CC='/usr/local/opt/llvm/bin/clang' CXX='/usr/local/opt/llvm/bin/clang++'
@@ -38,10 +49,10 @@ before_install:
 
 script:
   - autoreconf -fi || exit 1
-  - ./configure || exit 1
+  - ./configure ${EXTRA_ARGS} || exit 1
   - make || exit 1
-  - make check || exit 1
-  - if [ "$TRAVIS_OS_NAME" == "linux" ] ; then make distcheck || exit 1 ; fi
+  - if [ "$WITH_XMI_MSIM" != "yes" ] ; then make check || exit 1 ; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$WITH_XMI_MSIM" != "yes" ] ; then make distcheck || exit 1 ; fi
 
 notifications:
   email:
