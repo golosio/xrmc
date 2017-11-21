@@ -25,3 +25,6 @@ build_script:
     - dir
     - bash -lc "cd $APPVEYOR_BUILD_FOLDER && exec 0</dev/null && ACLOCAL_PATH=/usr/local/share/aclocal autoreconf -fi && PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig ./configure && make && make check && make distcheck"
 
+branches:
+  only:
+    - master
