@@ -61,6 +61,7 @@ notifications:
   email:
     recipients:
       - Tom.Schoonjans@me.com
+      - golosio@unica.it
     on_success: never
     on_failure: always
 
