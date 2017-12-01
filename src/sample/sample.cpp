@@ -564,7 +564,11 @@ int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type,
 //////////////////////////////////////////////////////////////////////
 int sample::Out_Photon_x1(photon *Photon, vect3 x1)
 {
-  return Out_Photon_x1(Photon, x1, ScattOrderIdx);
+  Out_Photon_x1(Photon, x1, ScattOrderIdx);
+  // divide the event weight by the multiplicity
+  Photon->w /= PhotonNum[ScattOrderIdx];
+
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -622,6 +626,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       vect3 x0 = x1 - dx;
 
       Out_Photon_x1(Photon, x0, scatt_order-1);
+      Photon->x = x0; // update the photon position
 
       double mu_x1;
       Photon->Mu_x1(this, &Z, &interaction_type, &mu_x1);
@@ -639,11 +644,9 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
 
   }
   Photon->uk = vr; // update the photon direction
-  // divide the event weight by the multiplicity
-  Photon->w /= PhotonNum[scatt_order];
   // weight the event with the survival probability
   PhotonSurvivalWeight(Photon, tmax);
-  Photon->x = x1; // update the photon position
+  //Photon->x = x1; // update the photon position
 
   return 0;
 }
