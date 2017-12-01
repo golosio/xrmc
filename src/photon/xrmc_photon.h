@@ -65,6 +65,9 @@ class photon
   int EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
 		       double *Edep);
 
+  // Evaluates absorption coefficient at photon end point
+  int Mu_x1(sample *Sample, int *iZ, int *iType, double *mu_x1);
+
   // cross sections of the three interaction types with the extracted element
   int CSInteractions(int Z, double *mu_interaction, double *cs_tot);
 

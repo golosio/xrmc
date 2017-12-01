@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     xrmc_sample.h             //
-//        12/02/2013             //
+//        01/12/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // sample and path classes definition
@@ -125,9 +125,11 @@ class sample : public basesource
 // weight the event with the survival probability
   int PhotonSurvivalWeight(photon *Photon, double tmax);
   // simulates the photon history up to the last interaction point
-  int PhotonHistory(photon *Photon, int &Z, int &interaction_type);
+  int PhotonHistory(photon *Photon, int &Z, int &interaction_type,
+		    int scatt_order);
   // generate an event with a photon forced to end on the point x1
   virtual int Out_Photon_x1(photon *Photon, vect3 x1);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order);
   virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
   virtual int Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1,
 			    double *Edep);

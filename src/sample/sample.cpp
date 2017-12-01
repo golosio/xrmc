@@ -538,16 +538,17 @@ double path::WeightedStepLength(int *step_idx, double *weight)
 //////////////////////////////////////////////////////////////////////
 // simulates the photon history up to the last interaction point
 //////////////////////////////////////////////////////////////////////
-int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type)
+int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type,
+			  int scatt_order)
 {
   Source->Out_Photon(Photon); // asks source to generate a photon
   Comp->Mu(Photon->E); // absorption coefficients at photon energy
   // loop on scattering interactions up to the scattering order
-  for (int is=1; is<=ScattOrderIdx; is++) {
+  for (int is=1; is<=scatt_order; is++) {
     // Evaluates the photon next interaction type and position
     Photon->MonteCarloStep(this, &Z, &interaction_type);
     if (Photon->w == 0) break;
-    if (is<ScattOrderIdx) { // check that it is not the last interaction
+    if (is<scatt_order) { // check that it is not the last interaction
       // update the photon direction, polarization and energy
       Photon->Scatter(Z, interaction_type);
       // update absorption coefficients using the new energy value
@@ -563,17 +564,25 @@ int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type)
 //////////////////////////////////////////////////////////////////////
 int sample::Out_Photon_x1(photon *Photon, vect3 x1)
 {
+  return Out_Photon_x1(Photon, x1, ScattOrderIdx);
+}
+
+//////////////////////////////////////////////////////////////////////
+// generate an event with a photon forced to end on the point x1
+//////////////////////////////////////////////////////////////////////
+int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
+{
   int Z, interaction_type;
   vect3 vr;
   double tmax=0;
   const double alpha = 0.5;
   const double Rlim = 5.0;
 
-  if (PhotonNum[ScattOrderIdx]==0) {
+  if (PhotonNum[scatt_order]==0) {
     Photon->w = 0;
     return 0;
   }
-  if (ScattOrderIdx == 0) { // transmission
+  if (scatt_order == 0) { // transmission
     // ask the source to generate photon directed torward the point x1
     Source->Out_Photon_x1(Photon, x1);
     vr = x1 - Photon->x; // end position relative to photon starting position
@@ -584,7 +593,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
   else {
     double rnd1 = Rnd_r(Rng);
     if (rnd1<alpha) {
-      PhotonHistory(Photon, Z, interaction_type);
+      PhotonHistory(Photon, Z, interaction_type, scatt_order);
       if (Photon->w == 0) return 0;
       vr = x1 - Photon->x; //end position relative to last interaction pos.
       tmax = vr.Mod(); // maximum intersection distance
@@ -592,12 +601,6 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
 	Photon->w = 0;
 	return 0;
       }
-      vr.Normalize(); // normalized direction
-      // update the photon direction, polarization and energy
-      // the photon is forced to go in the direction v_r
-      Photon->Scatter(Z, interaction_type, vr);
-      // update absorption coefficients using the new energy value
-      if (interaction_type != COHERENT) Comp->Mu(Photon->E);
       Photon->w *= 1.0/alpha;
     }
     else {
@@ -617,22 +620,30 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
       double fact = tmax/r;
       vect3 dx = vr*fact;
       vect3 x0 = x1 - dx;
-      double mu_x1, Edep;
-      //ScattOrderIdx--;
-      Out_Photon_x1(Photon, x0, &mu_x1, &Edep);
-      //ScattOrderIdx++;
+
+      Out_Photon_x1(Photon, x0, scatt_order-1);
+
+      double mu_x1;
+      Photon->Mu_x1(this, &Z, &interaction_type, &mu_x1);
       if (Photon->w == 0) return 0;
 
       // Photon->w *= Volume*mu_x1;
       Photon->w *= 4.0*PI*Rlim*mu_x1/(1.0-alpha);
-      vr.Normalize(); // normalized direction
     }
+    vr.Normalize(); // normalized direction
+    // update the photon direction, polarization and energy
+    // the photon is forced to go in the direction v_r
+    Photon->Scatter(Z, interaction_type, vr);
+    // update absorption coefficients using the new energy value
+    if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+
   }
   Photon->uk = vr; // update the photon direction
   // divide the event weight by the multiplicity
-  Photon->w /= PhotonNum[ScattOrderIdx];
+  Photon->w /= PhotonNum[scatt_order];
   // weight the event with the survival probability
   PhotonSurvivalWeight(Photon, tmax);
+  Photon->x = x1; // update the photon position
 
   return 0;
 }
@@ -682,7 +693,7 @@ int sample::Out_Photon(photon *Photon)
     Comp->Mu(Photon->E); // absorption coefficients at photon energy
   }
   else {
-    PhotonHistory(Photon, Z, interaction_type);
+    PhotonHistory(Photon, Z, interaction_type, ScattOrderIdx);
     if (Photon->w != 0) {
       // update the photon direction, polarization and energy
       Photon->Scatter(Z, interaction_type);
