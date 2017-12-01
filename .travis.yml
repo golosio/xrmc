@@ -1,0 +1,70 @@
+language: generic
+
+env:
+  global:
+    - CXXFLAGS="-Wno-deprecated -Wno-deprecated-declarations -Wimplicit  -Wimplicit-function-declaration  -Wimplicit-int"
+    - CFLAGS="-Wno-deprecated -Wno-deprecated-declarations -Wimplicit  -Wimplicit-function-declaration  -Wimplicit-int"
+    - LD_LIBRARY_PATH='/usr/local/lib'
+    - PKG_CONFIG_PATH='/usr/local/lib/pkgconfig'
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
+              key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
+          packages:
+            - libxrl7-dev
+    - os: linux
+      dist: trusty
+      env: WITH_XMI_MSIM='yes' EXTRA_ARGS='--enable-xmi-msim'
+      addons:
+        apt:
+          sources:
+            - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
+              key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
+          packages:
+            - libxmimsim0-dev
+            - libgsl0-dev # this line shouldn't be here and is an error in the fgsl debbuild files...
+    - os: osx
+      sudo: required
+      env: BREW_EXTRA='llvm' CC='/usr/local/opt/llvm/bin/clang' CXX='/usr/local/opt/llvm/bin/clang++'
+    - os: osx
+      sudo: required
+      env: BREW_EXTRA='gcc@7' CC='/usr/local/opt/gcc@7/bin/gcc-7' CXX='/usr/local/opt/gcc@7/bin/g++-7'
+
+before_install:
+  - |
+    if [ "$TRAVIS_OS_NAME" == "osx" ] ; then
+      brew cask uninstall --force oclint
+      brew uninstall --force --ignore-dependencies $(brew list) || exit 1
+      brew update || exit 1
+      brew cleanup -s || exit 1
+      rm -rf $(brew --cache) || exit 1
+      brew install pkg-config gettext autoconf automake libtool homebrew/science/xraylib || exit 1
+      brew install $BREW_EXTRA || exit 1
+      brew cleanup -s || exit 1
+      rm -rf $(brew --cache) || exit 1
+    fi
+
+script:
+  - autoreconf -fi || exit 1
+  - ./configure ${EXTRA_ARGS} || exit 1
+  - make || exit 1
+  - if [ "$WITH_XMI_MSIM" != "yes" ] ; then make check || exit 1 ; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$WITH_XMI_MSIM" != "yes" ] ; then make distcheck || exit 1 ; fi
+
+notifications:
+  email:
+    recipients:
+      - Tom.Schoonjans@me.com
+      - golosio@unica.it
+    on_success: never
+    on_failure: always
+
+branches:
+  only:
+    - master
