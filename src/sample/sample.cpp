@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     sample.cpp                //
-//        12/02/2013             //
+//        01/12/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Methods of the classes sample and path
@@ -566,6 +566,8 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
   int Z, interaction_type;
   vect3 vr;
   double tmax=0;
+  const double alpha = 0.5;
+  const double Rlim = 5.0;
 
   if (PhotonNum[ScattOrderIdx]==0) {
     Photon->w = 0;
@@ -580,16 +582,50 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
     Comp->Mu(Photon->E); // absorption coefficients at photon energy
   }
   else {
-    PhotonHistory(Photon, Z, interaction_type);
-    if (Photon->w != 0) {
-      vr = x1 - Photon->x; //end position relative to last interaction position
+    double rnd1 = Rnd_r(Rng);
+    if (rnd1<alpha) {
+      PhotonHistory(Photon, Z, interaction_type);
+      if (Photon->w == 0) return 0;
+      vr = x1 - Photon->x; //end position relative to last interaction pos.
       tmax = vr.Mod(); // maximum intersection distance
+      if (tmax<Rlim) {
+	Photon->w = 0;
+	return 0;
+      }
       vr.Normalize(); // normalized direction
       // update the photon direction, polarization and energy
       // the photon is forced to go in the direction v_r
       Photon->Scatter(Z, interaction_type, vr);
       // update absorption coefficients using the new energy value
       if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+      Photon->w *= 1.0/alpha;
+    }
+    else {
+      vect3 vr;
+      double r;
+      do {
+	vr.Set(-1.0 + 2.0*Rnd_r(Rng),
+	       -1.0 + 2.0*Rnd_r(Rng),
+	       -1.0 + 2.0*Rnd_r(Rng));
+	r = vr.Mod();
+      } while (r>1.0);
+      tmax = Rnd_r(Rng)*Rlim;
+      if (tmax+r==tmax) {
+	Photon->w = 0;
+	return 0;
+      }
+      double fact = tmax/r;
+      vect3 dx = vr*fact;
+      vect3 x0 = x1 - dx;
+      double mu_x1, Edep;
+      //ScattOrderIdx--;
+      Out_Photon_x1(Photon, x0, &mu_x1, &Edep);
+      //ScattOrderIdx++;
+      if (Photon->w == 0) return 0;
+
+      // Photon->w *= Volume*mu_x1;
+      Photon->w *= 4.0*PI*Rlim*mu_x1/(1.0-alpha);
+      vr.Normalize(); // normalized direction
     }
   }
   Photon->uk = vr; // update the photon direction
