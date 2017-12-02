@@ -626,6 +626,9 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       vect3 x0 = x1 - dx;
 
       Out_Photon_x1(Photon, x0, scatt_order-1);
+      vect3 vr0 = x0 - Photon->x;
+      double r0 = vr0.Mod();
+      Photon->w /= r0*r0;
       Photon->x = x0; // update the photon position
 
       double mu_x1;
@@ -633,7 +636,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       if (Photon->w == 0) return 0;
 
       // Photon->w *= Volume*mu_x1;
-      Photon->w *= 4.0*PI*Rlim*mu_x1/(1.0-alpha);
+      Photon->w *= 4.0*PI*Rlim*tmax*tmax*mu_x1/(1.0-alpha);
     }
     vr.Normalize(); // normalized direction
     // update the photon direction, polarization and energy
