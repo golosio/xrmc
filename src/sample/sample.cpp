@@ -580,7 +580,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
   vect3 vr;
   double tmax=0;
   const double alpha = 0.5;
-  const double Rlim = 5.0;
+  const double Rlim = 1.0;
 
   if (PhotonNum[scatt_order]==0) {
     Photon->w = 0;
@@ -608,7 +608,6 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       Photon->w *= 1.0/alpha;
     }
     else {
-      vect3 vr;
       double r;
       do {
 	vr.Set(-1.0 + 2.0*Rnd_r(Rng),
