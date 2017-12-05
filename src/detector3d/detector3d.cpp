@@ -183,16 +183,15 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
     fflush(stdout);
   }
 
-  int ivox, ix, iy, iz, iph;
-#ifdef _OPENMP
-#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, mu_x1, Edep, ibin, ivox, ix, iy, iz, iph) collapse(4)
-#endif
-
 #ifdef TIME_PERF
   outph_time=outph_time0=edep_time=soutph_time=mu_time0=scatter_time=phist_time
     =mu_time1=mux1_time=psw_time=soutphx1_time=phist_time0=0;
 #endif
 
+  int ivox, ix, iy, iz, iph;
+#ifdef _OPENMP
+#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, mu_x1, Edep, ibin, ivox, ix, iy, iz, iph) collapse(4)
+#endif
   for (iz=0; iz<NZ; iz++) { // loop on detector voxels
     for (iy=0; iy<NY; iy++) { // loop on detector voxels
       for (ix=0; ix<NX; ix++) { // loop on detector voxels
