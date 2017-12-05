@@ -35,7 +35,6 @@ using namespace gettoken;
 
 int radionuclide::Load(istream &fs)
 {
-  int i;
   string comm="";
   string source="", unit;
 

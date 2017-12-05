@@ -32,6 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_arrayNd.h"
 #include "xrmc_sample.h"
 
+#ifdef TIME_PERF
+#include <ctime>
+double outph_time, outph_time0, edep_time, soutph_time, mu_time0, scatter_time,
+				       phist_time, mu_time1, mux1_time,
+				       psw_time, soutphx1_time, phist_time0;
+#endif
+
+
 #ifdef _OPENMP
 #include <omp.h>
 #define THREAD_MAXNUM omp_get_max_threads()
@@ -179,6 +187,12 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 #ifdef _OPENMP
 #pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, mu_x1, Edep, ibin, ivox, ix, iy, iz, iph) collapse(4)
 #endif
+
+#ifdef TIME_PERF
+  outph_time=outph_time0=edep_time=soutph_time=mu_time0=scatter_time=phist_time
+    =mu_time1=mux1_time=psw_time=soutphx1_time=phist_time0=0;
+#endif
+
   for (iz=0; iz<NZ; iz++) { // loop on detector voxels
     for (iy=0; iy<NY; iy++) { // loop on detector voxels
       for (ix=0; ix<NX; ix++) { // loop on detector voxels
@@ -191,10 +205,16 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 	      SourceClones[THREAD_IDX]->Next()) {
 	    // extract random point in voxel
 	    Rp = RandomPointInVoxel(ivox, rngs[THREAD_IDX]);
+#ifdef TIME_PERF
+	    clock_t cpu_time = clock();
+#endif
 	    // get a photon from the source forcing it to terminate on the voxel
-	    // volume: 
+	    // volume:
 	    SourceClones[THREAD_IDX]->Out_Photon_x1(&PhotonArray[THREAD_IDX],
 					    Rp, &mode_idx, &mu_x1, &Edep);
+#ifdef TIME_PERF
+	    outph_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
 	    if (PhotonArray[THREAD_IDX].w != 0) { // check that weight is not 0
 	      // if voxel is not parallelepiped, correct the weight
 	      if (Shape==1) PhotonArray[THREAD_IDX].w *= PI/6; // sphere
@@ -239,6 +259,7 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 	    if (event_idx%ProgrUpdate==0 && event_tot>ProgrUpdate) {
 	      printf("Progress %.3f %%\r", 100.*event_idx/event_tot);
 	      fflush(stdout);
+	      //cout <<outph_time << endl;
 	    }
 	    //}
 	  }
@@ -249,7 +270,49 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
   //end of big for loop
   if (event_tot>ProgrUpdate) {
     printf("\rProgress 100.000 %%\n");
+    //cout <<outph_time << endl;
   }
+#ifdef TIME_PERF
+  cout << "Sample->Out_Photon_x1\n"
+    "from detectorarray3d::ForcedAcquisition(...)\n"
+       << outph_time << "\n\n";
+  cout << "Out_Photon_x1\n"
+    "from sample::Out_Photon_x1(photon *Photon, vect3 x1, "
+    "double *mu_x1, double *Edep)\n" << outph_time0 << "\n\n";
+  cout << "Photon->EnergyDeposition\n"
+    "from sample::Out_Photon_x1(photon *Photon, "
+    "vect3 x1, double *mu_x1, double *Edep)\n" << edep_time << "\n\n";
+  cout << "Source->Out_Photon\n"
+    "from sample::Out_Photon(photon *Photon)\n"
+       << soutph_time << "\n\n";
+  cout << "Comp->Mu(Photon->E)\nfrom sample::Out_Photon(photon *Photon) "
+    "(with ScattorderIdx==0)\n"
+    "from sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order) "
+    "(with ScattorderIdx==0)\n"
+    "from PhotonHistory(...)\n" << mu_time0 << "\n\n";
+  cout << "Comp->Mu(Photon->E)\nfrom sample::Out_Photon(photon *Photon) "
+    "(with ScattorderIdx>0)\n"
+    "from sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order) "
+    "(with ScattorderIdx>0)\n"
+       << mu_time1 << "\n\n";
+  cout << "PhotonHistory(...)\nfrom sample::Out_Photon(photon *Photon)\n"
+    "from Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)\n"
+       << phist_time << "\n\n";
+  cout << "Photon->Scatter(...)\nfrom sample::Out_Photon(photon *Photon)\n"
+    "from sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)\n"
+       << scatter_time << "\n\n";
+  cout << "Photon->Mu_x1\nfrom "
+    "sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)\n"
+       << mux1_time << "\n\n";
+  cout << "PhotonSurvivalWeight\nfrom "
+    "sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)\n"
+       << psw_time << "\n\n";
+  cout << "Source->Out_Photon_x1\nfrom "
+    "sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)\n"
+       << soutphx1_time << "\n\n";
+  cout << "PhotonHistory main loop (for (int is=1; is<=scatt_order; is++)\n"
+       << phist_time0 << "\n\n";
+#endif
 
   return 0;
 }

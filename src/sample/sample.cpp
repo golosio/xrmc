@@ -34,6 +34,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <xraylib.h>
 
+#ifdef TIME_PERF
+#include <ctime>
+extern double outph_time0, edep_time, soutph_time, mu_time0, scatter_time,
+				       phist_time, mu_time1, mux1_time,
+				       psw_time, soutphx1_time, phist_time0;
+#endif
+
 using namespace std;
 using namespace xrmc_algo;
 
@@ -49,39 +56,38 @@ sample::~sample() { // destructor
 
 void sample::DopplerInit() {
   //Doppler calculation
-  int i,j,k,l,m;
 
   doppler_pz = new double*[100];
-  for (i = 0 ; i < compZ.size() ; i++)
+  for (unsigned int i = 0 ; i < compZ.size() ; i++)
   	doppler_pz[compZ[i]] = new double[NINTERVALS_R];
 
   rs = new double[NINTERVALS_R];
-  for (i = 0 ; i < NINTERVALS_R ; i++)
+  for (int i = 0 ; i < NINTERVALS_R ; i++)
   	rs[i] = i/(NINTERVALS_R-1.0);
 
   const int maxpz = 100;
   const int nintervals_pz = 1000000;
   double *pzs = new double[nintervals_pz];
-  for (i = 0 ; i < nintervals_pz ; i++) {
+  for (int i = 0 ; i < nintervals_pz ; i++) {
   	pzs[i]= maxpz * (i)/(nintervals_pz-1.0);
   }
   double *trapez2 = new double[nintervals_pz-1];
   double trapez2_sum, temp_sum;
-  for (i = 0 ; i < compZ.size() ; i++) {
+  for (unsigned int i = 0 ; i < compZ.size() ; i++) {
   	cout << "Compton profile icdf for element: " << compZ[i] << endl;
   	trapez2_sum = 0.0;
-	for (j = 0 ; j < nintervals_pz-1 ; j++) {
+	for (int j = 0 ; j < nintervals_pz-1 ; j++) {
 		trapez2[j] = (ComptonProfile(compZ[i], pzs[j])+ComptonProfile(compZ[i],pzs[j+1]))*(pzs[1]-pzs[0])/2.0/compZ[i];
 		trapez2_sum += trapez2[j];
 	}
 
-	for (j = 0 ; j < nintervals_pz-1 ; j++) {
+	for (int j = 0 ; j < nintervals_pz-1 ; j++) {
 		trapez2[j] /= trapez2_sum;
 	}
 	
   	temp_sum = 0.0;
-  	l=0;
-	m=0;
+  	int l=0;
+	int m=0;
 	while (l != nintervals_pz-1) {
 		temp_sum += trapez2[l];
 		if (temp_sum >= rs[m]) {
@@ -104,7 +110,7 @@ void sample::DopplerInit() {
 
 void sample::DopplerClear() {
   if (doppler_pz!=NULL) {
-    for (int i = 0 ; i < compZ.size() ; i++) {
+    for (unsigned int i = 0 ; i < compZ.size() ; i++) {
 	delete [] doppler_pz[compZ[i]];
     }
     delete [] doppler_pz;
@@ -541,9 +547,20 @@ double path::WeightedStepLength(int *step_idx, double *weight)
 int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type,
 			  int scatt_order)
 {
+#ifdef TIME_PERF
+  clock_t cpu_time = clock();
+#endif
   Source->Out_Photon(Photon); // asks source to generate a photon
+#ifdef TIME_PERF
+  soutph_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+  cpu_time = clock();
+#endif
   Comp->Mu(Photon->E); // absorption coefficients at photon energy
+#ifdef TIME_PERF
+  mu_time0 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
   // loop on scattering interactions up to the scattering order
+  cpu_time = clock();
+#endif
   for (int is=1; is<=scatt_order; is++) {
     // Evaluates the photon next interaction type and position
     Photon->MonteCarloStep(this, &Z, &interaction_type);
@@ -555,7 +572,10 @@ int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type,
       if (interaction_type != COHERENT) Comp->Mu(Photon->E);
     }   
   }
-
+#ifdef TIME_PERF
+  phist_time0 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
+  
   return 0;
 }
 
@@ -588,16 +608,34 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
   }
   if (scatt_order == 0) { // transmission
     // ask the source to generate photon directed torward the point x1
+#ifdef TIME_PERF
+    clock_t cpu_time = clock();
+#endif
     Source->Out_Photon_x1(Photon, x1);
+#ifdef TIME_PERF
+    soutphx1_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
     vr = x1 - Photon->x; // end position relative to photon starting position
     tmax = vr.Mod(); // maximum intersection distance
     vr.Normalize(); // normalized direction
+#ifdef TIME_PERF
+    cpu_time = clock();
+#endif
     Comp->Mu(Photon->E); // absorption coefficients at photon energy
+#ifdef TIME_PERF
+    mu_time0 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
   }
   else {
     double rnd1 = Rnd_r(Rng);
     if (rnd1<alpha) {
+#ifdef TIME_PERF
+      clock_t cpu_time = clock();
+#endif
       PhotonHistory(Photon, Z, interaction_type, scatt_order);
+#ifdef TIME_PERF
+      phist_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
       if (Photon->w == 0) return 0;
       vr = x1 - Photon->x; //end position relative to last interaction pos.
       tmax = vr.Mod(); // maximum intersection distance
@@ -631,23 +669,50 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       Photon->x = x0; // update the photon position
 
       double mu_x1;
+#ifdef TIME_PERF
+      clock_t cpu_time = clock();
+#endif
       Photon->Mu_x1(this, &Z, &interaction_type, &mu_x1);
+#ifdef TIME_PERF
+      mux1_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
       if (Photon->w == 0) return 0;
 
       // Photon->w *= Volume*mu_x1;
       Photon->w *= 4.0*PI*Rlim*tmax*tmax*mu_x1/(1.0-alpha);
     }
     vr.Normalize(); // normalized direction
+#ifdef TIME_PERF
+    clock_t cpu_time = clock();
+#endif
     // update the photon direction, polarization and energy
     // the photon is forced to go in the direction v_r
     Photon->Scatter(Z, interaction_type, vr);
+#ifdef TIME_PERF
+    scatter_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
     // update absorption coefficients using the new energy value
-    if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+    if (interaction_type != COHERENT) {
+#ifdef TIME_PERF
+      cpu_time = clock();
+#endif
+      Comp->Mu(Photon->E);
+#ifdef TIME_PERF
+      mu_time1 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
+    }
 
   }
   Photon->uk = vr; // update the photon direction
   // weight the event with the survival probability
+
+#ifdef TIME_PERF
+  clock_t cpu_time = clock();
+#endif
   PhotonSurvivalWeight(Photon, tmax);
+#ifdef TIME_PERF
+  psw_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
   //Photon->x = x1; // update the photon position
 
   return 0;
@@ -661,9 +726,19 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1, double *Edep)
 {
   int Z, interaction_type;
 
+#ifdef TIME_PERF
+  clock_t cpu_time = clock();
+#endif
   Out_Photon_x1(Photon, x1);
+#ifdef TIME_PERF
+  outph_time0 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+  cpu_time = clock();
+#endif
   // it would be better to update photon position...
   Photon->EnergyDeposition(this, &Z, &interaction_type, mu_x1, Edep);
+#ifdef TIME_PERF
+  edep_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
   //throw xrmc_exception(string("Breakpoint\n"));
 
   return 0;
@@ -694,16 +769,47 @@ int sample::Out_Photon(photon *Photon)
   }
   if (ScattOrderIdx == 0) { // transmission
     // ask the source to generate photon
+
+#ifdef TIME_PERF
+    clock_t cpu_time = clock();
+#endif
     Source->Out_Photon(Photon);
+#ifdef TIME_PERF
+    soutph_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+    cpu_time = clock();
+#endif
     Comp->Mu(Photon->E); // absorption coefficients at photon energy
+#ifdef TIME_PERF
+    mu_time0 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
   }
   else {
+#ifdef TIME_PERF
+    clock_t cpu_time = clock();
+#endif
     PhotonHistory(Photon, Z, interaction_type, ScattOrderIdx);
+#ifdef TIME_PERF
+    phist_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
     if (Photon->w != 0) {
+#ifdef TIME_PERF
+      cpu_time = clock();
+#endif
       // update the photon direction, polarization and energy
       Photon->Scatter(Z, interaction_type);
+#ifdef TIME_PERF
+      scatter_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
       // update absorption coefficients using the new energy value
-      if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+      if (interaction_type != COHERENT) {
+#ifdef TIME_PERF
+	cpu_time = clock();
+#endif
+	Comp->Mu(Photon->E);
+#ifdef TIME_PERF
+	mu_time1 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
+      }
     }
   }
   // divide the event weight by the multiplicity

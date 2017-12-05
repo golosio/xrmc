@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SAMPLEH
 #define SAMPLEH
 
+//#define TIME_PERF
+
 #include <string>
 #include "xrmc_geom3d.h"
 #include "xrmc_composition.h"

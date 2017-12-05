@@ -40,7 +40,6 @@ int composition::Load(istream &fs)
   /* Loads sample phases composition and density */
   int n_comp;
   int n_elem;
-  int z_elem;
   double w, rho;
   string comm, comp;
   struct compoundData *cd;

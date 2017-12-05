@@ -185,7 +185,7 @@ int composition::ReduceMap(vector<string> used_phases) {
 
 	NPhases = used_phases.size();
 
-	for (int i = 0 ; i < used_phases.size() ; i++) {
+	for (unsigned int i = 0 ; i < used_phases.size() ; i++) {
 		it = PhaseMap.find(used_phases.at(i));
 		if (it==PhaseMap.end()) {
       			throw xrmc_exception(string("Phase ") + used_phases.at(i)
