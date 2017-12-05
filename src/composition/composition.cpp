@@ -102,7 +102,7 @@ int phase::Delta(double E)
 int phase::AtomType(int *Zelem, double *mu_atom)
 {
   // check that Rho is not 0 and that it is not much smaller than numerator
-  if (Rho==0 || LastMu+Rho==LastMu) return -1;
+  if (Rho==0 || LastMu+Rho==LastMu || NElem==0) return -1;
 
   double mu_compound = LastMu / Rho; // absorption coefficient of the phase
   double R = Rnd_r(Rng)*mu_compound; // random num. between 0 and mu_compound
@@ -110,11 +110,11 @@ int phase::AtomType(int *Zelem, double *mu_atom)
   double sum = 0;
   int i = 0;
   // extract the index of the element with which the interaction will occur
-  while (sum <= R) { // stop when the cumulative distribution is >= R
+  while (sum <= R && i<NElem) { // stop when the cumulative distribution is >= R
     sum += W[i]*MuAtom[i];
     i++;
   }
-  if (i > NElem) i = NElem;
+  if (i==0) return -1;
   i--;
   *Zelem = Z[i]; // atomic number of the element
   *mu_atom = MuAtom[i]; // total cross section for the element

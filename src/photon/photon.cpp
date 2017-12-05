@@ -85,7 +85,10 @@ int photon::MonteCarloStep(sample *Sample, int *iZ, int *iType)
   // phase where the next interaction will occur
   ph_compound = &Sample->Comp->Ph[Sample->Path->iPh0[step_idx]];
   // extract the atomic species that the photon will interact with
-  ph_compound->AtomType(&Z, &mu_atom);
+  if (ph_compound->AtomType(&Z, &mu_atom)!=0) {
+    w=0;
+    return 0;
+  }
   // cross sections of the three interaction types with the extracted element
   CSInteractions(Z, cs_interaction, &cs_tot);
   if (cs_tot+mu_atom == cs_tot) { // check for division overflow
@@ -149,7 +152,11 @@ int photon::EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
   ph_compound = &Sample->Comp->Ph[iph];
   *mu_x1 = ph_compound->LastMu; // absorption coefficient of the phase
   // extract the atomic species that the photon will interact with
-  ph_compound->AtomType(&Z, &mu_atom);
+  if (ph_compound->AtomType(&Z, &mu_atom)!=0) {
+    w=0;
+    *Edep = 0;
+    return 0;
+  }
   // cross sections of the interaction types with energy deposition
   CSInteractionsEdep(Z, cs_interaction, &cs_tot_Edep);
   if (cs_tot_Edep+mu_atom == cs_tot_Edep) { // check for division overflow
@@ -218,7 +225,10 @@ int photon::Mu_x1(sample *Sample, int *iZ, int *iType, double *mu_x1)
   ph_compound = &Sample->Comp->Ph[iph];
   *mu_x1 = ph_compound->LastMu; // absorption coefficient of the phase
   // extract the atomic species that the photon will interact with
-  ph_compound->AtomType(&Z, &mu_atom);
+  if (ph_compound->AtomType(&Z, &mu_atom)!=0) {
+    w=0;
+    return 0;
+  }
   // cross sections of the three interaction types with the extracted element
   CSInteractions(Z, cs_interaction, &cs_tot);
   if (cs_tot+mu_atom == cs_tot) { // check for division overflow
