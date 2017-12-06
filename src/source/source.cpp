@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio
+Copyright (C) 2017 Bruno Golosio
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     source.cpp                //
-//        14/02/2013             //
+//        06/12/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Methods of the class source
@@ -343,12 +343,15 @@ int source::Out_Photon_x1(photon *Photon, vect3 x1)
   Spectrum->ExtractEnergy(&w, &E, &pol);
   Photon->E = E;
 
-  Photon->uk = x1 - Photon->x; // photon direction
-  Photon->uk.Normalize();
+  vect3 vr = x1 - Photon->x; //relative position
+  double r = vr.Mod();
+  if (r<Rlim) r = Rlim;
+  vr.Normalize(); // normalized direction
+  Photon->uk = vr; // update the photon direction
 
   // multiply the event weight by the total beam intensity
   // and by the probability that it has the direction uk per unit solid angle
-  Photon->w = w*Spectrum->TotalIntensity*POmega(Photon->uk);
+  Photon->w = w*Spectrum->TotalIntensity*POmega(Photon->uk)/(r*r);
 
   // define local photon axis directions based on direction and polarization
   SetPhotonAxes(Photon, pol);

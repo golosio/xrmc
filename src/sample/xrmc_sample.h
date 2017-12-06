@@ -98,6 +98,16 @@ class sample : public basesource
   int ScattOrderIdx; // scattering order index
   int PhotonIdx; // event index
   int WeightedStepLength; // flag for weighted steplength extraction method
+  double RlimDet; // limit on x0-x1 distance in forced detection
+                  // for the last step before detection
+                  // below which a distance-weighted integration method is used 
+  double RWFractDet; // fraction of the events in forced detection
+                   // for the last step before detection
+                   // on which a distance-weighted integration method is used
+  double Rlim; // limit on x0-x1 distance in forced detection
+                // below which a distance-weighted integration method is used 
+  double RWFract; // fraction of the events in forced detection
+                   // on which a distance-weighted integration method is used
   basesource *Source; // input source device
   vector<int> compZ; //sorted vector with all elements that are used in the simulation
   double **doppler_pz;

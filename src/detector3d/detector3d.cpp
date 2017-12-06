@@ -173,8 +173,8 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 				     photon *PhotonArray, randmt_t **rngs)
 {
   int ibin, mode_idx;
-  vect3 Rp, DRp;
-  double Pgeom, signal;
+  vect3 Rp;
+  double signal;
   double mu_x1, Edep;
   const int ProgrUpdate=100000;
   long long event_idx=0, event_tot=EventMulti();
@@ -190,7 +190,7 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 
   int ivox, ix, iy, iz, iph;
 #ifdef _OPENMP
-#pragma omp parallel for default(shared) private(DRp, Rp, mode_idx, Pgeom, signal, mu_x1, Edep, ibin, ivox, ix, iy, iz, iph) collapse(4)
+#pragma omp parallel for default(shared) private(Rp, mode_idx, signal, mu_x1, Edep, ibin, ivox, ix, iy, iz, iph) collapse(4)
 #endif
   for (iz=0; iz<NZ; iz++) { // loop on detector voxels
     for (iy=0; iy<NY; iy++) { // loop on detector voxels
@@ -218,12 +218,9 @@ int detectorarray3d::ForcedAcquisition(basesource **SourceClones,
 	      // if voxel is not parallelepiped, correct the weight
 	      if (Shape==1) PhotonArray[THREAD_IDX].w *= PI/6; // sphere
 	      else if (Shape>1) PhotonArray[THREAD_IDX].w *= PI/4; // cylinder
-
-	      DRp = Rp - PhotonArray[THREAD_IDX].x;
-	      Pgeom = fG(DRp);// evaluates the geometric factor fG
-	      signal = PhotonArray[THREAD_IDX].w*mu_x1*Pgeom*ExpTime/PhotonNum;
-	      //signal = mu_x1; //Pgeom*ExpTime/PhotonNum;
 	      // evaluate the signal associated to the single event
+	      signal = PhotonArray[THREAD_IDX].w*mu_x1*VoxelVol
+		*ExpTime/PhotonNum;
 	      // Depending on voxel content type, multiply it by the energy
 	      if (VoxelType == 1 || VoxelType == 3)
 		signal *= Edep;
@@ -458,20 +455,3 @@ vect3 detectorarray3d::RandomPointInVoxel(int i, randmt_t *rng)
   return p;
 }
 
-//////////////////////////////////////////////////////////////////////
-// evaluates the geometric factor fG, related to
-// the probability that the last photon trajectory crosses the voxel
-//////////////////////////////////////////////////////////////////////
-double detectorarray3d::fG(vect3 DRp)
-{
-  double r = DRp.Mod();        // distance from previous interaction point to
-                               // the photon end point
-  double denom = r*r; // denominator
-  if (VoxelVol+denom == VoxelVol) {
-    return fGLim; // check for overflow in the ratio
-  }
-  double fact = VoxelVol/denom;
-  if (fact>fGLim) return fGLim; // threshold to fGLim
-
-  return fact;
-}

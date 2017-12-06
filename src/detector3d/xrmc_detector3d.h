@@ -67,7 +67,6 @@ class detectorarray3d : public bodydevice
   //string SourceName; // name of the input device
   double VoxelSizeX, VoxelSizeY, VoxelSizeZ; // voxel size (cm)
   double VoxelVol; // voxel volume (cm3) 
-  double fGLim; // cut on geometric factor
   int Shape; // Detector elements shape (0 parallelepiped, 1 sphere,
              // 2,3,4 cylinder (x,y,z axis)): 
   vect3 *VoxelX; // voxel coordinates array
@@ -91,8 +90,6 @@ class detectorarray3d : public bodydevice
   //vect3 RandomPointInVoxel(int i); // Generates a random point
   vect3 RandomPointInVoxel(int i, randmt_t *rng);
                                    // on the pixel surface
-  double fG(vect3 DRp); // evaluates the geometric factor fG, related to
-  // the probability that the last photon trajectory crosses the voxel  
   //int Poisson(); // generate uncertainty on voxel count using Poisson statistic
   int Poisson(randmt_t *rng); // generate uncertainty on voxel count using Poisson statistic
 

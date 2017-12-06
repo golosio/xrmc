@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio
+Copyright (C) 2017 Bruno Golosio
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     anisotropicsource.h       //
-//        16/05/2013             //
+//        06/12/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // anisotropicsource class definition
@@ -40,6 +40,7 @@ class anisotropicsource : public basesource
 {
  public:
   double Sigmax, Sigmay, Sigmaz; // source size in local coordinate system
+  double Rlim; // minimum value of source-x1 distance in forced detection
   int SizeFlag;
   spectrum *Spectrum; // input spectrum device
   intensityscreen *IntensityScreen; // input intensityscreen device

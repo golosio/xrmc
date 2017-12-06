@@ -81,6 +81,7 @@ class source : public basesource
   double Cos2Thx, Sin2Thx, Cos2Thy, Sin2Thy; //related goniometric functions
   double Omega; // source aperture solid angle  
   double Sigmax, Sigmay, Sigmaz; // source size in local coordinate system
+  double Rlim; // minimum value of source-x1 distance in forced detection
   int SizeFlag;
   spectrum *Spectrum; // input spectrum device
 

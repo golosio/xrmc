@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio
+Copyright (C) 2017 Bruno Golosio
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     loadsource.cpp            //
-//        14/02/2013             //
+//        06/12/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Load source parameters, position and orientation
@@ -100,6 +100,10 @@ int source::Load(istream &fs)
       cout << "Source size (sigmax, sigmay, sigmaz in local source coordinate "
 	"system):\n" << Sigmax << ", " << Sigmay << ", " << Sigmaz << "\n";
     }
+    else if(comm=="Rlim") {        // Minimum value of source-x1 distance
+      GetDoubleToken(fs, &Rlim);  // in forced detection
+      cout << "Rlim: " << Rlim << "\n";
+    }
     else if(comm=="Rotate") { // source rotation
       cout << "Source rotation :\n"; 
       cout << "\tPoint on rotation axis x0:\t";
@@ -151,6 +155,7 @@ int source::SetDefault()
   Thy = 0.1; // divergence (thetay)
   SizeFlag = 0;                 // Source size (sigmax, sigmay, sigmaz)      
   Sigmax = Sigmay = Sigmaz = 0; // in local coordinate system
+  Rlim = 1.0e-7; // 1 nm
   OrthoNormal(ui, uj, uk); // evaluates uj to form a orthonormal basis
 
   return 0;

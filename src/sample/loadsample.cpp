@@ -70,6 +70,28 @@ int sample::Load(istream &fs)
 	     << i << ": " << PhotonNum[i] << "\n";
       }
     }
+    else if(comm=="Rlim") { // limit on x0-x1 distance in forced detection
+                // below which a distance-weighted integration method is used
+      GetDoubleToken(fs, &Rlim);
+      cout << "Rlim: " << Rlim << "\n";
+    }
+    else if(comm=="RWFract") { // fraction of the events in forced detection
+                // on which a distance-weighted integration method is used
+      GetDoubleToken(fs, &RWFract);
+      cout << "RWFract: " << RWFract << "\n";
+    }
+    else if(comm=="RlimDet") { // limit on x0-x1 distance in forced detection
+             // for the last step before detection
+             // below which a distance-weighted integration method is used
+      GetDoubleToken(fs, &RlimDet);
+      cout << "RlimDet: " << RlimDet << "\n";
+    }
+    else if(comm=="RWFractDet") { // fraction of the events in forced detection
+              // for the last step before detection
+              // on which a distance-weighted integration method is used
+      GetDoubleToken(fs, &RWFractDet);
+      cout << "RWFractDet: " << RWFractDet << "\n";
+    }
     else if(comm=="End") {
       break;
     }
@@ -96,6 +118,10 @@ int sample::SetDefault()
   ScattOrderNum = 1; // Num. of scattering orders (including transmission)
   PhotonNum = new int[1];
   PhotonNum[0] = 1; // Multiplicity of simulated events for transmission
+  Rlim = 0.1; // 1 mm
+  RWFract = 0.1; // 10% of the events
+  RlimDet = 0.1; // 1 mm
+  RWFractDet = 0.1; // 10% of the events
 
   return 0;
 }

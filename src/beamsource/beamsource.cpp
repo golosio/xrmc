@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio
+Copyright (C) 2017 Bruno Golosio
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 ///////////////////////////////////
 //     beamsource.cpp            //
-//        02/05/2013             //
+//        06/12/2017             //
 //   author : Bruno Golosio      //
 ///////////////////////////////////
 // Methods of the class beamsource
@@ -141,19 +141,20 @@ int beamsource::Out_Photon_x1(photon *Photon, vect3 x1)
         + uk*Sigmaz*GaussRnd_r(Rng);
   }
   vect3 vr = x1 - Photon->x; //relative position
+  double r = vr.Mod();
+  if (r<Rlim) r = Rlim;
   vr.Normalize(); // normalized direction
   Photon->uk = vr; // update the photon direction
 
   if (BeamScreen->RandomEnergy(Photon->x, vr, E, pol, w, Rng)) {
     Photon->E = E;
     // multiply the event weight by the total beam intensity
-    Photon->w = w*BeamScreen->TotalIntensity; //BeamScreen->dOmega(Photon->uk);
+    Photon->w = w*BeamScreen->TotalIntensity/(r*r);
     // define local photon axis based on direction and polarization
     SetPhotonAxes(Photon, pol);
   }
   else {
     Photon->w = 0;
-    Photon->E = 10; // test; remove
     pol = 0;
     SetPhotonAxes(Photon, pol);
   }    

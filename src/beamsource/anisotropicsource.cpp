@@ -181,13 +181,15 @@ int anisotropicsource::Out_Photon_x1(photon *Photon, vect3 x1)
   Photon->E = E;
 
   vect3 vr = x1 - Photon->x; //relative position
+  double r = vr.Mod();
+  if (r<Rlim) r = Rlim;
   vr.Normalize(); // normalized direction
   Photon->uk = vr; // update the photon direction
 
   IntensityScreen->DirectionWeight(Photon->x, vr, w1, Rng);
 
   // multiply the event weight by the total beam intensity
-  Photon->w = w0*w1*Spectrum->TotalIntensity;
+  Photon->w = w0*w1*Spectrum->TotalIntensity/(r*r);
   //if (sqrt(vr.Elem[0]*vr.Elem[0]+vr.Elem[2]*vr.Elem[2])<0.12/115) {
   //cout << "w0 " << w0 << endl;
   //cout << "w1 " << w1 << endl;

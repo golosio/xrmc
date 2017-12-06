@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Bruno Golosio
+Copyright (C) 2017 Bruno Golosio
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -599,8 +599,6 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
   int Z, interaction_type;
   vect3 vr;
   double tmax=0;
-  const double alpha = 0.5;
-  const double Rlim = 1.0;
 
   if (PhotonNum[scatt_order]==0) {
     Photon->w = 0;
@@ -627,8 +625,11 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
 #endif
   }
   else {
+    double rwf;
+    if (scatt_order==ScattOrderIdx) rwf = RWFractDet;
+    else rwf = RWFract; 
     double rnd1 = Rnd_r(Rng);
-    if (rnd1<alpha) {
+    if (rnd1>rwf) {
 #ifdef TIME_PERF
       clock_t cpu_time = clock();
 #endif
@@ -643,7 +644,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
 	Photon->w = 0;
 	return 0;
       }
-      Photon->w *= 1.0/alpha;
+      Photon->w *= 1.0/((1.0-rwf)*tmax*tmax);
     }
     else {
       double r;
@@ -663,9 +664,6 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       vect3 x0 = x1 - dx;
 
       Out_Photon_x1(Photon, x0, scatt_order-1);
-      vect3 vr0 = x0 - Photon->x;
-      double r0 = vr0.Mod();
-      Photon->w /= r0*r0;
       Photon->x = x0; // update the photon position
 
       double mu_x1;
@@ -679,7 +677,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       if (Photon->w == 0) return 0;
 
       // Photon->w *= Volume*mu_x1;
-      Photon->w *= 4.0*PI*Rlim*tmax*tmax*mu_x1/(1.0-alpha);
+      Photon->w *= 4.0*PI*Rlim*mu_x1/rwf;
     }
     vr.Normalize(); // normalized direction
 #ifdef TIME_PERF
@@ -704,11 +702,10 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
 
   }
   Photon->uk = vr; // update the photon direction
-  // weight the event with the survival probability
-
 #ifdef TIME_PERF
   clock_t cpu_time = clock();
 #endif
+  // weight the event with the survival probability
   PhotonSurvivalWeight(Photon, tmax);
 #ifdef TIME_PERF
   psw_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
