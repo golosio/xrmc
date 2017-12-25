@@ -1,4 +1,4 @@
-AC_INIT([xrmc],[6.6.0],[golosio@uniss.it])
+AC_INIT([xrmc],[6.7.0],[golosio@uniss.it])
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([src/main/xrmc_main.cpp])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -83,7 +83,7 @@ PKG_CHECK_MODULES([xraylib],libxrl >= 3.2.0)
 AC_ARG_ENABLE([xmi-msim], AS_HELP_STRING([--disable-xmi-msim],[build without XMI-MSIM support]), [enable_xmi_msim=$enableval], [enable_xmi_msim=check])
 
 if test x$enable_xmi_msim != "xno" ; then 
-	PKG_CHECK_MODULES(xmi_msim, libxmimsim >= 6.0, [XMIMSIM_FOUND=yes], [XMIMSIM_FOUND=no])
+	PKG_CHECK_MODULES(xmi_msim, libxmimsim >= 7.1, [XMIMSIM_FOUND=yes], [XMIMSIM_FOUND=no])
 	PKG_CHECK_MODULES(gmodule, gmodule-2.0, [GMODULE_FOUND=yes],[GMODULE_FOUND=no])
 
 	if test "x$XMIMSIM_FOUND" = xyes && test "x$GMODULE_FOUND" = xyes ; then

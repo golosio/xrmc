@@ -18,17 +18,17 @@ matrix:
               key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
           packages:
             - libxrl7-dev
-    - os: linux
-      dist: trusty
-      env: WITH_XMI_MSIM='yes' EXTRA_ARGS='--enable-xmi-msim'
-      addons:
-        apt:
-          sources:
-            - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
-              key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
-          packages:
-            - libxmimsim0-dev
-            - libgsl0-dev # this line shouldn't be here and is an error in the fgsl debbuild files...
+    #- os: linux
+    #  dist: trusty
+    #  env: WITH_XMI_MSIM='yes' EXTRA_ARGS='--enable-xmi-msim'
+    #  addons:
+    #    apt:
+    #      sources:
+    #        - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
+    #          key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
+    #      packages:
+    #        - libxmimsim0-dev
+    #        - libgsl0-dev # this line shouldn't be here and is an error in the fgsl debbuild files...
     - os: osx
       sudo: required
       env: BREW_EXTRA='llvm' CC='/usr/local/opt/llvm/bin/clang' CXX='/usr/local/opt/llvm/bin/clang++'
