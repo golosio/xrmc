@@ -9,7 +9,7 @@ LinePhotonNum 1		; Multiplicity of events for each line in the spectrum
 RandomEneFlag 1		; enable random energy on each interval (0/1)
 
 TransmissionFlag 	0 ; not a transmission tube
-TubeVoltage		40.0 ; keV
+TubeVoltage		10.0 ; keV
 TubeCurrent		1 ; mA
 ElectronAngle		60 ; degrees
 XrayAngle		60 ; degrees
@@ -28,5 +28,7 @@ WindowThickness	25E-4 ; cm
 FilterMaterial		He
 FilterDensity		1.663E-04 ; g/cm3
 FilterThickness	0.1 ; cm
+
+TransmissionEfficiencyFile transmission-efficiency.txt
 
 End

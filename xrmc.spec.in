@@ -67,7 +67,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libxrmc.so.*
 %{_bindir}/xrmc
 %{_prefix}/share/examples/xrmc/*
-%{_prefix}/share/doc/xrmc/xrmc_@VERSION@_man.pdf
+%{_prefix}/share/doc/xrmc/xrmc_man.pdf
 
 
 %files devel

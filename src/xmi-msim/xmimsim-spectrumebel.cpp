@@ -29,7 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_spectrum_ebel.h"
 #include "xrmc_exception.h"
 #include "xrmc_algo.h"
-#include <xmi_msim.h>
 #include <cstdlib>
 #include "xrmc_loadxmimsim.h"
 #include <glib/gstdio.h>
@@ -95,6 +94,8 @@ int spectrum_ebel::RunInit() {
 	}
 
 	XmiMsimTubeEbel xmi_msim_tube_ebel;
+	XmiMsimTransmissionEfficiencyRead xmi_msim_transmission_efficiency_read;
+
         if (!g_module_symbol(xrmc_xmimsim, "xmi_msim_tube_ebel", (gpointer *) &xmi_msim_tube_ebel)) {
                 g_module_close(xrmc_xmimsim);                                      
                 g_fprintf(stderr, "GModule error message: %s\n", g_module_error());
@@ -105,13 +106,42 @@ int spectrum_ebel::RunInit() {
                 g_module_close(xrmc_xmimsim);
                 throw xrmc_exception("Symbol xmi_msim_tube_ebel from module xrmc-xmimsim is NULL\n");
         }
-                                                                                   
+
+        if (!g_module_symbol(xrmc_xmimsim, "xmi_msim_transmission_efficiency_read", (gpointer *) &xmi_msim_transmission_efficiency_read)) {
+                g_module_close(xrmc_xmimsim);                                      
+                g_fprintf(stderr, "GModule error message: %s\n", g_module_error());
+                throw xrmc_exception("Could not get symbol xmi_msim_transmission_efficiency_read from module xrmc-xmimsim\n");
+        }
+    
+        if (xmi_msim_transmission_efficiency_read == NULL) {                                 
+                g_module_close(xrmc_xmimsim);
+                throw xrmc_exception("Symbol xmi_msim_transmission_efficiency_read from module xrmc-xmimsim is NULL\n");
+        }
+
+	size_t nefficiencies = 0;
+	double *energies = NULL;
+	double *efficiencies = NULL;
+	GError *error = NULL;
+
+	if (!TransmissionEfficiencyFile.empty()) {
+		if (!xmi_msim_transmission_efficiency_read(TransmissionEfficiencyFile.c_str(), &nefficiencies, &energies, &efficiencies, &error)) {
+			g_fprintf(stderr, "xmi_msim_transmission_efficiency_read error: %s\n", error->message);
+			throw xrmc_exception("Error when calling xmi_msim_transmission_efficiency_read\n");
+		}
+		if (energies[nefficiencies - 1] < TubeVoltage)
+			throw xrmc_exception("TubeVoltage must be less than highest energy in transmission energy file\n");
+	}
+
         if (xmi_msim_tube_ebel(anode, window, filter, TubeVoltage,
                   TubeCurrent, ElectronAngle,
                   XrayAngle, IntervalWidth,
                   1.0, TransmissionFlag,
+                  nefficiencies, energies, efficiencies,
                   &exc) == 0)
                 throw xrmc_exception("Error in xmi_msim_tube_ebel\n");
+
+	g_free(energies);
+	g_free(efficiencies);
 
 	//copy everything to spectrum members
 	LineEne = new double[exc->n_discrete];

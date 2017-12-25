@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_gettoken.h"
 #include "xrmc_exception.h"
 #include <xraylib.h>
+#include <unistd.h>
 
 using namespace std;
 using namespace gettoken;
@@ -136,6 +137,12 @@ int spectrum_ebel::Load(istream &fs)
 	if (WindowThickness <= 0.0)
 		throw xrmc_exception("WindowThickness must be a strictly positive real number\n");
 	else cout << "WindowThickness" << "\t" << WindowThickness << endl;
+    }
+    else if (comm == "TransmissionEfficiencyFile") {
+	GetToken(fs, TransmissionEfficiencyFile);
+	if (access(TransmissionEfficiencyFile.c_str(), R_OK) != 0)
+		throw xrmc_exception("TransmissionEfficiencyFile is not readable\n");
+	else cout << "TransmissionEfficiencyFile" << "\t" << TransmissionEfficiencyFile << endl;
     }
     else if(comm=="Resample") { // resample continuous part of spectrum
       	GetIntToken(fs, &ResampleFlag);

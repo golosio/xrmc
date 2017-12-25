@@ -23,11 +23,11 @@
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define MY_HOME "C:\msys64\home\schoon\"
 !define MY_MINGW "C:\msys64\mingw64\"
-!define XRAYLIB_VERSION "3.2.0"
-!define XRAYLIB_VERSION_MIN "3.2.0"
+!define XRAYLIB_VERSION "3.3.0"
+!define XRAYLIB_VERSION_MIN "3.3.0"
 
-!define XMI_MSIM_VERSION "6.0"
-!define XMI_MSIM_VERSION_MIN "6.0"
+!define XMI_MSIM_VERSION "7.1"
+!define XMI_MSIM_VERSION_MIN "7.1"
 
 
 
@@ -179,7 +179,7 @@ File "${MY_HOME}github\xrmc\build\xrmc-${VERSION}.tar.gz"
 
 ;documentation
 SetOutPath "$INSTDIR\Doc"
-File "${MY_HOME}\install\share\doc\xrmc\xrmc_${VERSION}_man.pdf"
+File "${MY_HOME}\install\share\doc\xrmc\xrmc_man.pdf"
 
 ;registry modifications
 WriteRegStr HKLM "Software\${PRODUCT_NAME}" "InstallationDirectory" "$INSTDIR"
@@ -398,6 +398,7 @@ ${EnvVarUpdate} $0 "XRMC_XMIMSIM_MODULE" "A" "HKLM" "$INSTDIR\Plugins"
 !insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}\install\share\examples\xrmc\xmi-msim2\sample.dat"
 !insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}\install\share\examples\xrmc\xmi-msim2\source.dat"
 !insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}\install\share\examples\xrmc\xmi-msim2\spectrum_ebel.dat"
+!insertmacro unix2dos "$INSTDIR\Examples\xmi-msim2" "${MY_HOME}\install\share\examples\xrmc\xmi-msim2\transmission-efficiency.txt"
 
 !insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}\install\share\examples\xrmc\radionuclide\composition.dat"
 !insertmacro unix2dos "$INSTDIR\Examples\radionuclide" "${MY_HOME}\install\share\examples\xrmc\radionuclide\detector.dat"
@@ -644,7 +645,7 @@ RmDir "$INSTDIR\Examples\fluor_layers"
 RmDir "$INSTDIR\Examples"
 
 ;documentation
-Delete "$INSTDIR\Doc\xrmc_${VERSION}_man.pdf"
+Delete "$INSTDIR\Doc\xrmc_man.pdf"
 RmDir "$INSTDIR\Doc"
 
 Delete "$INSTDIR\Uninstall.exe"

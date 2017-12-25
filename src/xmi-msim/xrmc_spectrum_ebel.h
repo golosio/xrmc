@@ -32,8 +32,17 @@ typedef int (*XmiMsimTubeEbel)(struct xmi_layer *tube_anode, struct xmi_layer *t
                   double tube_current, double tube_angle_electron,
                   double tube_angle_xray, double tube_delta_energy,
                   double tube_solid_angle, int tube_transmission,
+		  size_t tube_nefficiencies, double *tube_energies, double *tube_efficiencies,
                   struct xmi_excitation **ebel_spectrum
                   );
+
+typedef gboolean (*XmiMsimTransmissionEfficiencyRead)(
+		const char *filename,
+		size_t *nefficiencies,
+		double **energies,
+		double **efficiencies,
+		GError **error
+		);
 
 class spectrum_ebel : public spectrum 
 {
@@ -53,6 +62,7 @@ class spectrum_ebel : public spectrum
   double ElectronAngle;
   double XrayAngle;
   double IntervalWidth;
+  std::string TransmissionEfficiencyFile;
 
   spectrum_ebel(std::string dev_name);
   virtual int RunInit(); // initialize the spectrum before run

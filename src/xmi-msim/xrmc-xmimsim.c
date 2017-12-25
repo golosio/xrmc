@@ -54,6 +54,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	int i, j, k;
 	double *channels_conv_temp;
 	gchar *hdf5_file=NULL;
+	GError *error = NULL;
 
 	g_fprintf(stdout,"ModeNum: %i\n", ModeNum);
 	g_fprintf(stdout,"NBins: %i\n", NBins);
@@ -138,7 +139,8 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 			g_fprintf(stdout,"Precalculating escape peak ratios\n");
 		//doesn't exist yet
 		//convert input to string
-		if (xmi_write_input_xml_to_string(&xmi_input_string,input) == 0) {
+		if (xmi_write_input_xml_to_string(&xmi_input_string, input, &error) == 0) {
+			g_fprintf(stderr, "xmi_write_input_xml_to_string error: %s", error->message);
 			return 0;
 		}
 		xmi_escape_ratios_calculation(input, &escape_ratios_def, xmi_input_string,hdf5_file,options, xmi_get_default_escape_ratios_options());
@@ -207,13 +209,24 @@ G_MODULE_EXPORT int xmi_msim_tube_ebel(struct xmi_layer *tube_anode, struct xmi_
                   double tube_current, double tube_angle_electron,
                   double tube_angle_xray, double tube_delta_energy,
                   double tube_solid_angle, int tube_transmission,
+		  size_t tube_nefficiencies, double *tube_energies, double *tube_efficiencies,
                   struct xmi_excitation **ebel_spectrum
                   ) {
-	if (xmi_tube_ebel(tube_anode, tube_window, tube_filter, tube_voltage, tube_current, tube_angle_electron, tube_angle_xray, tube_delta_energy, tube_solid_angle, tube_transmission, ebel_spectrum) == 0) {
-		return 0;
-	}
-
-	return 1;
+	return xmi_tube_ebel(tube_anode, tube_window,
+				tube_filter, tube_voltage,
+				tube_current, tube_angle_electron,
+				tube_angle_xray, tube_delta_energy,
+				tube_solid_angle, tube_transmission,
+				tube_nefficiencies, tube_energies, tube_efficiencies,
+				ebel_spectrum);
 }
 
-
+G_MODULE_EXPORT gboolean xmi_msim_transmission_efficiency_read(const char *filename, size_t *nefficiencies, double **energies, double **efficiencies, GError **error) {
+	return xmi_transmission_efficiency_read(
+			filename,
+			nefficiencies,
+			energies,
+			efficiencies,
+			error
+			);
+}
