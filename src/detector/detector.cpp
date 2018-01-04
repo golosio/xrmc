@@ -263,6 +263,7 @@ int detectorarray::ForcedAcquisition(basesource **SourceClones,
 int detectorarray::UnforcedAcquisition(basesource **SourceClones,
 				       photon *PhotonArray)
 {
+  std::cout << "UnforcedAcquisition mode" << std::endl;
   int bin, mode_idx;
   vect3 Rp, DRp;
   double signal;
