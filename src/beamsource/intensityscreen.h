@@ -48,7 +48,7 @@ class intensityscreen : public xrmc_screen
   // Generates a random point on the screen
   vect3 RandomPoint(double &w, randmt_t *rng);
   // Evaluates the weigth for a given trajectory
-  int DirectionWeight(vect3 x0, vect3 u, double &w, randmt_t *rng);
+  int DirectionWeight(vect3 x0, vect3 u, double &w, randmt_t *rng, int InvertScreenAndSourceDirection);
 
   // int RunInit(); // initialize before run
   virtual intensityscreen *Clone(std::string dev_name);
