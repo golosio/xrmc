@@ -44,7 +44,7 @@ before_install:
       brew update || exit 1
       brew cleanup -s || exit 1
       rm -rf $(brew --cache) || exit 1
-      brew install pkg-config gettext autoconf automake libtool homebrew/science/xraylib || exit 1
+      brew install pkg-config gettext autoconf automake libtool tschoonj/tap/xraylib || exit 1
       brew install $BREW_EXTRA || exit 1
       brew cleanup -s || exit 1
       rm -rf $(brew --cache) || exit 1
