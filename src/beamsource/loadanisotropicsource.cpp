@@ -110,16 +110,11 @@ int anisotropicsource::Load(istream &fs)
       ui = R*ui; // rotate source ui direction
       X += x0; // translate back source position
     }
-    else if(comm=="InvertScreenAndSourceDirection") {
-      GetIntToken(fs, &InvertScreenAndSourceDirection);
-      if (InvertScreenAndSourceDirection)
-        cout << "Inverting Screen and Source Direction for a converging beam" << endl;
-    }
     else if(comm=="End") {
       break;
     }
     else if(comm=="") {
-      cout << "Empty string\n";
+      cout << "Empy string\n";
     }
     else {
       throw xrmc_exception("syntax error in source input file"); 

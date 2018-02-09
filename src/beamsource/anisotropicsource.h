@@ -76,7 +76,6 @@ class anisotropicsource : public basesource
   int SetPhotonAxes(photon *Photon, int pol);
   // probability per unit solid angle that a photon has direction vr
   //double POmega(vect3 vr);
-  int InvertScreenAndSourceDirection;
 
 };
 

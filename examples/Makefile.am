@@ -8,7 +8,6 @@ SUBDIRS = cylind_shell \
 	  fluor_layers \
 	  xmi-msim2 \
 	  anisotropicsource \
-	  anisotropicsource2 \
 	  beamsource \
 	  phasecontrast \
 	  radionuclide

@@ -133,7 +133,6 @@ AC_CONFIG_FILES([	Makefile
 			examples/xmi-msim2/Makefile
 			examples/fluor_layers/Makefile
 			examples/anisotropicsource/Makefile
-			examples/anisotropicsource2/Makefile
 			examples/beamsource/Makefile
 			examples/phasecontrast/Makefile
 			examples/radionuclide/Makefile

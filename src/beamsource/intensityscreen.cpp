@@ -127,7 +127,7 @@ vect3 intensityscreen::RandomPoint(double &w, randmt_t *rng)
 
 // Evaluates the weigth for a given trajectory
 int intensityscreen::DirectionWeight(vect3 x0, vect3 u, double &w,
-				     randmt_t *rng, int InvertScreenAndSourceDirection)
+				     randmt_t *rng)
 {
   int ix, iy;
   double tx, ty, t;

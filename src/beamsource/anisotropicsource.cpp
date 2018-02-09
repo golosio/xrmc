@@ -42,7 +42,6 @@ anisotropicsource::anisotropicsource(string dev_name) {
   InputDeviceCommand.push_back("IntensityScreenName");
   InputDeviceDescription.push_back("intensityscreen input device name");
   Rng = NULL;
-  InvertScreenAndSourceDirection = 0;
 
   SetDevice(dev_name, "anisotropicsource");
 }
@@ -134,12 +133,8 @@ int anisotropicsource::Out_Photon(photon *Photon)
   // ask intensityscreen device to extract photon endpoint
   vect3 r = IntensityScreen->RandomPoint(w1, Rng);
   // evaluates photon direction
-  if (InvertScreenAndSourceDirection) {
-    Photon->uk = Photon->x - r;
-    Photon->x = r; // photon position in intensityscreen!
-  }
-  else
-    Photon->uk = r - Photon->x;
+  Photon->uk = r - Photon->x; /////////////////////////////////////////////
+  ///////////////////////// change to give also the possibility to use r - X
 
   Photon->w = w0*w1*Spectrum->TotalIntensity;
   // define local photon axis directions based on direction and polarization
@@ -189,7 +184,7 @@ int anisotropicsource::Out_Photon_x1(photon *Photon, vect3 x1)
   vr.Normalize(); // normalized direction
   Photon->uk = vr; // update the photon direction
 
-  IntensityScreen->DirectionWeight(Photon->x, vr, w1, Rng, InvertScreenAndSourceDirection);
+  IntensityScreen->DirectionWeight(Photon->x, vr, w1, Rng);
 
   // multiply the event weight by the total beam intensity
   Photon->w = w0*w1*Spectrum->TotalIntensity;
@@ -221,7 +216,6 @@ basesource *anisotropicsource::Clone(string dev_name) {
 
 	clone->Spectrum = Spectrum->Clone(InputDeviceName[0]);
 	clone->IntensityScreen = IntensityScreen->Clone(InputDeviceName[1]);;
-	clone->InvertScreenAndSourceDirection = InvertScreenAndSourceDirection;
 
 	return dynamic_cast<basesource*>(clone);
 }
