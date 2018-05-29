@@ -98,10 +98,6 @@ typedef struct randmtstruct_t
     int mti;                   /**< current position in the state vector */
 } randmttype_t;
 
-/** \brief Global randmt_t, used with the global versions of the functions */
-randmt_t __randmt_global_generator = {{0}, MT_N + 1};
-
-
 /* Create a new randmt_t */
 randmt_t *new_randmt(void)
 {
@@ -179,8 +175,7 @@ void init_randmt_auto_r(randmt_t *generator)
         seed += tp.tv_usec;
     }
 #endif
-
-    init_randmt(seed);
+    init_randmt_r(generator, seed);
     return;
 }
 
