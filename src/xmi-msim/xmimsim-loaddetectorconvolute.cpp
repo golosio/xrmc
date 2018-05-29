@@ -204,6 +204,19 @@ int detectorconvolute::Load(istream &fs) {
       cout << "\tSaturate energies greater than Emax (0/1):"
 	   << SaturateEmax << "\n";
     }
+    else if(comm=="Seeds") { // seeds for random number generation
+      cout << "Seeds for random number generation\n";
+      int NS;
+      long l;
+      GetIntToken(fs, &NS);
+      cout << "\tNumber of seeds: " << NS << "\n";
+      Seeds.clear();
+      for (int i=0; i<NS; i++) {
+	GetLongToken(fs, &l);
+	cout << "\tThread n. " << i << " , Seed: " << l << "\n";
+	Seeds.push_back(l);
+      }
+    }
     else if(comm=="Rotate") { // detector rotation
       cout << "Detector rotation :\n"; 
       cout << "\tPoint on rotation axis x0:\t";
