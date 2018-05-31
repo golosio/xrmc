@@ -61,22 +61,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-#include <stdio.h>
+#define _CRT_RAND_S // for rand_s -> see https://msdn.microsoft.com/en-us/library/sxtz2fa8.aspx
 #include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>
 #include <math.h>
 #include <time.h>
 #include "randmt.h"
 
-/* Get the high-precision timer specified by POSIX.1-2001 if available */
-#if defined(USE_GETTIMEOFDAY) || defined(unix) || defined(__unix__) || defined(__unix)
-#include <unistd.h>
-#if defined(USE_GETTIMEOFDAY) || (defined(_POSIX_VERSION) && (_POSIX_VERSION >= 200112L))
 #include <sys/time.h>
-#define USE_GETTIMEOFDAY
-#endif
-#endif
 
 #ifndef M_LOGSQRT2PI
 /** \brief The constant \f$ \log \sqrt{2\pi} \f$ */
@@ -97,10 +90,6 @@ typedef struct randmtstruct_t
     unsigned long mt[MT_N];    /**< the array for the state vector       */    
     int mti;                   /**< current position in the state vector */
 } randmttype_t;
-
-/** \brief Global randmt_t, used with the global versions of the functions */
-randmt_t __randmt_global_generator = {{0}, MT_N + 1};
-
 
 /* Create a new randmt_t */
 randmt_t *new_randmt(void)
@@ -161,26 +150,26 @@ void init_randmt_r(randmt_t *generator, unsigned long seed)
 /* Initialize generator with the current time and memory address */
 void init_randmt_auto_r(randmt_t *generator)
 {
+#ifdef _WIN32
+    unsigned int seed;
+    if (rand_s(&seed) != 0)
+#else
+
     unsigned long int seed;
-
-    /* The basic (weak) initialization uses the current time, in seconds */
-    seed = (unsigned long int) time(NULL);
-    /* Add to the generator's memory address so that different generators 
-       use different seeds. */
-    seed += ((unsigned long int) generator);
-
-#if defined(USE_GETTIMEOFDAY)
-    /* gettimeofday() provides microsecond resolution */
-    {
-        struct timeval tp;
-        (void) gettimeofday(&tp, NULL);
-
-        seed *= 1000000;
-        seed += tp.tv_usec;
+    FILE *random_device = fopen("/dev/urandom","r");
+    if(random_device != NULL) {
+        fread(&seed, sizeof(unsigned long int), 1, random_device);
+	fclose(random_device);
     }
+    else
 #endif
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        seed = tv.tv_sec % tv.tv_usec;
+    }
 
-    init_randmt(seed);
+    init_randmt_r(generator, seed);
     return;
 }
 

@@ -59,16 +59,7 @@ int xrmc::LoadParams(istream &fs)
 			 "Seed command expected"); 
   else {
     GetLongToken(par_fs, &seed); // read the starting seed for random numbers
-    if (seed == 0) { // if it is zero use the time from system clock as seed
-      (void) time(&t1);
-      seed=(long)t1; // convert t1 to long type
-    } 
-    cout << "Random seed: " <<  seed << "\n";
-#ifndef _OPENMP
-    init_randmt(seed);
-#else
-    cout << "Operating in OpenMP mode: ignoring Seed\n";
-#endif
+    cout << "The Seed argument in the parameters file is now ignored. Use the detector input-file instead" << endl;
   }
 
   par_fs.close();
