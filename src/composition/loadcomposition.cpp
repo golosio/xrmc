@@ -102,7 +102,7 @@ int composition::Load(istream &fs)
 	}
 	else {
 		//modern mode: chemical formula
-		if ((cd = CompoundParser(comp.c_str())) == NULL){
+		if ((cd = CompoundParser(comp.c_str(), NULL)) == NULL){
    			throw xrmc_exception("Cannot parse compound\n");
 		}
 		int Zcd;
@@ -195,10 +195,10 @@ int composition::SetDefault()
 
   //add NIST compound database
   struct compoundDataNIST *cdn;
-  char **list = GetCompoundDataNISTList(NULL);
+  char **list = GetCompoundDataNISTList(NULL, NULL);
 
   for (int i = 0 ; list[i] != NULL ; i++) {
-	cdn = GetCompoundDataNISTByIndex(i);
+	cdn = GetCompoundDataNISTByIndex(i, NULL);
   	xrlFree(list[i]);
 	Ph[NPhases].NElem = cdn->nElements;
 	Ph[NPhases].Z = (int *) malloc(sizeof(int)*cdn->nElements);

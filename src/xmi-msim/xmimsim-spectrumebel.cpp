@@ -55,12 +55,12 @@ int spectrum_ebel::RunInit() {
 
 	LoadXrmcXmimsimPlugin();
 
-  	struct xmi_excitation *exc;
-  	struct xmi_layer *anode;
-  	struct xmi_layer *window = NULL;
-  	struct xmi_layer *filter = NULL;
+  	xmi_excitation *exc;
+  	xmi_layer *anode;
+  	xmi_layer *window = NULL;
+  	xmi_layer *filter = NULL;
 	//anode etc
-	anode = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
+	anode = (xmi_layer *) malloc(sizeof(xmi_layer));
 	anode->Z = (int *) malloc(sizeof(int));
 	anode->weight = (double *) malloc(sizeof(double));
 	anode->n_elements = 1;
@@ -71,7 +71,7 @@ int spectrum_ebel::RunInit() {
 
 	if (FilterDensity > 0.0 && FilterThickness > 0.0 && FilterMaterial > 0) {
 		cout << "Filter will be used for X-ray tube" << endl;
-		filter = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
+		filter = (xmi_layer *) malloc(sizeof(xmi_layer));
 		filter->Z = (int *) malloc(sizeof(int));
 		filter->weight = (double *) malloc(sizeof(double));
 		filter->n_elements = 1;
@@ -83,7 +83,7 @@ int spectrum_ebel::RunInit() {
 	
 	if (WindowDensity > 0.0 && WindowThickness > 0.0 && WindowMaterial > 0) {
 		cout << "Window will be used for X-ray tube" << endl;
-		window = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
+		window = (xmi_layer *) malloc(sizeof(xmi_layer));
 		window->Z = (int *) malloc(sizeof(int));
 		window->weight = (double *) malloc(sizeof(double));
 		window->n_elements = 1;

@@ -71,7 +71,7 @@ void sample::DopplerInit() {
   	cout << "Compton profile icdf for element: " << compZ[i] << endl;
   	trapez2_sum = 0.0;
 	for (j = 0 ; j < nintervals_pz-1 ; j++) {
-		trapez2[j] = (ComptonProfile(compZ[i], pzs[j])+ComptonProfile(compZ[i],pzs[j+1]))*(pzs[1]-pzs[0])/2.0/compZ[i];
+		trapez2[j] = (ComptonProfile(compZ[i], pzs[j], NULL)+ComptonProfile(compZ[i], pzs[j+1], NULL))*(pzs[1]-pzs[0])/2.0/compZ[i];
 		trapez2_sum += trapez2[j];
 	}
 

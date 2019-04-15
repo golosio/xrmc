@@ -83,21 +83,21 @@ int spectrum_ebel::Load(istream &fs)
     }
     else if (comm == "AnodeMaterial") {
     	GetToken(fs, material);
-	AnodeMaterial = SymbolToAtomicNumber((char *)material.c_str());
+	AnodeMaterial = SymbolToAtomicNumber(material.c_str(), NULL);
 	if (AnodeMaterial == 0) 
 		throw xrmc_exception("AnodeMaterial must be a chemical symbol\n");
 	else cout << "AnodeMaterial" << "\t" << AnodeMaterial << endl; 
     }
     else if (comm == "FilterMaterial") {
     	GetToken(fs, material);
-	FilterMaterial = SymbolToAtomicNumber((char *)material.c_str());
+	FilterMaterial = SymbolToAtomicNumber(material.c_str(), NULL);
 	if (FilterMaterial == 0) 
 		throw xrmc_exception("FilterMaterial must be a chemical symbol\n");
 	else cout << "FilterMaterial" << "\t" << FilterMaterial << endl; 
     }
     else if (comm == "WindowMaterial") {
     	GetToken(fs, material);
-	WindowMaterial = SymbolToAtomicNumber((char *)material.c_str());
+	WindowMaterial = SymbolToAtomicNumber(material.c_str(), NULL);
 	if (WindowMaterial == 0) 
 		throw xrmc_exception("WindowMaterial must be a chemical symbol\n");
 	else cout << "WindowMaterial" << "\t" << WindowMaterial << endl; 

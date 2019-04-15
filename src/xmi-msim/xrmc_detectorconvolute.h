@@ -24,14 +24,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <xmi_msim.h>
 #include <stdlib.h>
 
-typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***ConvolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX);
+typedef int (*XmiMsimDetectorConvolute) (double ***Image, double ***ConvolutedImage, xmi_layer *det_absorber, xmi_detector *xd, int ModeNum, int NBins, int NY, int NX);
 
 
 class detectorconvolute : public detectorarray
 {
  public:
-  struct xmi_detector *xd;
-  struct xmi_layer *det_absorber;
+  xmi_detector *xd;
+  xmi_layer *det_absorber;
   
   ~detectorconvolute(); //destructor
   detectorconvolute(string dev_name); //constructor

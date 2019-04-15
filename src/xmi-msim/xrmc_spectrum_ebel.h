@@ -27,13 +27,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_spectrum.h"
 #include <xmi_msim.h>
 
-typedef int (*XmiMsimTubeEbel)(struct xmi_layer *tube_anode, struct xmi_layer *tube_window,
-                  struct xmi_layer *tube_filter, double tube_voltage,
+typedef int (*XmiMsimTubeEbel)(xmi_layer *tube_anode, xmi_layer *tube_window,
+                  xmi_layer *tube_filter, double tube_voltage,
                   double tube_current, double tube_angle_electron,
                   double tube_angle_xray, double tube_delta_energy,
                   double tube_solid_angle, int tube_transmission,
 		  size_t tube_nefficiencies, double *tube_energies, double *tube_efficiencies,
-                  struct xmi_excitation **ebel_spectrum
+                  xmi_excitation **ebel_spectrum
                   );
 
 typedef gboolean (*XmiMsimTransmissionEfficiencyRead)(

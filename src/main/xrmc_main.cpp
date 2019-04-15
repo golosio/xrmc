@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <ctime>
 #include "xrmc.h"
-#include "xraylib.h"
 #include "xrmc_exception.h"
 
 using namespace std;
@@ -47,8 +46,6 @@ int main(int argc, char* argv[])
   
   try {
     Banner();
-    XRayInit(); // xraylib libraries initialization
-    SetErrorMessages(0);
     ReadArg(argc, argv); // check command line arguments
     cout << argv[argc-1] << "\n";
     

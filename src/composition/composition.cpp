@@ -72,7 +72,7 @@ int phase::Mu(double E)
 {
   double mu = 0;
   for (int i=0; i<NElem; i++) { // loop on all elements of the phase
-    MuAtom[i] = CS_Total(Z[i], E); // total cross section  for atomic num. Z
+    MuAtom[i] = CS_Total(Z[i], E, NULL); // total cross section  for atomic num. Z
     mu += W[i]*MuAtom[i]; // sum of C.S. weighted by the weight fractions
   }
   LastMu = mu*Rho; // linear absorption coefficient (Rho is the mass density)
@@ -86,8 +86,8 @@ int phase::Delta(double E)
   double delta = 0;
   for (int i=0; i<NElem; i++) {
     // for details about the calculation see references in the documentation
-    double num = W[i]*KD*(Z[i]+Fi(Z[i],E));
-    double denom = AtomicWeight(Z[i])*E*E;
+    double num = W[i]*KD*(Z[i]+Fi(Z[i],E,NULL));
+    double denom = AtomicWeight(Z[i],NULL)*E*E;
     // check that the denominator is not much smaller than numerator
     if (num+denom == num) delta = 0;
     else delta += num/denom;
