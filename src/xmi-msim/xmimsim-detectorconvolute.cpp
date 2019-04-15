@@ -70,8 +70,8 @@ detectorconvolute::detectorconvolute(string dev_name)
 
   SetDevice(dev_name, "detectorconvolute");
 
-  xd = (struct xmi_detector *) malloc(sizeof(struct xmi_detector));
-  xd->detector_type = -1;
+  xd = (xmi_detector *) malloc(sizeof(xmi_detector));
+  xd->detector_type = XMI_DETECTOR_CONVOLUTION_PROFILE_SILI;
   xd->live_time = 0.0;
   xd->pulse_width = 0.0;
   xd->gain = 0.0;
@@ -107,7 +107,7 @@ int detectorconvolute::RunInit() {
 		free(xd->crystal_layers);
 	}
 	xd->n_crystal_layers = 1;
-	xd->crystal_layers = (struct xmi_layer *) malloc(sizeof(struct xmi_layer)); 
+	xd->crystal_layers = (xmi_layer *) malloc(sizeof(xmi_layer)); 
 	xd->crystal_layers[0].n_elements = CrystalPhase->NElem;
 	xd->crystal_layers[0].Z = (int *) malloc(sizeof(int)*CrystalPhase->NElem); 
 	xd->crystal_layers[0].weight = (double *) malloc(sizeof(double)*CrystalPhase->NElem); 
@@ -122,7 +122,7 @@ int detectorconvolute::RunInit() {
 		free(det_absorber);
 	}
 	if (WindowPhase != NULL) {
-		det_absorber = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
+		det_absorber = (xmi_layer *) malloc(sizeof(xmi_layer));
 		det_absorber->n_elements = WindowPhase->NElem;
 		det_absorber->Z = (int *) malloc(sizeof(int)*WindowPhase->NElem);
 		det_absorber->weight = (double *) malloc(sizeof(double)*WindowPhase->NElem);

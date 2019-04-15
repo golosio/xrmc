@@ -260,12 +260,12 @@ int detectorconvolute::SetDefault() {
 	InputDeviceName[1] = "Composition";
 	CrystalPhaseName = "Crystal";
 	WindowPhaseName = "Window";
-	xd->detector_type = XMI_DETECTOR_SI_SDD;
+	xd->detector_type = XMI_DETECTOR_CONVOLUTION_PROFILE_SI_SDD;
 	xd->pulse_width = 0.0;
 	xd->fano = 0.12;
 	xd->noise = 0.1;
 	xd->n_crystal_layers = 1;
-	xd->crystal_layers = (struct xmi_layer *) malloc(sizeof(struct xmi_layer)); 
+	xd->crystal_layers = (xmi_layer *) malloc(sizeof(xmi_layer)); 
 	xd->crystal_layers[0].n_elements = 1;
 	xd->crystal_layers[0].Z = (int *) malloc(sizeof(int)); 
 	xd->crystal_layers[0].weight = (double *) malloc(sizeof(double)); 
@@ -274,7 +274,7 @@ int detectorconvolute::SetDefault() {
 	xd->crystal_layers[0].thickness = 0.5;
 	xd->crystal_layers[0].density = 2.33;
 
-	det_absorber = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
+	det_absorber = (xmi_layer *) malloc(sizeof(xmi_layer));
 	det_absorber->n_elements = 1;
 	det_absorber->Z = (int *) malloc(sizeof(int));
 	det_absorber->weight = (double *) malloc(sizeof(double));

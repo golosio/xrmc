@@ -32,24 +32,22 @@ G_MODULE_EXPORT int xmi_check_xrmc_xmimsim_plugin(void) {
 		return 0;
 	}
 	//load xml catalog
-	if (xmi_xmlLoadCatalog() == 0) {
+	if (xmi_xmlLoadCatalog(NULL) == 0) {
 		return 0;
 	}
 	g_fprintf(stdout,"XMI-MSIM XML catalog loaded\n");
-
-	SetErrorMessages(0);
 	return 1;
 }
 
 
-G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***ConvolutedImage, struct xmi_layer *det_absorber, struct xmi_detector *xd, int ModeNum, int NBins, int NY, int NX) {
+G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***ConvolutedImage, xmi_layer *det_absorber, xmi_detector *xd, int ModeNum, int NBins, int NY, int NX) {
 
 
-	struct xmi_main_options options = xmi_get_default_main_options();
-	struct xmi_escape_ratios *escape_ratios_def=NULL;
+	xmi_main_options *options = xmi_main_options_new();
+	xmi_escape_ratios *escape_ratios_def=NULL;
+	xmi_input *input = NULL;
 	char *xmi_input_string;
 	char *xmimsim_hdf5_escape_ratios = NULL;
-	struct xmi_input *input;
 	xmi_inputFPtr inputFPtr;
 	int i, j, k;
 	double *channels_conv_temp;
@@ -64,28 +62,28 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 
 	xmi_init_hdf5();
 
-	options.use_M_lines = 1;
-	options.use_cascade_auger = 1;
-	options.use_cascade_radiative = 1;
-	options.use_variance_reduction = 1;
-	options.use_sum_peaks = 0;
-	options.use_poisson = 0;
-	options.verbose = 1;
-	options.extra_verbose = 0;
-	options.omp_num_threads = omp_get_max_threads();
-	options.use_escape_peaks = 1;
+	options->use_M_lines = 1;
+	options->use_cascade_auger = 1;
+	options->use_cascade_radiative = 1;
+	options->use_variance_reduction = 1;
+	options->use_sum_peaks = 0;
+	options->use_poisson = 0;
+	options->verbose = 1;
+	options->extra_verbose = 0;
+	options->omp_num_threads = omp_get_max_threads();
+	options->use_escape_peaks = 1;
 
 	if (xd->pulse_width > 0.0)
-		options.use_sum_peaks = 1;
+		options->use_sum_peaks = 1;
 
 	xd->nchannels = NBins;
 
-	input = xmi_init_empty_input();
+	input = xmi_input_init_empty();
 
 	//modify input
 	//put in one layer into composition
 	input->composition->n_layers = 1;
-	input->composition->layers = (struct xmi_layer *) malloc(sizeof(struct xmi_layer));
+	input->composition->layers = (xmi_layer *) malloc(sizeof(xmi_layer));
 	input->composition->layers[0].n_elements = 1;
 	input->composition->layers[0].Z = (int *) malloc(sizeof(int));
 	input->composition->layers[0].weight = (double *) malloc(sizeof(double));
@@ -94,8 +92,8 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	input->composition->layers[0].density = 1;
 	input->composition->layers[0].thickness = 1;
 
-	xmi_free_absorbers(input->absorbers);
-	input->absorbers = (struct xmi_absorbers *) malloc(sizeof(struct xmi_absorbers));
+	xmi_absorbers_free(input->absorbers);
+	input->absorbers = (xmi_absorbers *) malloc(sizeof(xmi_absorbers));
 	input->absorbers->n_exc_layers = 0;
 	input->absorbers->exc_layers = NULL;
 	if (det_absorber != NULL) {
@@ -104,18 +102,12 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	}
 
 	//detector
-	if (input->detector->n_crystal_layers > 0) {
-		for (i = 0 ; i < input->detector->n_crystal_layers ; i++) 
-			xmi_free_layer(input->detector->crystal_layers+i);
-		free(input->detector->crystal_layers);
-	}
-
-	free(input->detector);
+	xmi_detector_free(input->detector);
 	input->detector = xd;
 
 
 	
-	xmi_print_input(stdout, input);
+	xmi_input_print(input, stdout);
 
 	//get full path to XMI-MSIM HDF5 data file
 	if (xmi_get_hdf5_data_file(&hdf5_file) == 0) {
@@ -128,18 +120,18 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	if (xmi_get_escape_ratios_file(&xmimsim_hdf5_escape_ratios, 1) == 0)
 		return 0;
 
-	if (options.verbose)
+	if (options->verbose)
 		g_fprintf(stdout,"Querying %s for escape peak ratios\n",xmimsim_hdf5_escape_ratios);
 
 	//check if escape ratios are already precalculated
 	if (xmi_find_escape_ratios_match(xmimsim_hdf5_escape_ratios , input, &escape_ratios_def, options) == 0)
 		return 0;
 	if (escape_ratios_def == NULL) {
-		if (options.verbose)
+		if (options->verbose)
 			g_fprintf(stdout,"Precalculating escape peak ratios\n");
 		//doesn't exist yet
 		//convert input to string
-		if (xmi_write_input_xml_to_string(&xmi_input_string, input, &error) == 0) {
+		if (!xmi_input_write_to_xml_string(input, &xmi_input_string, &error)) {
 			g_fprintf(stderr, "xmi_write_input_xml_to_string error: %s", error->message);
 			return 0;
 		}
@@ -147,10 +139,10 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 		//update hdf5 file
 		if (xmi_update_escape_ratios_hdf5_file(xmimsim_hdf5_escape_ratios , escape_ratios_def) == 0)
 			return 0;
-		else if (options.verbose)
+		else if (options->verbose)
 			g_fprintf(stdout,"%s was successfully updated with new escape peak ratios\n",xmimsim_hdf5_escape_ratios);
 	}
-	else if (options.verbose)
+	else if (options->verbose)
 		g_fprintf(stdout,"Escape peak ratios already present in %s\n",xmimsim_hdf5_escape_ratios);
 	xmi_input_C2F(input,&inputFPtr);
 
@@ -175,7 +167,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	      for (k = 0 ; k < NBins ; k++) {
 	        ConvolutedImage[i*NBins+k][iy][ix] = channels_conv_temp[k];
 	      }
-	      xmi_deallocate(channels_conv_temp);
+	      g_free(channels_conv_temp);
 	    }
 	  }
 	}
@@ -193,6 +185,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 
 	free(abscorrImage);
 	xmi_free_escape_ratios(escape_ratios_def);
+	xmi_main_options_free(options);
 	
 	//these next two lines need to see fixes first in XMI-MSIM
 	//before they can be used again
@@ -204,13 +197,13 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	return 1;
 }
 
-G_MODULE_EXPORT int xmi_msim_tube_ebel(struct xmi_layer *tube_anode, struct xmi_layer *tube_window,
-                  struct xmi_layer *tube_filter, double tube_voltage,
+G_MODULE_EXPORT int xmi_msim_tube_ebel(xmi_layer *tube_anode, xmi_layer *tube_window,
+                  xmi_layer *tube_filter, double tube_voltage,
                   double tube_current, double tube_angle_electron,
                   double tube_angle_xray, double tube_delta_energy,
                   double tube_solid_angle, int tube_transmission,
 		  size_t tube_nefficiencies, double *tube_energies, double *tube_efficiencies,
-                  struct xmi_excitation **ebel_spectrum
+                  xmi_excitation **ebel_spectrum
                   ) {
 	return xmi_tube_ebel(tube_anode, tube_window,
 				tube_filter, tube_voltage,
