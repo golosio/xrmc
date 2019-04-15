@@ -178,7 +178,7 @@ int detectorconvolute::CastInputDevices() {
 		*CrystalPhase = Composition->Ph[i_phase];
 	}
 	//and then the window phase
-	if (WindowPhase == NULL) {
+	if (WindowPhase == NULL && WindowPhaseName != "Vacuum") {
 		it2 = Composition->PhaseMap.find(WindowPhaseName);
 		if (it2 == Composition->PhaseMap.end())
 			throw xrmc_exception(string("Phase ") + WindowPhaseName
@@ -188,9 +188,6 @@ int detectorconvolute::CastInputDevices() {
 		//WindowPhase = &(Composition->Ph[i_phase]);
 		WindowPhase = new phase;
 		*WindowPhase = Composition->Ph[i_phase];
-	}
-	else if (WindowPhaseName == "Vacuum") {
-		WindowPhase = NULL;
 	}
 
   	//Init();  // initialize detectorconvolute

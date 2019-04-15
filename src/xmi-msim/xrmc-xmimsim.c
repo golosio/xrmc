@@ -91,6 +91,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	input->composition->layers[0].weight[0] = 1.0;
 	input->composition->layers[0].density = 1;
 	input->composition->layers[0].thickness = 1;
+	input->composition->reference_layer = 1;
 
 	xmi_absorbers_free(input->absorbers);
 	input->absorbers = (xmi_absorbers *) malloc(sizeof(xmi_absorbers));
