@@ -73,7 +73,7 @@ int radionuclide::Load(istream &fs)
     }
     else if (comm == "RadioNuclideSource") {
     	GetToken(fs, RadioNuclide);
-	rnd = GetRadioNuclideDataByName(RadioNuclide.c_str());
+	rnd = GetRadioNuclideDataByName(RadioNuclide.c_str(), NULL);
 	if (rnd != NULL) {
 		cout << "RadioNuclide set to " << RadioNuclide << endl;
 	}

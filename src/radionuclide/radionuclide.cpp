@@ -85,7 +85,7 @@ int radionuclide::RunInit() {
 	EneLineNum = rnd->nXrays+rnd->nGammas;
 	int i;
 	for (i = 0 ; i < rnd->nXrays ; i++) {
-		LineEne[i] = LineEnergy(rnd->Z_xray, rnd->XrayLines[i]);
+		LineEne[i] = LineEnergy(rnd->Z_xray, rnd->XrayLines[i], NULL);
 		LineSigma[i] = 0.0;
 		LineIntensity[0][i] = LineIntensity[1][i] = realActivity*rnd->XrayIntensities[i]/2.0;
 	}

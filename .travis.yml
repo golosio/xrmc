@@ -11,13 +11,14 @@ matrix:
   include:
     - os: linux
       dist: trusty
-      addons:
-        apt:
-          sources:
-            - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
-              key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
-          packages:
-            - libxrl7-dev
+      sudo: required
+      #addons:
+      #  apt:
+      #    sources:
+      #      - sourceline: 'deb [arch=amd64] http://xmi-apt.tomschoonjans.eu/ubuntu trusty stable'
+      #        key_url: 'http://xmi-apt.tomschoonjans.eu/xmi.packages.key'
+      #    packages:
+      #      - libxrl7-dev
     #- os: linux
     #  dist: trusty
     #  env: WITH_XMI_MSIM='yes' EXTRA_ARGS='--enable-xmi-msim'
@@ -47,11 +48,24 @@ before_install:
       brew update || exit 1
       brew cleanup -s || exit 1
       rm -rf $(brew --cache) || exit 1
-      brew install pkg-config gettext autoconf automake libtool tschoonj/tap/xraylib || exit 1
+      brew install git pkg-config gettext autoconf automake libtool || exit 1
       brew install $BREW_EXTRA || exit 1
       brew cleanup -s || exit 1
       rm -rf $(brew --cache) || exit 1
     fi
+    # build xraylib from git master
+    git clone --depth 1 https://github.com/tschoonj/xraylib.git || exit 1
+    cd xraylib
+    autoreconf -fi || exit 1
+    ./configure --disable-all-bindings || exit 1
+    make  || exit 1
+    make check || exit 1
+    if [ "$TRAVIS_OS_NAME" == "osx" ] ; then
+      make install || exit 1
+    else
+      sudo make install || exit 1
+    fi
+    cd ..
 
 script:
   - autoreconf -fi || exit 1

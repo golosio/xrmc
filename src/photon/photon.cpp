@@ -126,12 +126,12 @@ int photon::CSInteractions(int Z, double *cs_interaction, double *cs_tot)
   if (FluorFlag==1) { // check if fluorescence emission is activated
     for (i=0; i<NLines[Z]; i++) { // loop on possible fluorescence lines
       // cumulative sum of the line cross sections
-      cs_interaction[FLUORESCENCE] += CS_FluorLine_Kissel(Z, Line[Z][i], E);
+      cs_interaction[FLUORESCENCE] += CS_FluorLine_Kissel(Z, Line[Z][i], E, NULL);
     }
   }
   // coherent and incoherent cross sections
-  cs_interaction[COHERENT] = CS_Rayl(Z, E);
-  cs_interaction[INCOHERENT] = CS_Compt(Z, E);
+  cs_interaction[COHERENT] = CS_Rayl(Z, E, NULL);
+  cs_interaction[INCOHERENT] = CS_Compt(Z, E, NULL);
   // total interaction cross section
   *cs_tot = cs_interaction[FLUORESCENCE] + cs_interaction[COHERENT] +
     cs_interaction[INCOHERENT];
@@ -201,13 +201,13 @@ int photon::SetFluorescenceEnergy(int Z)
   sum = 0;
   cs_line_sum[0] = 0;
   for (i_line=0; i_line<NLines[Z]; i_line++) { // loop on fluorescent lines
-    sum += CS_FluorLine_Kissel(Z, Line[Z][i_line], E);
+    sum += CS_FluorLine_Kissel(Z, Line[Z][i_line], E, NULL);
     cs_line_sum[i_line+1] = sum; // cumulative sum of their cross sections
   }
   R = Rnd_r(Rng)*sum; // random number between 0 and total fluor. cross section
   Locate(R, cs_line_sum, NLines[Z], &i_line); // extract a line
 
-  E = LineEnergy(Z, Line[Z][i_line]); // fluorescent line energy
+  E = LineEnergy(Z, Line[Z][i_line], NULL); // fluorescent line energy
 
   return 0;
 }
@@ -266,16 +266,16 @@ int photon::Scatter(int Z, int interaction_type, vect3 v_r)
       break;
     case COHERENT :
       // the weight is the ratio between differential and total cross section
-      num = DCSP_Rayl(Z, E, theta, phi);
-      denom = CS_Rayl(Z, E);
+      num = DCSP_Rayl(Z, E, theta, phi, NULL);
+      denom = CS_Rayl(Z, E, NULL);
       if (num+denom==num) weight = 0; // check for division overflow
       else weight = num/denom;
       break;
     case INCOHERENT :
       if (theta<th_min) theta=th_min;
       // the weight is the ratio between differential and total cross section
-      num = DCSP_Compt(Z, E, theta, phi);
-      denom = CS_Compt(Z, E);
+      num = DCSP_Compt(Z, E, theta, phi, NULL);
+      denom = CS_Compt(Z, E, NULL);
       if (num+denom==num) weight = 0; // check for division overflow
       else weight = num/denom;
       //E = ComptonEnergy(E, theta); // update the photon energy
@@ -336,8 +336,8 @@ int photon::Coherent(int Z)
   cos_theta = 2*Rnd_r(Rng)-1;   // random polar angles theta and phi with uniform
   theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
   phi = 2*PI*Rnd_r(Rng);
-  double num = 4.*PI*DCSP_Rayl(Z, E, theta, phi); // differential cross section
-  double denom = CS_Rayl(Z, E); // total cross section
+  double num = 4.*PI*DCSP_Rayl(Z, E, theta, phi, NULL); // differential cross section
+  double denom = CS_Rayl(Z, E, NULL); // total cross section
   if (num+denom==num) weight = 0; // check for division overflow
   else weight = num/denom;
   w *= weight; // update the event weight
@@ -361,8 +361,8 @@ int photon::Incoherent(int Z)
   theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
   if (theta<th_min) theta=th_min;
   phi = 2*PI*Rnd_r(Rng);
-  double num = 4.*PI*DCSP_Compt(Z, E, theta, phi); // differential cross section
-  double denom = CS_Compt(Z, E); // total cross section
+  double num = 4.*PI*DCSP_Compt(Z, E, theta, phi, NULL); // differential cross section
+  double denom = CS_Compt(Z, E, NULL); // total cross section
   if (num+denom==num) weight = 0; // check for division overflow
   else weight = num/denom;
   w *= weight; // update the event weight
