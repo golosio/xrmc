@@ -30,16 +30,19 @@ matrix:
     #        - libxmimsim0-dev
     #        - libgsl0-dev # this line shouldn't be here and is an error in the fgsl debbuild files...
     - os: osx
+      osx_image: xcode9.2
       sudo: required
       env: BREW_EXTRA='llvm' CC='/usr/local/opt/llvm/bin/clang' CXX='/usr/local/opt/llvm/bin/clang++'
     - os: osx
+      osx_image: xcode9.2
       sudo: required
-      env: BREW_EXTRA='gcc@7' CC='/usr/local/opt/gcc@7/bin/gcc-7' CXX='/usr/local/opt/gcc@7/bin/g++-7'
+      env: BREW_EXTRA='gcc@8' CC='/usr/local/bin/gcc-8' CXX='/usr/local/bin/g++-8'
 
 before_install:
   - |
     if [ "$TRAVIS_OS_NAME" == "osx" ] ; then
-      brew cask uninstall --force oclint
+      rm -rf $(brew --prefix)/lib/python*
+      rm -rf $(brew --prefix)/bin/f2py*
       brew uninstall --force --ignore-dependencies $(brew list) || exit 1
       brew update || exit 1
       brew cleanup -s || exit 1
