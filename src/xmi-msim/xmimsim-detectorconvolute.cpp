@@ -113,6 +113,13 @@ int detectorconvolute::RunInit() {
 	xd->crystal_layers[0].weight = (double *) malloc(sizeof(double)*CrystalPhase->NElem); 
 	memcpy(xd->crystal_layers[0].Z, CrystalPhase->Z, sizeof(int)*CrystalPhase->NElem);
 	memcpy(xd->crystal_layers[0].weight, CrystalPhase->W, sizeof(double)*CrystalPhase->NElem);
+	double s = 0;
+	for (int i=0; i<xd->crystal_layers[0].n_elements; i++) {
+	    s += xd->crystal_layers[0].weight[i];
+	}
+	for (int i=0; i<xd->crystal_layers[0].n_elements; i++) {
+	    xd->crystal_layers[0].weight[i] /= s;
+	}
 	xd->crystal_layers[0].thickness = CrystalThickness;
 	xd->crystal_layers[0].density = CrystalPhase->Rho;
 
@@ -128,6 +135,13 @@ int detectorconvolute::RunInit() {
 		det_absorber->weight = (double *) malloc(sizeof(double)*WindowPhase->NElem);
 		memcpy(det_absorber->Z, WindowPhase->Z,sizeof(int)*WindowPhase->NElem);
 		memcpy(det_absorber->weight, WindowPhase->W,sizeof(double)*WindowPhase->NElem);
+		double s = 0;
+		for (int i=0; i<det_absorber->n_elements; i++) {
+		    s += det_absorber->weight[i];
+		}
+		for (int i=0; i<det_absorber->n_elements; i++) {
+		    det_absorber->weight[i] /= s;
+		}
 		det_absorber->thickness = WindowThickness;
 		det_absorber->density = WindowPhase->Rho;
 	}
