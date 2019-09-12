@@ -130,23 +130,24 @@ int beamsource::SetPhotonAxes(photon *Photon, int pol)
 // Generate an event with a photon starting from the source
 // and forced to be directed toward the position x1
 //////////////////////////////////////////////////////////////////////
-int beamsource::Out_Photon_x1(photon *Photon, vect3 x1)
+int beamsource::Out_Photon_x1(photon *Photon, vect3 x1, vect3 *prev_x)
 {
   double E, w;
   int pol;
 
-  Photon->x = X; // starting photon position is the source position
+  *prev_x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
-      Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
+      *prev_x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
         + uk*Sigmaz*GaussRnd_r(Rng);
   }
-  vect3 vr = x1 - Photon->x; //relative position
+  vect3 vr = x1 - *prev_x; //relative position
   double r = vr.Mod();
   if (r<Rlim) r = Rlim;
   vr.Normalize(); // normalized direction
   Photon->uk = vr; // update the photon direction
-
-  if (BeamScreen->RandomEnergy(Photon->x, vr, E, pol, w, Rng)) {
+  Photon->x = x1;
+  
+  if (BeamScreen->RandomEnergy(*prev_x, vr, E, pol, w, Rng)) {
     Photon->E = E;
     // multiply the event weight by the total beam intensity
     Photon->w = w*BeamScreen->TotalIntensity/(r*r);

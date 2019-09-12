@@ -325,29 +325,30 @@ double source::CosThLxy(double x, double y)
 // Generate an event with a photon starting from the source
 // and forced to be directed toward the position x1
 //////////////////////////////////////////////////////////////////////
-int source::Out_Photon_x1(photon *Photon, vect3 x1)
+int source::Out_Photon_x1(photon *Photon, vect3 x1, vect3 *prev_x)
 {
   double E, w;
   int pol;
- 
-  Photon->x = X; // starting photon position is the source position
+
+  *prev_x = X; // starting photon position is the source position
   if (SizeFlag != 0) {  // plus gaussian deviations
     //if (Rng == NULL)
     //  Photon->x += ui*Sigmax*GaussRnd() + uj*Sigmay*GaussRnd()
     //    + uk*Sigmaz*GaussRnd();
     //else
-      Photon->x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
+      *prev_x += ui*Sigmax*GaussRnd_r(Rng) + uj*Sigmay*GaussRnd_r(Rng)
         + uk*Sigmaz*GaussRnd_r(Rng);
   }
   // ask spectrum device to extrace the photon energy and polarization
   Spectrum->ExtractEnergy(&w, &E, &pol);
   Photon->E = E;
 
-  vect3 vr = x1 - Photon->x; //relative position
+  vect3 vr = x1 - *prev_x; //relative position
   double r = vr.Mod();
   if (r<Rlim) r = Rlim;
   vr.Normalize(); // normalized direction
   Photon->uk = vr; // update the photon direction
+  Photon->x = x1;
 
   // multiply the event weight by the total beam intensity
   // and by the probability that it has the direction uk per unit solid angle

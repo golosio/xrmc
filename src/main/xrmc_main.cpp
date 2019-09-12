@@ -25,9 +25,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <iostream>
 #include <ctime>
+
+//////////////////////////////////////////////
+// temp remove!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#include <cmath>
+//////////////////////////////////////////////
+
 #include "xrmc.h"
 #include "xraylib.h"
 #include "xrmc_exception.h"
+#include "xrmc_photon.h"
 
 using namespace std;
 
@@ -48,6 +55,53 @@ int main(int argc, char* argv[])
   try {
     Banner();
     XRayInit(); // xraylib libraries initialization
+    cout << "Initializing scattering generator...\n";
+    scatter::Init(); // init scattering generator
+    cout << "Done\n";
+    
+    //////////////////////////////////////
+    //TEMP REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!
+    /*
+    int Z = 8;
+    int Nx=360;
+    double dx=PI/Nx;
+    double *hist = new double[Nx];
+    double *histw = new double[Nx];
+    for (int i=0; i<Nx; i++) {
+      hist[i] = 0;
+      histw[i] = 0;
+    }
+    double phi0=PI/4;
+    double phi1=PI/4 + PI/90;
+  
+    double E = 35;
+
+    randmt_t *rng = new_randmt();
+    //init_randmt_auto_r(rng);
+    for (int i=0; i<100000000; i++) {
+      //for (int i=0; i<10; i++) {
+      double th;
+      double phi;
+      double w;
+      scatter::ComptScatter(Z, E, &th, &phi, &w, rng);
+      
+      if (phi>=phi0 && phi<phi1) {
+	int ix = (int)floor(th/dx);
+	hist[ix] += 1.0;
+	histw[ix] += w;
+      }
+      //cout << th << " " << phi << " " << w << endl;
+    }
+    
+    double phi = 0.5*(phi0 + phi1);
+    for (int i=0; i<Nx; i++) {
+      double th = dx*(0.5 + i);
+      cout << th << "\t" << hist[i] << "\t" << histw[i] << "\t"
+	   << DCSP_Compt(Z, E, th, phi) << endl;
+    }
+    */
+    //////////////////////////////////////
+    
     SetErrorMessages(0);
     ReadArg(argc, argv); // check command line arguments
     cout << argv[argc-1] << "\n";

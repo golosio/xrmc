@@ -39,6 +39,117 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 using namespace xrmc_algo;
 
+int scatter::Init()
+{
+  WeightedScattering = 0;
+  DCSP_Compt_arr = new double[(NZ+1)*NE*Nth*Nphi];
+  DCSP_Compt_cum = new double[(NZ+1)*NE*(Nth*Nphi + 1)];
+  DCSP_Rayl_arr = new double[(NZ+1)*NE*Nth*Nphi];
+  DCSP_Rayl_cum = new double[(NZ+1)*NE*(Nth*Nphi + 1)];
+
+  for (int Z=1; Z<=NZ; Z++) {
+    for(int iE=0; iE<NE; iE++) {
+      double E = Emin + DE*(0.5 + iE);
+      DCSP_Compt_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)] = 0;
+      DCSP_Rayl_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)] = 0;
+      for(int ith=0; ith<Nth; ith++) {
+	double th = Dth*(0.5 + ith);
+	for(int iphi=0; iphi<Nphi; iphi++) {
+	  double phi = Dphi*(0.5 + iphi);
+	  double valC = DCSP_Compt(Z, E, th, phi);
+	  double valR = DCSP_Rayl(Z, E, th, phi);
+	  DCSP_Compt_arr[Z*NE*Nth*Nphi + iE*Nth*Nphi + ith*Nphi + iphi]
+	    = valC;
+	  DCSP_Compt_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)
+			 + ith*Nphi + iphi + 1]
+	    = DCSP_Compt_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)
+			     + ith*Nphi + iphi] + valC;
+
+	  DCSP_Rayl_arr[Z*NE*Nth*Nphi + iE*Nth*Nphi + ith*Nphi + iphi]
+	    = valR;
+	  DCSP_Rayl_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)
+			 + ith*Nphi + iphi + 1]
+	    = DCSP_Rayl_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)
+			     + ith*Nphi + iphi] + valR;
+	}
+      }
+      double normC = DCSP_Compt_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)
+				   + Nth*Nphi];
+      double normR = DCSP_Rayl_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)
+				   + Nth*Nphi];
+      DCSP_Compt_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1) + Nth*Nphi] = 1.0;
+      DCSP_Rayl_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1) + Nth*Nphi] = 1.0;
+      for(int ith=0; ith<Nth; ith++) {
+	for(int iphi=0; iphi<Nphi; iphi++) {
+	  DCSP_Compt_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1) + ith*Nphi
+			 + iphi] /= normC;
+	  DCSP_Rayl_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1) + ith*Nphi
+			 + iphi] /= normR;
+	}
+      }
+    }
+  }
+  
+  return 0;
+}
+
+int scatter::ComptScatter(int Z, double E, double *th, double *phi, double *w,
+			  randmt_t *rng)
+{
+  if (E<Emin) {
+    E = Emin;
+  }
+  int iE = (int)floor(E - Emin)/DE;
+  if (iE>=NE) {
+    iE = NE - 1;
+  }
+  
+  double R = -1.0 + 2.0*Rnd_r(rng);
+  int idx;
+  Locate(fabs(R), &DCSP_Compt_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)],
+	 Nth*Nphi + 1, &idx);
+  int ith = idx / Nphi;
+  int iphi = idx % Nphi;
+  *th = Dth*(Rnd_r(rng) + ith);
+  *phi = Dphi*(Rnd_r(rng) + iphi);
+  if (R < 0) {
+    *phi = 2.0*PI - *phi;
+  }
+  *w = DCSP_Compt(Z, E, *th, *phi)
+    / DCSP_Compt_arr[Z*NE*Nth*Nphi + iE*Nth*Nphi + ith*Nphi + iphi];
+
+  return 0;
+}
+
+int scatter::RaylScatter(int Z, double E, double *th, double *phi, double *w,
+			  randmt_t *rng)
+{
+  if (E<Emin) {
+    E = Emin;
+  }
+  int iE = (int)floor(E - Emin)/DE;
+  if (iE>=NE) {
+    iE = NE - 1;
+  }
+
+  double R = -1.0 + 2.0*Rnd_r(rng);
+  int idx;
+  Locate(fabs(R), &DCSP_Rayl_cum[Z*NE*(Nth*Nphi + 1) + iE*(Nth*Nphi + 1)],
+	 Nth*Nphi + 1, &idx);
+  int ith = idx / Nphi;
+  int iphi = idx % Nphi;
+  *th = Dth*(Rnd_r(rng) + ith);
+  *phi = Dphi*(Rnd_r(rng) + iphi);
+  if (R < 0) {
+    *phi = 2.0*PI - *phi;
+  }
+  *w = DCSP_Rayl(Z, E, *th, *phi)
+    / DCSP_Rayl_arr[Z*NE*Nth*Nphi + iE*Nth*Nphi + ith*Nphi + iphi];
+
+  return 0;
+}
+
+
 int photon::FluorFlag; // flag for fluorescent emission activation 
 
 //////////////////////////////////////////////////////////////////////
@@ -106,6 +217,48 @@ int photon::MonteCarloStep(sample *Sample, int *iZ, int *iType)
   if (interaction_type == FLUORESCENCE) SetFluorescenceEnergy(Z);
   *iZ = Z; // atomic species that the photon interact with
   *iType = interaction_type;
+
+  return 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// Same as previous method
+// for energy deposition
+//////////////////////////////////////////////////////////////////////
+int photon::MonteCarloStep(sample *Sample, int *iZ, int *iType,
+			   double *Edep)
+{
+  double step_length, weight;
+  int step_idx, interaction_type, Z; 
+  *Edep = 0;
+  
+  // evaluates the intersections of the photon trajectory with
+  // the phases inside the sample and the absorption coefficient
+  // at each step
+  Sample->LinearAbsorption(x, uk);
+  if (Sample->Path->NSteps==0) { // check if it does not intersect any object
+    w = 0;
+    return 0; 
+  }
+
+  // Check if the flag for weighted step length is activated. In this case,
+  // extract the next interaction position using the weighted event approach
+  if (Sample->WeightedStepLength == 1) 
+    step_length = Sample->Path->WeightedStepLength(&step_idx, &weight);
+  else // otherwise use the standard MC approach 
+    step_length = Sample->Path->StepLength(&step_idx, &weight);
+
+  w *= weight; // update the event weight
+  if (w==0) return 0;
+
+  // move the photon in the direction uk by a distance step_length
+  MoveForward(step_length);
+
+  double mu_x1;
+  Sample->Path->NSteps = step_idx + 1;
+  Sample->Path->iPh1[step_idx] = Sample->Path->iPh0[step_idx];
+  EnergyDeposition(Sample, iZ, iType, &mu_x1, Edep);
 
   return 0;
 }
@@ -408,11 +561,11 @@ int photon::Scatter(int Z, int interaction_type)
 // In this case, the photon is forced to go in the direction v_r
 // Update the photon direction, polarization and energy
 //////////////////////////////////////////////////////////////////////
-int photon::Scatter(int Z, int interaction_type, vect3 v_r)
+int photon::Scatter(int Z, int *interaction_type, vect3 v_r)
 {
   const double th_min=1e-10;
   vect3 rel_r;
-  double r, theta, phi, weight, num, denom;
+  double r, theta, phi, weight, dcs_compt, dcs_rayl, cs_sum, dcs_sum;
   char s[3];
 
   // evaluates the components of the new direction v_r
@@ -422,35 +575,38 @@ int photon::Scatter(int Z, int interaction_type, vect3 v_r)
   // in the local coordinate system of the photon
   rel_r.CartesianToPolar(&r, &theta, &phi); 
 
-  switch (interaction_type)
-    {
-    case FLUORESCENCE :
-      weight = 1 / (4*PI); // isotropic angular distribution
-      break;
-    case COHERENT :
-      // the weight is the ratio between differential and total cross section
-      num = DCSP_Rayl(Z, E, theta, phi);
-      denom = CS_Rayl(Z, E);
-      if (num+denom==num) weight = 0; // check for division overflow
-      else weight = num/denom;
-      break;
-    case INCOHERENT :
-      if (theta<th_min) theta=th_min;
-      // the weight is the ratio between differential and total cross section
-      num = DCSP_Compt(Z, E, theta, phi);
-      denom = CS_Compt(Z, E);
-      if (num+denom==num) weight = 0; // check for division overflow
-      else weight = num/denom;
-      //E = ComptonEnergy(E, theta); // update the photon energy
-      ComptonEnergyDoppler(Z, theta);
-      break;
-    default :
-      sprintf(s, "%d", interaction_type);
-      throw xrmc_exception(string("Wrong Interaction Type Index: ")
-			   + s + "\n");
+  if (*interaction_type==FLUORESCENCE) {
+    weight = 1 / (4*PI); // isotropic angular distribution
+  }
+  else if (*interaction_type==COHERENT || *interaction_type==INCOHERENT) {
+    if (theta<th_min) theta=th_min;
+    dcs_compt = DCSP_Compt(Z, E, theta, phi);
+    dcs_rayl = DCSP_Rayl(Z, E, theta, phi);
+    // the weight is the ratio between differential and total cross section
+    dcs_sum = dcs_compt + dcs_rayl;
+    cs_sum = CS_Compt(Z, E) + CS_Rayl(Z, E);
+    if (dcs_sum+cs_sum==dcs_sum) weight = 0; // check for division overflow
+    else {
+      weight = dcs_sum/cs_sum;
+      double R = Rnd_r(Rng)*dcs_sum; // random number between 0 and dcs_sum
+      // determine in which of the two intervals the random number is comprised
+      // and return the index of the interval
+      if (R < dcs_rayl) {
+	*interaction_type = COHERENT;
+      }
+      else {
+	*interaction_type = INCOHERENT;
+	//E = ComptonEnergy(E, theta); // update the photon energy
+	ComptonEnergyDoppler(Z, theta);
+      }
     }
+  }
+  else {
+    sprintf(s, "%d", *interaction_type);
+    throw xrmc_exception(string("Wrong Interaction Type Index: ") + s + "\n");
+  }
   w *= weight; // update the weight
-
+  
   return 0;
 }
 
@@ -488,47 +644,60 @@ int photon::Fluorescence()
 
 //////////////////////////////////////////////////////////////////////
 // Coherent scattering
-// Weighted event method
-// The photon is emitted with random direction weighted with a weight
-// proportional to the differential cross section
 //////////////////////////////////////////////////////////////////////
 int photon::Coherent(int Z)
 {
   double theta, phi, cos_theta, weight;
 
-  cos_theta = 2*Rnd_r(Rng)-1;   // random polar angles theta and phi with uniform
-  theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
-  phi = 2*PI*Rnd_r(Rng);
-  double num = 4.*PI*DCSP_Rayl(Z, E, theta, phi); // differential cross section
-  double denom = CS_Rayl(Z, E); // total cross section
-  if (num+denom==num) weight = 0; // check for division overflow
-  else weight = num/denom;
+  // Weighted event method
+  // The photon is emitted with random direction weighted with a weight
+  // proportional to the differential cross section
+  if (scatter::WeightedScattering==1) {
+    cos_theta = 2*Rnd_r(Rng)-1;   // random polar angles theta and phi with uniform
+    theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
+    phi = 2*PI*Rnd_r(Rng);
+    double num = 4.*PI*DCSP_Rayl(Z, E, theta, phi); // diff. cross section
+    double denom = CS_Rayl(Z, E); // total cross section
+    if (num+denom==num) weight = 0; // check for division overflow
+    else weight = num/denom;
+  }
+  else { // Method with inverse cumulative distribution function
+    scatter::RaylScatter(Z, E, &theta, &phi, &weight, Rng);
+  }
+  
   w *= weight; // update the event weight
   ChangeDirection(theta, phi);  // update the photon direction
-
+  
   return 0;
 }
 
 //////////////////////////////////////////////////////////////////////
 // Coherent scattering
-// Weighted event method
-// The photon is emitted with random direction weighted with a weight
-// proportional to the differential cross section
 //////////////////////////////////////////////////////////////////////
 int photon::Incoherent(int Z)
 {
   const double th_min=1e-10;
   double theta, phi, cos_theta, weight;
 
-  cos_theta = 2*Rnd_r(Rng)-1;   // random polar angles theta and phi with uniform
-  theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
-  if (theta<th_min) theta=th_min;
-  phi = 2*PI*Rnd_r(Rng);
-  double num = 4.*PI*DCSP_Compt(Z, E, theta, phi); // differential cross section
-  double denom = CS_Compt(Z, E); // total cross section
-  if (num+denom==num) weight = 0; // check for division overflow
-  else weight = num/denom;
+  // Weighted event method
+  // The photon is emitted with random direction weighted with a weight
+  // proportional to the differential cross section
+  if (scatter::WeightedScattering==1) {
+    cos_theta = 2*Rnd_r(Rng)-1;   // random polar angles theta and phi with uniform
+    theta = acos(cos_theta); //  distribution on the whole 4*PI solid angle
+    if (theta<th_min) theta=th_min;
+    phi = 2*PI*Rnd_r(Rng);
+    double num = 4.*PI*DCSP_Compt(Z, E, theta, phi); // diff. cross section
+    double denom = CS_Compt(Z, E); // total cross section
+    if (num+denom==num) weight = 0; // check for division overflow
+    else weight = num/denom;
+  }
+  else { // Method with inverse cumulative distribution function
+    scatter::ComptScatter(Z, E, &theta, &phi, &weight, Rng);
+  }
+
   w *= weight; // update the event weight
+  // to disable doppler broad. uncomment the following and comment the next 
   //E = ComptonEnergy(E, cos(theta)); // update the photon energy
   ComptonEnergyDoppler(Z, theta);
 

@@ -140,18 +140,24 @@ class sample : public basesource
   int PhotonHistory(photon *Photon, int &Z, int &interaction_type,
 		    int scatt_order);
   // generate an event with a photon forced to end on the point x1
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1);
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order);
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx);
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1,
-			    double *Edep);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, vect3 *prev_x);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order,
+			    vect3 *prev_x);
   virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
-			    double *mu_x1, double *Edep);
+			    vect3 *prev_x);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1,
+			    double *Edep, vect3 *prev_x);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
+			    double *mu_x1, double *Edep, vect3 *prev_x);
   // simulates an event up to the last interaction point
   virtual int Out_Photon(photon *Photon);
   virtual int Out_Photon(photon *Photon, int *ModeIdx);
+
+  virtual int Out_Photon(photon *Photon, double *Edep);
+  virtual int Out_Photon(photon *Photon, int *ModeIdx, double *Edep);
+
   virtual int Out_Phase_Photon_x1(photon *Photon, vect3 x1, double &muL,
-				  double &deltaL);
+				  double &deltaL, vect3 *prev_x);
   virtual double GetPhC_E0();
   virtual int PhCOn();
   virtual int PhCOff();

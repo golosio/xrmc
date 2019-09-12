@@ -92,6 +92,9 @@ class detectorarray3d : public bodydevice
                                    // on the pixel surface
   //int Poisson(); // generate uncertainty on voxel count using Poisson statistic
   int Poisson(randmt_t *rng); // generate uncertainty on voxel count using Poisson statistic
+// Check if point is inside the detector
+  bool inVoxel(vect3 x, int *ix, int *iy, int *iz,
+	      double *tx, double *ty, double *tz);
 
 // run the forced/unforced acquisition
   int ForcedAcquisition(basesource **SourceClones, photon *PhotonArray,

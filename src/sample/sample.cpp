@@ -304,10 +304,11 @@ int sample::ModeNum()
 // generate an event with a photon forced to end on the point x1
 // and using ModeIdx orders of scattering
 //////////////////////////////////////////////////////////////////////
-int sample::Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx)
+int sample::Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
+			  vect3 *prev_x)
 {
   *ModeIdx = ScattOrderIdx; // set the scattering order
-  return Out_Photon_x1(Photon, x1); // generate the event
+  return Out_Photon_x1(Photon, x1, prev_x); // generate the event
 }
 
 
@@ -317,10 +318,10 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx)
 // and using ModeIdx orders of scattering
 //////////////////////////////////////////////////////////////////////
 int sample::Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
-			  double *mu_x1, double *Edep)
+			  double *mu_x1, double *Edep, vect3 *prev_x)
 {
   *ModeIdx = ScattOrderIdx; // set the scattering order
-  return Out_Photon_x1(Photon, x1, mu_x1, Edep); // generate the event
+  return Out_Photon_x1(Photon, x1, mu_x1, Edep, prev_x); // generate the event
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -331,6 +332,17 @@ int sample::Out_Photon(photon *Photon, int *ModeIdx)
 {
   *ModeIdx = ScattOrderIdx; // set the scattering order
   return Out_Photon(Photon); // generate the event
+}
+
+//////////////////////////////////////////////////////////////////////
+// same as previous function but forces the photon to deposit energy
+// in the end point
+// and using ModeIdx orders of scattering
+//////////////////////////////////////////////////////////////////////
+int sample::Out_Photon(photon *Photon, int *ModeIdx, double *Edep)
+{
+  *ModeIdx = ScattOrderIdx; // set the scattering order
+  return Out_Photon(Photon, Edep); // generate the event
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -582,9 +594,9 @@ int sample::PhotonHistory(photon *Photon, int &Z, int &interaction_type,
 //////////////////////////////////////////////////////////////////////
 // generate an event with a photon forced to end on the point x1
 //////////////////////////////////////////////////////////////////////
-int sample::Out_Photon_x1(photon *Photon, vect3 x1)
+int sample::Out_Photon_x1(photon *Photon, vect3 x1, vect3 *prev_x)
 {
-  Out_Photon_x1(Photon, x1, ScattOrderIdx);
+  Out_Photon_x1(Photon, x1, ScattOrderIdx, prev_x);
   // divide the event weight by the multiplicity
   Photon->w /= PhotonNum[ScattOrderIdx];
 
@@ -594,7 +606,8 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1)
 //////////////////////////////////////////////////////////////////////
 // generate an event with a photon forced to end on the point x1
 //////////////////////////////////////////////////////////////////////
-int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
+int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order,
+			  vect3 *prev_x)
 {
   int Z, interaction_type;
   vect3 vr;
@@ -606,14 +619,18 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
   }
   if (scatt_order == 0) { // transmission
     // ask the source to generate photon directed torward the point x1
+    vect3 xs;
 #ifdef TIME_PERF
     clock_t cpu_time = clock();
 #endif
-    Source->Out_Photon_x1(Photon, x1);
+    Source->Out_Photon_x1(Photon, x1, &xs);
 #ifdef TIME_PERF
     soutphx1_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
 #endif
-    vr = x1 - Photon->x; // end position relative to photon starting position
+    Photon->x = xs; // send the photon back for now
+                    // for proper calculation of survival probability
+                    // done at the end of this method
+    vr = x1 - xs; // end position relative to photon starting position
     tmax = vr.Mod(); // maximum intersection distance
     vr.Normalize(); // normalized direction
 #ifdef TIME_PERF
@@ -662,9 +679,9 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
       double fact = tmax/r;
       vect3 dx = vr*fact;
       vect3 x0 = x1 - dx;
-
-      Out_Photon_x1(Photon, x0, scatt_order-1);
-      Photon->x = x0; // update the photon position
+      vect3 dummy_prev_x;
+      
+      Out_Photon_x1(Photon, x0, scatt_order-1, &dummy_prev_x);
 
       double mu_x1;
 #ifdef TIME_PERF
@@ -685,7 +702,7 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
 #endif
     // update the photon direction, polarization and energy
     // the photon is forced to go in the direction v_r
-    Photon->Scatter(Z, interaction_type, vr);
+    Photon->Scatter(Z, &interaction_type, vr);
 #ifdef TIME_PERF
     scatter_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
 #endif
@@ -710,7 +727,58 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
 #ifdef TIME_PERF
   psw_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
 #endif
-  //Photon->x = x1; // update the photon position
+  *prev_x = Photon->x;
+  Photon->x = x1; // update the photon position
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+// generate an event  up to the last interaction position
+// and evaluates the energy deposition
+//////////////////////////////////////////////////////////////////////
+int sample::Out_Photon(photon *Photon, double *Edep)
+{
+  int Z, interaction_type;
+
+#ifdef TIME_PERF
+  clock_t cpu_time = clock();
+#endif
+  Out_Photon(Photon);
+  if (Photon->w == 0) {
+    *Edep = 0;
+    return 0;
+  }
+  //double E0 = Photon->E;
+  if (ScattOrderIdx<ScattOrderNum-1) {
+    // Evaluates the photon next interaction type and position
+    Photon->MonteCarloStep(this, &Z, &interaction_type, Edep);
+  }
+  else {
+    /*
+    double E0 = Photon->E;
+    Photon->MonteCarloStep(this, &Z, &interaction_type);
+    if (Photon->w == 0) {
+      *Edep = 0;
+      return 0;
+    }
+    Photon->Scatter(Z, interaction_type);
+    *Edep = E0 - Photon->E;
+    // update absorption coefficients using the new energy value
+    if (interaction_type != COHERENT) Comp->Mu(Photon->E);
+    double Psurv=exp(-LinearAbsorption(Photon->x, Photon->uk));
+    *Edep += Photon->E*(1.0 - Psurv);
+    */
+    double E0 = Photon->E;
+    double w0 = Photon->w;
+    Photon->MonteCarloStep(this, &Z, &interaction_type, Edep);
+    Photon->w = w0;
+    *Edep = E0;
+  }
+#ifdef TIME_PERF
+  outph_time0 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+#endif
+  //throw xrmc_exception(string("Breakpoint\n"));
 
   return 0;
 }
@@ -719,14 +787,15 @@ int sample::Out_Photon_x1(photon *Photon, vect3 x1, int scatt_order)
 // generate an event with a photon forced to end on the point x1
 // and evaluates the energy deposition in x1
 //////////////////////////////////////////////////////////////////////
-int sample::Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1, double *Edep)
+int sample::Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1,
+			  double *Edep, vect3 *prev_x)
 {
   int Z, interaction_type;
 
 #ifdef TIME_PERF
   clock_t cpu_time = clock();
 #endif
-  Out_Photon_x1(Photon, x1);
+  Out_Photon_x1(Photon, x1, prev_x);
 #ifdef TIME_PERF
   outph_time0 += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
   cpu_time = clock();
@@ -889,21 +958,23 @@ int sample::PhCOff()
 }
 
 int sample::Out_Phase_Photon_x1(photon *Photon, vect3 x1, double &muL,
-				double &deltaL)
+				double &deltaL, vect3 *prev_x)
 {
   //int Z, interaction_type;
 
   //double tmax=0;
 
+  *prev_x = Source->X; //MUST use point source
+  vect3 dummy_prev_x;
   // ask the source to generate photon directed torward the point x1
-  Source->Out_Photon_x1(Photon, x1);
-
-  vect3 vr = x1 - Photon->x; // end position relative to photon start. position
+  Source->Out_Photon_x1(Photon, x1, &dummy_prev_x);
+  vect3 vr = x1 - Source->X; // end position relative to photon start. position
+                             //MUST use point source
   //tmax = vr.Mod(); // maximum intersection distance
   vr.Normalize(); // normalized direction
   Comp->Mu(Photon->E); // absorption coefficients at photon energy
   Comp->Delta(Photon->E); // delta coefficients at photon energy
-  Photon->uk = vr; // update the photon direction
+  Photon->uk = vr; // update the photon direction FORSE NON SERVE!
 
   LinearMuDelta(Source->X, vr); //MUST use point source
   // in the future take care of tmax as in LinearAbsorption
@@ -920,6 +991,7 @@ int sample::Out_Phase_Photon_x1(photon *Photon, vect3 x1, double &muL,
     muL = Path->MuL;
     deltaL = Path->DeltaL;
   }
+  Photon->x = x1; // update photon position
   
   return 0;
 }

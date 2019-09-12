@@ -516,8 +516,9 @@ int phcdetector::CloneAcquisition(int ie, int thread_idx,
 	 Rp = RandomPointOnPixel(ipix, rngs[thread_idx]);
 	 
 	 double muL, deltaL;
+	 vect3 dummy_prev_x;
 	 SampleClones[thread_idx]->Out_Phase_Photon_x1
-	   (&PhotonArray[thread_idx], Rp, muL, deltaL);
+	   (&PhotonArray[thread_idx], Rp, muL, deltaL, &dummy_prev_x);
 	 // Pgeom=0;
 	 if (PhotonArray[thread_idx].w != 0) { //check that weight is not 0
 	   // if pixel is elliptical, correct the weight

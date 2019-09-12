@@ -37,6 +37,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class sample;
 
+namespace scatter
+{
+  const static double Emin = 1;
+  const static double Emax = 1000;
+  const static int NZ = 98;
+  const static int NE = 500;
+  const static int Nth = 32;
+  const static int Nphi = 32;
+
+  static double *DCSP_Compt_arr;
+  static double *DCSP_Compt_cum;
+  static double *DCSP_Rayl_arr;
+  static double *DCSP_Rayl_cum;
+  const static double DE = (Emax-Emin)/NE;;
+  const static double Dth = PI/Nth;
+  const static double Dphi = PI/Nphi;
+  static int WeightedScattering;
+  int Init();
+  int ComptScatter(int Z, double E, double *th, double *phi, double *w,
+		   randmt_t *rng);
+  int RaylScatter(int Z, double E, double *th, double *phi, double *w,
+		  randmt_t *rng);
+
+}
+
 //////////////////////////////////////////////////////////////////////
 // Definition of the class photon with member variables and methods
 //////////////////////////////////////////////////////////////////////
@@ -60,6 +85,7 @@ class photon
 
   // Evaluates the photon next interaction type and position
   int MonteCarloStep(sample *Sample, int *iZ, int *iType);
+  int MonteCarloStep(sample *Sample, int *iZ, int *iType, double *Edep);
 
   // Evaluates energy deposition and mu at photon end point
   int EnergyDeposition(sample *Sample, int *iZ, int *iType, double *mu_x1,
@@ -85,7 +111,7 @@ class photon
   int Scatter(int Z, int interaction_type);
 
   // As before in case of forced direction
-  int Scatter(int Z, int interaction_type, vect3 v_r);
+  int Scatter(int Z, int *interaction_type, vect3 v_r);
 
   int Fluorescence(); // Fluorescent emission
   int Coherent(int Z); // Coherent (elastic) scattering

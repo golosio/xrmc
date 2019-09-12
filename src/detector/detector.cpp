@@ -41,6 +41,7 @@ extern double outph_time, soutph_time, mu_time0, scatter_time,
 double inters_time;
 #endif
 
+//#undef _OPENMP
 #ifdef _OPENMP
 #include <omp.h>
 #define THREAD_MAXNUM omp_get_max_threads()
@@ -210,12 +211,13 @@ int detectorarray::ForcedAcquisition(basesource **SourceClones,
 	  // get a photon from the source forcing it to terminate on the pixel
 	  // surface: 
 #ifdef TIME_PERF
-	    clock_t cpu_time = clock();
+	  clock_t cpu_time = clock();
 #endif
+	  vect3 dummy_prev_x;  
 	  SourceClones[THREAD_IDX]->Out_Photon_x1(&PhotonArray[THREAD_IDX], Rp,
-						  &mode_idx);
+						  &mode_idx, &dummy_prev_x);
 #ifdef TIME_PERF
-	    outph_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
+	  outph_time += (double)(clock() - cpu_time)/CLOCKS_PER_SEC;
 #endif
 	  if (PhotonArray[THREAD_IDX].w != 0) { // check that weight is not 0
 	    // if pixel is elliptical, correct the weight

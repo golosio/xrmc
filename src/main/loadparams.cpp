@@ -29,9 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xrmc_algo.h"
 #include "xrmc_gettoken.h"
 #include "xrmc_exception.h"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
+//#ifdef _OPENMP
+//#include <omp.h>
+//#endif
 
 using namespace std;
 using namespace gettoken;

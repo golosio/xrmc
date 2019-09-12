@@ -40,27 +40,43 @@ class basesource : public bodydevice, public phcdevice
   virtual int ModeNum() {return 1;} // number of modes
   virtual int Out_Photon(photon *) {return 0;} // generate an event
   // generate an event with a photon directed toward the position x1
-  virtual int Out_Photon_x1(photon *, vect3) {return 0;}
+  virtual int Out_Photon_x1(photon *, vect3, vect3*) {return 0;}
  // generate an event for a specified mode
   virtual int Out_Photon(photon *Photon, int *ModeIdx)
-    {*ModeIdx=0; return Out_Photon(Photon);}
-  // generate an event for a specified mode with a photon directed toward
-  // the position x1
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx)
-    {*ModeIdx=0; return Out_Photon_x1(Photon, x1);}  
+  {*ModeIdx=0; return Out_Photon(Photon);}
 
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1,
-			    double *Edep) {
-    *mu_x1 = 0;
+
+  virtual int Out_Photon(photon *Photon, double *Edep) {
     *Edep = 0;
     return 0;
   }
 
+  virtual int Out_Photon(photon *Photon, int *ModeIdx, double *Edep) {
+    *ModeIdx = 0;
+    *Edep = 0;
+    return 0;
+  }
+
+  // generate an event for a specified mode with a photon directed toward
+  // the position x1
   virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
-			    double *mu_x1, double *Edep) {
+			    vect3 *prev_x)
+  {*ModeIdx=0; return Out_Photon_x1(Photon, x1, prev_x);}  
+
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, double *mu_x1,
+			    double *Edep, vect3 *prev_x) {
+    *mu_x1 = 0;
+    *Edep = 0;
+    *prev_x = X;
+    return 0;
+  }
+
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, int *ModeIdx,
+			    double *mu_x1, double *Edep, vect3 *prev_x) {
     *ModeIdx = 0;
     *mu_x1 = 0;
     *Edep = 0;
+    *prev_x = X;
     return 0;
   }
 
@@ -101,7 +117,7 @@ class source : public basesource
   virtual int SetDefault(); // set default values for source parameters
   virtual int Out_Photon(photon *Photon); // generate an event
   // generate an event with a photon directed toward the position x1
-  virtual int Out_Photon_x1(photon *Photon, vect3 x1);
+  virtual int Out_Photon_x1(photon *Photon, vect3 x1, vect3 *prev_x);
   // maximum value of polar angle theta for a specified value of phi
   double CosThL(double phi);
   virtual double GetPhC_E0();
