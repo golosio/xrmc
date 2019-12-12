@@ -10,7 +10,7 @@ env:
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: xenial
       sudo: required
       #addons:
       #  apt:
@@ -31,13 +31,13 @@ matrix:
     #        - libxmimsim0-dev
     #        - libgsl0-dev # this line shouldn't be here and is an error in the fgsl debbuild files...
     - os: osx
-      osx_image: xcode9.2
+      osx_image: xcode11.2
       sudo: required
       env: BREW_EXTRA='llvm' CC='/usr/local/opt/llvm/bin/clang' CXX='/usr/local/opt/llvm/bin/clang++'
     - os: osx
-      osx_image: xcode9.2
+      osx_image: xcode11.2
       sudo: required
-      env: BREW_EXTRA='gcc@8' CC='/usr/local/bin/gcc-8' CXX='/usr/local/bin/g++-8'
+      env: BREW_EXTRA='gcc@9' CC='/usr/local/bin/gcc-9' CXX='/usr/local/bin/g++-9'
 
 before_install:
   - |
