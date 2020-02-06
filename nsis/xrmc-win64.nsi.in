@@ -23,11 +23,11 @@
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define MY_HOME "C:\msys64\home\schoon\"
 !define MY_MINGW "C:\msys64\mingw64\"
-!define XRAYLIB_VERSION "3.3.0"
-!define XRAYLIB_VERSION_MIN "3.3.0"
+!define XRAYLIB_VERSION "4.0.0"
+!define XRAYLIB_VERSION_MIN "4.0.0"
 
-!define XMI_MSIM_VERSION "7.1"
-!define XMI_MSIM_VERSION_MIN "7.1"
+!define XMI_MSIM_VERSION "8.0"
+!define XMI_MSIM_VERSION_MIN "8.0"
 
 
 
@@ -237,7 +237,7 @@ ${If} $0 == "OK"
 	Goto xraylib_install
 ${Else}
 	#try to get it from S3
-	inetc::get /NOCANCEL "http://xraylib.tomschoonjans.eu/xraylib-${XRAYLIB_VERSION}-win64.exe" "xraylib-${XRAYLIB_VERSION}-win64.exe"
+	inetc::get /NOCANCEL "https://xraylib.tomschoonjans.eu/xraylib-${XRAYLIB_VERSION}-win64.exe" "xraylib-${XRAYLIB_VERSION}-win64.exe"
 	Pop $0
 	${If} $0 == "OK"
 		Goto xraylib_install
@@ -324,7 +324,7 @@ ${ElseIf} $R1 == 1
 	DetailPrint "XMI-MSIM is already installed"
 	Goto xmi_msim_end 
 ${ElseIf} $R1 == 2
-	MessageBox MB_OK "The version of XMI-MSIM that was found on this system is incompatible with this release of XRMC. The correct version of XMI-MSIMwill now be downloaded and installed."
+	MessageBox MB_OK "The version of XMI-MSIM that was found on this system is incompatible with this release of XRMC. The correct version of XMI-MSIM will now be downloaded and installed."
 	Goto xmi_msim
 ${Else}
 	MessageBox MB_OK "Invalid value in VersionCompare. Aborting"
@@ -339,7 +339,7 @@ ${If} $0 == "OK"
 	Goto xmi_msim_install
 ${Else}
 	#try to get it from S3
-	inetc::get /NOCANCEL "http://xmi-msim.s3.amazonaws.com/XMI-MSIM-${XMI_MSIM_VERSION}-win64.exe" "XMI-MSIM-${XMI_MSIM_VERSION}-win64.exe"
+	inetc::get /NOCANCEL "https://xmi-msim.tomschoonjans.eu/XMI-MSIM-${XMI_MSIM_VERSION}-win64.exe" "XMI-MSIM-${XMI_MSIM_VERSION}-win64.exe"
 	Pop $0
 	${If} $0 == "OK"
 		Goto xmi_msim_install
