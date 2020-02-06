@@ -1,4 +1,4 @@
-xrmc_exampledir = $(datadir)/examples/xrmc/xmi-msim2
+xrmc_exampledir = $(datadir)/xrmc/examples/xmi-msim2
 
 dist_xrmc_example_DATA = composition.dat detector.dat geom3d.dat input.dat quadric.dat sample.dat source.dat spectrum_ebel.dat transmission-efficiency.txt
 

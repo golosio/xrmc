@@ -1,4 +1,4 @@
-xrmc_exampledir = $(datadir)/examples/xrmc/anisotropicsource
+xrmc_exampledir = $(datadir)/xrmc/examples/anisotropicsource
 
 dist_xrmc_example_DATA = anisotropicsource.dat composition.dat detector.dat geom3d.dat input.dat intensityscreen.dat intensityscreen_image.c quadric.dat sample.dat spectrum.dat make.sh README intensityscreen_image.dat intensityscreen_image_py.dat intensityscreen_image.py
 

@@ -1,4 +1,4 @@
-xrmc_exampledir = $(datadir)/examples/xrmc/star1
+xrmc_exampledir = $(datadir)/xrmc/examples/star1
 
 dist_xrmc_example_DATA = composition.dat detector.dat geom3d.dat input.dat quadric.dat sample.dat source.dat spectrum.dat
 
