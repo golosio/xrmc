@@ -79,6 +79,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	xd->nchannels = NBins;
 
 	input = xmi_input_init_empty();
+	input->general->outputfile = strdup("non-existent-file.xmso");
 
 	//modify input
 	//put in one layer into composition
