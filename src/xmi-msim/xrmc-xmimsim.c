@@ -79,6 +79,7 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	xd->nchannels = NBins;
 
 	input = xmi_input_init_empty();
+	input->general->outputfile = strdup("non-existent-file.xmso");
 
 	//modify input
 	//put in one layer into composition
@@ -104,29 +105,39 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 
 	//detector
 	xmi_detector_free(input->detector);
-	input->detector = xd;
-
-
+	xmi_detector_copy(xd, &input->detector);
+	if (options->use_sum_peaks == 0)
+		input->detector->pulse_width = 1.0;
 	
 	xmi_input_print(input, stdout);
 
-	//get full path to XMI-MSIM HDF5 data file
-	if (xmi_get_hdf5_data_file(&hdf5_file) == 0) {
+	XmiInputFlags validation = xmi_input_validate(input);
+	if (validation != 0) {
+		g_fprintf(stderr, "Input is invalid: %d\n", validation);
 		return 0;
 	}
 
-
+	//get full path to XMI-MSIM HDF5 data file
+	if (xmi_get_hdf5_data_file(&hdf5_file) == 0) {
+		g_fprintf(stderr, "Could not get XMI-MSIM HDF5 data location\n");
+		return 0;
+	}
 
 	//read escape ratios
-	if (xmi_get_escape_ratios_file(&xmimsim_hdf5_escape_ratios, 1) == 0)
+	if (xmi_get_escape_ratios_file(&xmimsim_hdf5_escape_ratios, 1) == 0) {
+		g_fprintf(stderr, "Could not get XMI-MSIM HDF5 escape ratios location\n");
 		return 0;
+	}
 
 	if (options->verbose)
-		g_fprintf(stdout,"Querying %s for escape peak ratios\n",xmimsim_hdf5_escape_ratios);
+		g_fprintf(stderr,"Querying %s for escape peak ratios\n", xmimsim_hdf5_escape_ratios);
 
 	//check if escape ratios are already precalculated
-	if (xmi_find_escape_ratios_match(xmimsim_hdf5_escape_ratios , input, &escape_ratios_def, options) == 0)
+	if (xmi_find_escape_ratios_match(xmimsim_hdf5_escape_ratios , input, &escape_ratios_def, options) == 0) {
+		g_fprintf(stderr, "xmi_find_escape_ratios_match returned an error\n");
 		return 0;
+	}
+
 	if (escape_ratios_def == NULL) {
 		if (options->verbose)
 			g_fprintf(stdout,"Precalculating escape peak ratios\n");

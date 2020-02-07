@@ -1,4 +1,4 @@
-xrmc_exampledir = $(datadir)/examples/xrmc/beamsource
+xrmc_exampledir = $(datadir)/xrmc/examples/beamsource
 
 dist_xrmc_example_DATA = beamsource.dat composition.dat detector.dat geom3d.dat input.dat input_spectrum.dat beamscreen.dat beamscreen_image.c quadric.dat sample.dat make.sh README spectrum_detector.dat
 

@@ -1,4 +1,4 @@
-xrmc_exampledir = $(datadir)/examples/xrmc/fluor_layers
+xrmc_exampledir = $(datadir)/xrmc/examples/fluor_layers
 
 dist_xrmc_example_DATA = spectrumAg40kV.dat input.dat composition.dat quadric.dat continuous_spectrum.dat detector_0deg.dat geom3d.dat sample.dat source_20deg.dat detector_response.c detector_routines.c detector_routines.h experimental.dat make.sh oct_plot.m README
 

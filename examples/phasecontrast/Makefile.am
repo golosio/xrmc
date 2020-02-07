@@ -1,4 +1,4 @@
-xrmc_exampledir = $(datadir)/examples/xrmc/phasecontrast
+xrmc_exampledir = $(datadir)/xrmc/examples/phasecontrast
 
 dist_xrmc_example_DATA = composition.dat phcdetector.dat geom3d.dat input.dat quadric.dat sample.dat source.dat spectrum.dat
 
