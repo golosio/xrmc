@@ -57,6 +57,7 @@ class detectorarray : public xrmc_screen
  // save the acquired image in a file
   virtual int SaveData(std::string data_name, std::string file_name);
   virtual int SaveData(double ***image, string file_name);
+  virtual int SaveImageMetaHeaderData(string file_name);
 
  // save the acquired image in a ascii file
   virtual int SaveAsciiData(double ***image, std::string file_name);
@@ -79,6 +80,7 @@ class detectorarray : public xrmc_screen
   int HeaderFlag; // enable/disable writing header in output file
   int AsciiFlag; //  // binary(0) or ascii(1) output file format
   int ConvolveFlag; // generates convoluted image (0/1)
+  int MhdFlag; // generate MetaImageHeader file for binary raw image
   //int RunningFasterFlag; //columns(0) or rows(1) running faster
   int PixelType; // pixel content type:
                  // 0: fluence,      1: energy fluence,

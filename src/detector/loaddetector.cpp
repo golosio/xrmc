@@ -141,6 +141,11 @@ int detectorarray::Load(istream &fs)
       cout << "Binary(0) or ascii(1) output file format: " << AsciiFlag
 	   << "\n"; 
     }
+    else if(comm=="MhdFlag") { // whether generate(1) or not(0) *.mhd file for raw image
+      GetIntToken(fs, &MhdFlag);
+      cout << "Whether generate(1) or not(0) *.mhd file for raw image: " << MhdFlag
+	   << "\n"; 
+    }
     /*
     else if(comm=="RunningFasterFlag") { //columns(0) or rows(1) running faster
       GetIntToken(fs, &RunningFasterFlag);
@@ -244,10 +249,17 @@ int detectorarray::SaveData(string data_name, string file_name)
     throw xrmc_exception
       (string("Error: detectorarray device can only save data of type ")
        + SaveDataName[0] + " or " + SaveDataName[1] + "\n");  
-  else if (data_name==SaveDataName[0])
+  else if (data_name==SaveDataName[0]) {
     SaveData(Image, file_name) ; 
-  else
-    SaveData(ConvolutedImage, file_name) ; 
+  }
+  else {
+    SaveData(ConvolutedImage, file_name) ;
+  }
+  if (MhdFlag)
+  {
+    // generate meta header file for a single raw image
+    SaveImageMetaHeaderData(file_name) ;
+  }
 
   return 0;
 }
@@ -283,6 +295,50 @@ int detectorarray::SaveData(double ***image, string file_name)
   fwrite(image[0][0], sizeof(double), ModeNum*NX*NY*NBins, fp);
     
   fclose(fp);
+
+  return 0;
+}
+
+int detectorarray::SaveImageMetaHeaderData(string file_name)
+{
+  if (AsciiFlag != 0 || Shape != 0 || NBins != 1 || ModeNum != 1)
+  {
+    return 0;
+  }
+
+  string mhd_name;
+  size_t pos = file_name.find_last_of('.');
+  if (pos < file_name.size() && file_name.substr(pos).size() == 4)
+  {
+    mhd_name = file_name.substr( 0, pos) + ".mhd";
+  }
+  else if (pos < file_name.size())
+  {
+    mhd_name = file_name + ".mhd";
+  }
+
+  if (mhd_name.empty())
+  {
+    return 0;
+  }
+
+  ofstream ofs(mhd_name.c_str());
+  if (!ofs)
+    throw xrmc_exception("Output image meta header file cannot be open.\n");
+
+  ofs << "NDims = " << 2 << endl;
+  ofs << "DimSize = " << NX << ' ' << NY << endl;
+  ofs << "ElementSpacing = " << PixelSizeX << ' ' << PixelSizeY << endl;
+  ofs << "Position = 0 0" << endl;
+  ofs << "BinaryData = True" << endl;
+  ofs << "ElementByteOrderMSB = False" << endl;
+  ofs << "ElementType = MET_DOUBLE" << endl;
+  if (HeaderFlag == 1) {
+    ofs << "HeaderSize = 60" << endl;
+  }
+  ofs << "ElementDataFile = " << file_name << endl;
+
+  ofs.close();
 
   return 0;
 }
@@ -338,6 +394,7 @@ int detectorarray::SetDefault()
   RoundFlag = 0;   // pixel counts round to integer disabled
   HeaderFlag = 0; // header in output file disabled
   AsciiFlag = 0; // Default output format is binary 
+  MhdFlag = 0; // do not generate *.mhd file for a raw image
   //RunningFasterFlag = 0; // columns running faster than rows in output file
   ForceDetectFlag = 1; //Photon forced to be detected 
   ConvolveFlag = 0; // do not generate convolved image

@@ -16,6 +16,7 @@ endif
 clean-local:
 	rm -f xrmc.sh
 	rm -f image.dat
+	rm -f image.mhd
 if !ABS_SRC_BUILD_EQUAL
 	rm -f $(dist_xrmc_example_DATA)
 endif
