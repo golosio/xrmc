@@ -98,8 +98,10 @@ G_MODULE_EXPORT int xmi_msim_detector_convolute(double ***Image, double ***Convo
 	input->absorbers = (xmi_absorbers *) malloc(sizeof(xmi_absorbers));
 	input->absorbers->n_exc_layers = 0;
 	input->absorbers->exc_layers = NULL;
-	if (det_absorber != NULL) {
-		input->absorbers->det_layers = det_absorber;
+	input->absorbers->det_layers = det_absorber;
+	if (det_absorber == NULL) {
+		input->absorbers->n_det_layers = 0;
+	} else {
 		input->absorbers->n_det_layers = 1;
 	}
 
